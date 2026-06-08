@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none" role="img" aria-label="Bali Tech">
+  <rect x="2" y="10" width="44" height="44" rx="10" fill="#f28c28"/>
+  <path d="M18 22h12v4H24v16h-6V22z" fill="#000"/>
+  <text x="58" y="42" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" letter-spacing="-1" fill="#f28c28">BALI</text>
+  <text x="148" y="42" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" letter-spacing="-1" fill="#ffffff">TECH</text>
+  <circle cx="136" cy="36" r="3" fill="#f28c28"/>
+</svg>

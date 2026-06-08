@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bali Tech Pvt. Ltd — Website
+
+Professional outsourcing landing page with admin panel for leads and campaign management.
+
+## Tech Stack
+
+- **Next.js 16** (App Router)
+- **Tailwind CSS 4**
+- **Prisma + MySQL** (XAMPP)
+- **JWT authentication** for admin
+
+## Prerequisites
+
+- **XAMPP** with MySQL running (Apache not required for dev)
+- Node.js 18+
 
 ## Getting Started
 
-First, run the development server:
+1. Start **MySQL** in the XAMPP Control Panel.
+
+2. Create the database (if it does not exist):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS balitech;"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Install and set up the project:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run db:push
+npm run db:seed
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) for the website.
 
-## Learn More
+## Admin Panel
 
-To learn more about Next.js, take a look at the following resources:
+- URL: [http://localhost:3000/admin](http://localhost:3000/admin)
+  - Not logged in → redirects to login
+  - Logged in → redirects to leads dashboard
+- Login: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+- Default credentials (from `.env`):
+  - Email: `admin@balitech.com`
+  - Password: `admin123`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Admin Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Leads** — View and manage contact form submissions
+- **Campaigns** — Create, edit, delete strategic campaigns shown on the homepage
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Copy `.env.example` to `.env` and update as needed:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+DATABASE_URL="mysql://root@localhost:3306/balitech"
+JWT_SECRET="your-secret-key"
+ADMIN_EMAIL="admin@balitech.com"
+ADMIN_PASSWORD="admin123"
+```
+
+If your XAMPP MySQL has a password, use:
+
+```
+DATABASE_URL="mysql://root:YOUR_PASSWORD@localhost:3306/balitech"
+```
+
+## Project Structure
+
+```
+src/
+  app/              # Pages and API routes
+  components/
+    landing/        # Homepage sections
+    admin/          # Admin dashboard components
+  lib/              # Auth, Prisma, utilities
+prisma/
+  schema.prisma     # Database models
+  seed.ts           # Default admin & campaigns
+```
