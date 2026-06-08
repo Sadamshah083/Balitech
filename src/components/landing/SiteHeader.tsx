@@ -85,11 +85,8 @@ export default function SiteHeader() {
     <header
       ref={headerRef}
       className={cn(
-        "site-navbar fixed left-0 right-0 top-0 z-50 transition-[background,backdrop-filter,box-shadow,border-color] duration-300",
-        isHome ? "site-header-bar-hero" : "site-header-bar-page",
-        scrolled || mobileOpen || !isHome
-          ? "site-navbar-scrolled border-b border-orange/20 bg-background/90 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-md"
-          : "bg-transparent"
+        "site-navbar site-navbar-pro fixed left-0 right-0 top-0 z-50 transition-[background,backdrop-filter,box-shadow,border-color] duration-300",
+        scrolled || mobileOpen ? "site-navbar-scrolled" : ""
       )}
     >
       <div className="mx-auto flex max-w-[1600px] items-center gap-4 px-4 py-4 sm:px-8 lg:px-12 lg:py-5">
@@ -98,20 +95,8 @@ export default function SiteHeader() {
             <span className="hero-brand-bali relative text-lg font-black uppercase tracking-tight text-orange sm:text-xl">
               Bali
             </span>
-            <span
-              className={cn(
-                "text-base font-light",
-                isHome && !scrolled ? "site-header-hero-muted" : "text-muted"
-              )}
-            >
-              •
-            </span>
-            <span
-              className={cn(
-                "hero-brand-tech relative text-lg font-black uppercase tracking-tight sm:text-xl",
-                isHome && !scrolled ? "site-header-hero-text" : "text-foreground"
-              )}
-            >
+            <span className="text-base font-light text-muted">•</span>
+            <span className="hero-brand-tech relative text-lg font-black uppercase tracking-tight text-foreground sm:text-xl">
               Tech
             </span>
           </div>
@@ -124,6 +109,7 @@ export default function SiteHeader() {
           {allLinks.map((link) => {
             const active = isActive(pathname, link.href);
             const isJoin = link.href === joinUsHref;
+            const isContact = link.href === "/#contact";
 
             return (
               <Link
@@ -133,11 +119,11 @@ export default function SiteHeader() {
                   "nav-link rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] transition-colors xl:px-4 xl:text-xs",
                   active
                     ? "bg-orange/15 text-orange"
-                    : isJoin
-                      ? "text-orange hover:bg-orange hover:text-on-primary"
-                      : isHome && !scrolled
-                        ? "site-header-hero-text/85 hover:text-orange"
-                        : "text-foreground/80 hover:text-orange"
+                    : isContact
+                      ? "border border-orange/50 text-orange hover:bg-orange/10"
+                      : isJoin
+                        ? "text-orange hover:bg-orange hover:text-on-primary"
+                        : "text-foreground/85 hover:bg-orange/10 hover:text-orange"
                 )}
               >
                 {link.label}
@@ -147,14 +133,11 @@ export default function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <p
-            className={cn(
-              "hidden text-[10px] font-medium tracking-[0.2em] md:block lg:text-xs",
-              isHome && !scrolled ? "site-header-hero-muted" : "text-muted"
-            )}
-          >
-            Rawalpindi · {mounted ? time : "--:--"}
-          </p>
+          {!isHome && (
+            <p className="hidden text-[10px] font-medium tracking-[0.2em] text-muted md:block lg:text-xs">
+              Rawalpindi · {mounted ? time : "--:--"}
+            </p>
+          )}
 
           <ThemeToggle />
 
@@ -222,6 +205,14 @@ export default function SiteHeader() {
                     </li>
                   );
                 })}
+                <li className="mt-2 border-t border-orange/15 pt-3">
+                  <div className="flex items-center justify-between rounded-xl px-4 py-3">
+                    <span className="text-sm font-bold uppercase tracking-wider text-foreground/80">
+                      Theme
+                    </span>
+                    <ThemeToggle showLabel />
+                  </div>
+                </li>
               </ul>
             </motion.nav>
           </>

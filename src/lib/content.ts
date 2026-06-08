@@ -6,13 +6,34 @@ export const companyContent = {
 
   about: {
     label: "About BALITECH",
-    title: "Operational Excellence, Professional Growth",
+    title: "Operational Excellence & Professional Growth",
     description:
-      "BALITECH is a rapidly growing organization dedicated to operational excellence, employee development, and delivering high-quality client services. With a strong focus on professionalism, innovation, and performance, BALITECH continues to build a dynamic work environment that supports both business success and career growth.",
+      "BALITECH is a rapidly growing BPO organization dedicated to operational excellence, employee development, and delivering high-quality client services. With a strong focus on professionalism, innovation, and performance, BALITECH continues to build a dynamic work environment that supports both business success and career growth.",
+    historyLabel: "History",
+    historyHeadline: "From 7 People to 400+ Professionals",
+    goalsLabel: "Goals",
     history: [
       "BALITECH was established in April 2022 with a vision, determination, and a small team of only 7 people. The company began with a single setup of 40 agents and gradually evolved through hard work, consistency, and continuous improvement.",
       "Despite early challenges, BALITECH remained focused on building strong teams, developing leadership, and creating a professional organizational structure. Through dedication and resilience, the company successfully expanded into a recognized and fast-growing BPO organization.",
       "Today, BALITECH proudly operates with more than 400 employees and manages multiple successful international campaigns while continuing to expand its operations and workforce nationwide.",
+    ],
+    showcaseLabel: "Inside BALITECH",
+    showcaseHeadline: "Built for Performance. Designed for People.",
+    showcaseIntro:
+      "How BALITECH combines professional operations, team development, and scalable delivery at every stage of growth.",
+    showcase: [
+      {
+        title: "Professional Work Environment",
+        text: "Structured operations, modern facilities, and a culture focused on performance, accountability, and client delivery excellence.",
+      },
+      {
+        title: "People-First Development",
+        text: "Training, mentorship, and leadership pathways that help teams grow skills, confidence, and long-term careers within the organization.",
+      },
+      {
+        title: "Scalable Operations",
+        text: "From a 7-person founding team to 400+ professionals nationwide — built on consistency, compliance, and operational discipline.",
+      },
     ],
   },
 
@@ -36,6 +57,40 @@ export const companyContent = {
     "Strengthen company hierarchy and operational structure",
     "Continue expansion through new projects and partnerships",
   ],
+
+  goalsHierarchy: {
+    root: {
+      title: "BALITECH",
+      subtitle: "Organizational Structure & Goals",
+    },
+    branches: [
+      {
+        id: "culture",
+        title: "Culture & People",
+        items: [
+          { index: 1, text: "Build a strong and professional workplace culture" },
+          { index: 2, text: "Develop skilled and high-performing professionals" },
+          { index: 3, text: "Create leadership and career growth opportunities" },
+        ],
+      },
+      {
+        id: "operations",
+        title: "Operational Excellence",
+        items: [
+          { index: 4, text: "Maintain operational excellence and compliance standards" },
+          { index: 5, text: "Strengthen company hierarchy and operational structure" },
+        ],
+      },
+      {
+        id: "growth",
+        title: "Growth & Expansion",
+        items: [
+          { index: 6, text: "Expand ACA, Medicare, and Final Expense campaigns nationwide" },
+          { index: 7, text: "Continue expansion through new projects and partnerships" },
+        ],
+      },
+    ],
+  },
 
   achievements: {
     label: "Achievements",
@@ -200,6 +255,8 @@ export const companyContent = {
   career: {
     title: "Step Into A Growth-Driven Career Opportunity",
     description:
-      "Join BALITECH and build a rewarding career with one of the fastest-growing organizations in the industry.",
+      "Join BALITECH and build a rewarding career with one of the fastest-growing BPO organizations in the industry.",
+    salary:
+      "Salary: Competitive, based on experience and interview performance.",
   },
 } as const;

@@ -21,6 +21,9 @@ export default function CareerCTA() {
         <p className="mb-8 mt-6 text-muted">
           {career.description}
         </p>
+        <p className="mb-8 text-sm font-semibold text-orange sm:text-base">
+          {career.salary}
+        </p>
         <a
           href="/join-us#contact"
           className="btn-primary inline-block rounded-full px-10 py-4 text-base font-bold uppercase tracking-wider text-on-primary"

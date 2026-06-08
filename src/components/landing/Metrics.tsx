@@ -43,6 +43,10 @@ export default function Metrics() {
             </li>
           ))}
         </ul>
+
+        <p className="mx-auto mt-10 max-w-2xl text-center text-sm font-semibold text-orange sm:text-base">
+          {companyContent.career.salary}
+        </p>
       </div>
     </section>
   );

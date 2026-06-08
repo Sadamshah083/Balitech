@@ -4,33 +4,40 @@ import SitePage from "@/components/layout/SitePage";
 import PageBanner from "@/components/layout/PageBanner";
 import CareerCTA from "@/components/landing/CareerCTA";
 import ContactForm from "@/components/landing/ContactForm";
+import { companyContent } from "@/lib/content";
 import { siteImages } from "@/lib/images";
 
 export const metadata: Metadata = {
-  title: "Join Us | Bali Tech Pvt. Ltd",
-  description: "Build your career at Islamabad's leading call center.",
+  title: "Join Us | BALITECH",
+  description:
+    "Build your career at BALITECH — competitive salary based on experience and interview performance.",
 };
+
+const { career } = companyContent;
 
 const benefits = [
   {
     icon: TrendingUp,
     title: "Career Growth",
-    description: "Clear promotion paths and performance-based rewards.",
+    description:
+      "Create leadership and career growth opportunities across nationwide campaigns.",
   },
   {
     icon: GraduationCap,
     title: "Training Programs",
-    description: "Ongoing coaching to sharpen your sales and support skills.",
+    description:
+      "Develop skilled and high-performing professionals through ongoing coaching.",
   },
   {
     icon: Users,
-    title: "Great Culture",
-    description: "A supportive team environment with regular events.",
+    title: "Professional Culture",
+    description:
+      "Build a strong and professional workplace culture with team recognition.",
   },
   {
     icon: Briefcase,
-    title: "Stable Income",
-    description: "Competitive salary packages with incentives and bonuses.",
+    title: "Competitive Salary",
+    description: career.salary,
   },
 ];
 
@@ -39,14 +46,17 @@ export default function JoinUsPage() {
     <SitePage>
       <PageBanner
         title="Join Us"
-        subtitle="Start a rewarding career with Bali Tech — we're always looking for talent."
+        subtitle="Start a rewarding career with BALITECH — we're always looking for talent."
         image={siteImages.career}
       />
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-10 text-center text-3xl font-bold text-foreground">
-            Why Work With Bali Tech?
+          <h2 className="mb-4 text-center text-3xl font-bold text-foreground">
+            Why Work With BALITECH?
           </h2>
+          <p className="mx-auto mb-10 max-w-2xl text-center text-muted">
+            {career.description}
+          </p>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {benefits.map((item) => (
               <div

@@ -24,12 +24,12 @@ export default function CEOWords() {
         <BentoTilt className="mb-6">
           <div className="glow-border overflow-hidden rounded-2xl">
             <div className="grid md:grid-cols-2">
-              <div className="relative h-72 md:h-auto md:min-h-[380px]">
+              <div className="relative h-80 md:h-auto md:min-h-[420px]">
                 <Image
                   src={ceo.image}
                   alt={`${ceo.name}, ${ceo.title} of ${ceo.company}`}
                   fill
-                  className="object-cover object-top"
+                  className="object-cover object-[center_20%]"
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />

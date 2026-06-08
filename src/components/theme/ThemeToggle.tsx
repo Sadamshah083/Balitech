@@ -2,27 +2,42 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { cn } from "@/lib/cn";
 
-export default function ThemeToggle() {
+type ThemeToggleProps = {
+  showLabel?: boolean;
+  className?: string;
+};
+
+export default function ThemeToggle({
+  showLabel = false,
+  className,
+}: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={isDark}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       onClick={toggleTheme}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      className="theme-toggle inline-flex items-center gap-2 rounded-full border border-orange/40 px-3 py-2 text-xs font-bold uppercase tracking-wider text-orange transition hover:border-orange hover:bg-orange/10"
+      className={cn(
+        "theme-switch",
+        isDark ? "theme-switch--dark" : "theme-switch--light",
+        className
+      )}
     >
-      {theme === "dark" ? (
-        <>
-          <Sun size={14} aria-hidden />
-          <span className="hidden sm:inline">Light</span>
-        </>
-      ) : (
-        <>
-          <Moon size={14} aria-hidden />
-          <span className="hidden sm:inline">Dark</span>
-        </>
+      <span className="theme-switch__track" aria-hidden>
+        <Sun size={14} className="theme-switch__icon theme-switch__icon--sun" />
+        <Moon size={14} className="theme-switch__icon theme-switch__icon--moon" />
+        <span className="theme-switch__thumb" />
+      </span>
+      {showLabel && (
+        <span className="theme-switch__label">
+          {isDark ? "Dark mode" : "Light mode"}
+        </span>
       )}
     </button>
   );

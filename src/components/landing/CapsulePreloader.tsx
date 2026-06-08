@@ -27,7 +27,10 @@ export default function CapsulePreloader() {
 
       gsap.set(chars, { xPercent: 100 });
       gsap.set(lines, { yPercent: 100 });
-      gsap.set(".capsule-preloader-bar", { scaleX: 0 });
+      gsap.set(".capsule-preloader-lamp-cone", { scaleY: 0, opacity: 0 });
+      gsap.set(".capsule-preloader-lamp-pool", { scale: 0.3, opacity: 0 });
+      gsap.set(".capsule-preloader-lamp-shade-glow", { opacity: 0.1 });
+      gsap.set(".capsule-preloader-lamp-bulb", { opacity: 0.15, scale: 0.85 });
 
       const progress = () => {
         const tl = gsap.timeline();
@@ -38,11 +41,42 @@ export default function CapsulePreloader() {
           const target =
             i === steps - 1 ? 1 : Math.min(current + Math.random() * 0.3 + 0.1, 0.9);
           current = target;
-          tl.to(".capsule-preloader-bar", {
-            scaleX: target,
-            duration: 1.1,
-            ease: "power3.out",
-          });
+
+          tl.to(
+            ".capsule-preloader-lamp-cone",
+            {
+              scaleY: target,
+              opacity: 0.2 + target * 0.75,
+              duration: 1.1,
+              ease: "power3.out",
+            },
+            "<"
+          )
+            .to(
+              ".capsule-preloader-lamp-pool",
+              {
+                scale: 0.3 + target * 0.95,
+                opacity: 0.2 + target * 0.8,
+                duration: 1.1,
+                ease: "power3.out",
+              },
+              "<"
+            )
+            .to(
+              ".capsule-preloader-lamp-shade-glow",
+              { opacity: 0.1 + target * 0.9, duration: 1.1, ease: "power2.out" },
+              "<"
+            )
+            .to(
+              ".capsule-preloader-lamp-bulb",
+              {
+                opacity: 0.15 + target * 0.85,
+                scale: 0.85 + target * 0.15,
+                duration: 1.1,
+                ease: "power2.out",
+              },
+              "<"
+            );
         }
 
         return tl;
@@ -90,7 +124,7 @@ export default function CapsulePreloader() {
           "-=0.15"
         )
         .to(
-          ".capsule-preloader-progress",
+          ".capsule-preloader-lamp",
           { opacity: 0, duration: 0.6, ease: "power3.out" },
           "-=0.1"
         )
@@ -99,11 +133,7 @@ export default function CapsulePreloader() {
           { scale: 6, duration: 3.2, ease: "power3.out" },
           "<"
         )
-        .to(
-          ".capsule-preloader-mask",
-          { opacity: 0, duration: 0.5 },
-          "-=0.4"
-        );
+        .to(".capsule-preloader-mask", { opacity: 0, duration: 0.5 }, "-=0.4");
     },
     { scope: rootRef, dependencies: [show] }
   );
@@ -117,7 +147,33 @@ export default function CapsulePreloader() {
       aria-hidden
     >
       <div className="capsule-preloader-progress">
-        <div className="capsule-preloader-bar" />
+        <div className="capsule-preloader-lamp" aria-hidden>
+          <div className="capsule-preloader-lamp-cone" />
+
+          <div className="capsule-preloader-lamp-body">
+            <div className="capsule-preloader-lamp-shade">
+              <div className="capsule-preloader-lamp-shade-outer" />
+              <div className="capsule-preloader-lamp-shade-inner" />
+              <div className="capsule-preloader-lamp-shade-rim" />
+              <div className="capsule-preloader-lamp-shade-glow" />
+              <div className="capsule-preloader-lamp-bulb" />
+            </div>
+
+            <div className="capsule-preloader-lamp-harp" />
+
+            <div className="capsule-preloader-lamp-pole">
+              <div className="capsule-preloader-lamp-pole-shine" />
+            </div>
+
+            <div className="capsule-preloader-lamp-base">
+              <div className="capsule-preloader-lamp-base-top" />
+              <div className="capsule-preloader-lamp-base-foot" />
+            </div>
+          </div>
+
+          <div className="capsule-preloader-lamp-pool" />
+        </div>
+
         <div className="capsule-preloader-logo">
           <h1>
             {BRAND.split("").map((char, i) => (

@@ -10,7 +10,11 @@ import { getCampaignIcon } from "@/lib/icons";
 
 const { programs } = companyContent;
 
-const displayCampaigns = programs.items.map((item, index) => ({
+const CAMPAIGNS_DISPLAY_LIMIT = 6;
+
+const displayCampaigns = programs.items
+  .slice(0, CAMPAIGNS_DISPLAY_LIMIT)
+  .map((item, index) => ({
   id: `program-${index}`,
   title: item.title,
   description: item.description,
