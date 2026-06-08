@@ -106,21 +106,26 @@ export default function Hero() {
         </div>
 
         <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6 text-center">
-          <h1 className="hero-center-item hero-title-theme text-4xl font-black uppercase tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            Outsourc<span className="text-orange">i</span>ng
+          <p className="hero-center-item brand-label mb-4">{companyContent.hero.label}</p>
+          <h1 className="hero-center-item hero-title-theme text-3xl font-black uppercase tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+            {companyContent.hero.titleLine1}
             <br />
-            Redefi<span className="text-orange">n</span>ed
+            {companyContent.hero.titleLine2}
           </h1>
 
-          <p className="hero-center-item hero-subtitle-theme mt-4 max-w-md text-sm sm:max-w-lg sm:text-base md:text-lg">
+          <p className="hero-center-item hero-subtitle-theme mx-auto mt-5 max-w-2xl text-sm leading-relaxed sm:text-base md:text-lg">
             {companyContent.hero.subtitle}
+          </p>
+
+          <p className="hero-center-item mt-4 text-sm font-semibold italic text-orange sm:text-base">
+            &ldquo;{companyContent.hero.tagline}&rdquo;
           </p>
 
           <Link
             href="#contact"
             className="hero-center-item btn-primary mt-8 inline-flex items-center gap-2 rounded-full px-10 py-4 text-sm font-bold uppercase tracking-[0.2em] sm:text-base"
           >
-            Contact US
+            Contact Us
           </Link>
         </div>
       </div>

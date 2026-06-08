@@ -308,6 +308,20 @@ body {
   background: transparent;
 }
 
+.site-navbar-scrolled {
+  background: color-mix(in srgb, var(--background) 92%, transparent);
+}
+
+[data-theme="light"] .site-navbar-scrolled {
+  background: color-mix(in srgb, var(--background) 94%, transparent);
+}
+
+.nav-link:focus-visible,
+.mobile-nav-link:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
 .site-header-bar-hero,
 .site-header-bar-page {
   background: transparent;

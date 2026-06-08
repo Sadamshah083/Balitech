@@ -189,9 +189,12 @@ export const companyContent = {
   },
 
   hero: {
-    title: ["Outsourc", "ing", " Redefi", "ned"],
+    label: "BALITECH",
+    titleLine1: "Empowering Your Vision,",
+    titleLine2: "Shaping Tomorrow",
     subtitle:
-      "Empowering Your Vision, Shaping Tomorrow — Pakistan's fastest-growing BPO partner.",
+      "At BALITECH, we are committed to helping clients shape their future through innovative solutions, exceptional services, and operational excellence. Our mission is to create a professional and growth-oriented environment where businesses and employees can succeed together and achieve long-term success.",
+    tagline: "Together We Build Success.",
   },
 
   career: {
