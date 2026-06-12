@@ -1,35 +1,50 @@
 "use client";
 
-import AnimatedTitle from "@/components/animations/AnimatedTitle";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { companyContent } from "@/lib/content";
+import { joinUsHref } from "@/lib/navigation";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { siteImages } from "@/lib/images";
 
 const { career } = companyContent;
 
 export default function CareerCTA() {
   return (
-    <section id="join-us" className="relative py-32">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${siteImages.career}')` }}
-      />
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-[2px]" />
-      <div className="relative z-10 mx-auto max-w-3xl px-4 text-center">
-        <AnimatedTitle containerClass="mx-auto max-w-3xl !text-foreground">
-          {career.title}
-        </AnimatedTitle>
-        <p className="mb-8 mt-6 text-muted">
-          {career.description}
-        </p>
-        <p className="mb-8 text-sm font-semibold text-orange sm:text-base">
-          {career.salary}
-        </p>
-        <a
-          href="/join-us#contact"
-          className="btn-primary inline-block rounded-full px-10 py-4 text-base font-bold uppercase tracking-wider text-on-primary"
-        >
-          Join Us
-        </a>
+    <section id="join-us" className="career-cta-section section-with-net" aria-labelledby="career-cta-title">
+      <SectionAnimatedNet />
+      <div className="career-cta-section__wrap">
+        <article className="career-cta-card">
+          <div
+            className="career-cta-card__media"
+            style={{ backgroundImage: `url('${siteImages.career}')` }}
+            aria-hidden
+          />
+
+          <div className="career-cta-card__ring" aria-hidden />
+          <div className="career-cta-card__ring career-cta-card__ring--inner" aria-hidden />
+
+          <div className="career-cta-card__content">
+            <h2 id="career-cta-title" className="career-cta-card__title">
+              {career.titleLine}{" "}
+              <span className="career-cta-card__highlight">
+                {career.titleHighlight}
+                <span className="career-cta-card__brush" aria-hidden>
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              </span>
+            </h2>
+
+            <p className="career-cta-card__text">{career.description}</p>
+
+            <Link href={`${joinUsHref}#apply`} className="career-cta-card__btn">
+              {career.cta}
+              <ArrowRight size={16} strokeWidth={2.5} aria-hidden />
+            </Link>
+          </div>
+        </article>
       </div>
     </section>
   );

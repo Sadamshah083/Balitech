@@ -51,3 +51,37 @@ model Blog {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Office {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  address      String   @db.Text
+  phone        String?
+  email        String?
+  hours        String?
+  city         String?
+  country      String   @default("Pakistan")
+  image        String?
+  mapEmbedUrl  String?  @db.Text
+  order        Int      @default(0)
+  isActive     Boolean  @default(true)
+  isHeadOffice Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MediaItem {
+  id         String   @id @default(cuid())
+  title      String
+  alt        String?
+  src        String
+  kind       String   @default("image")
+  section    String   @default("gallery")
+  category   String   @default("Events")
+  order      Int      @default(0)
+  isFeatured Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

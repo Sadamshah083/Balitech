@@ -12,10 +12,13 @@ export default function CapsulePreloader() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    if (!sessionStorage.getItem("balitech-capsule-preloader")) {
-      setShow(true);
-    }
+    const handle = requestAnimationFrame(() => {
+      setMounted(true);
+      if (!sessionStorage.getItem("balitech-capsule-preloader")) {
+        setShow(true);
+      }
+    });
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   useGSAP(

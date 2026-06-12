@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { campaignIconOptions, getCampaignIcon } from "@/lib/icons";
+import { adminFetch } from "@/lib/admin-token";
 
 type Campaign = {
   id: string;
@@ -30,7 +31,7 @@ export default function CampaignsManager() {
   const [saving, setSaving] = useState(false);
 
   async function fetchCampaigns() {
-    const res = await fetch("/api/campaigns");
+    const res = await adminFetch("/api/campaigns");
     if (res.ok) {
       const data = await res.json();
       setCampaigns(data.campaigns);
@@ -39,7 +40,10 @@ export default function CampaignsManager() {
   }
 
   useEffect(() => {
-    fetchCampaigns();
+    const handle = requestAnimationFrame(() => {
+      fetchCampaigns();
+    });
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   function openCreate() {
@@ -73,12 +77,12 @@ export default function CampaignsManager() {
     };
 
     const res = editingId
-      ? await fetch(`/api/campaigns/${editingId}`, {
+      ? await adminFetch(`/api/campaigns/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         })
-      : await fetch("/api/campaigns", {
+      : await adminFetch("/api/campaigns", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -96,7 +100,7 @@ export default function CampaignsManager() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this campaign?")) return;
-    const res = await fetch(`/api/campaigns/${id}`, { method: "DELETE" });
+    const res = await adminFetch(`/api/campaigns/${id}`, { method: "DELETE" });
     if (res.ok) {
       setCampaigns((prev) => prev.filter((c) => c.id !== id));
     }

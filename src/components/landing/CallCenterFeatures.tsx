@@ -1,56 +1,120 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Globe, Headphones, Shield, Target, Users, Zap } from "lucide-react";
 import BentoTilt from "@/components/animations/BentoTilt";
-import SectionTitle from "@/components/brand/SectionTitle";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
+import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 import { companyContent } from "@/lib/content";
+import { gsap, registerGsap } from "@/lib/gsap-register";
 
-const { excellence, vision, mission } = companyContent;
+const { excellence, vision, mission, name } = companyContent;
 const featureIcons = [Headphones, Users, Shield, Target, Globe, Zap];
 
 export default function CallCenterFeatures() {
-  return (
-    <section className="section-gradient py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SectionTitle
-          label={excellence.label}
-          title={excellence.title}
-          highlight={excellence.highlight}
-          subtitle={`${vision.text} ${mission.tagline}`}
-          centered
-        />
+  const sectionRef = useRef<HTMLElement>(null);
 
-        <div className="relative mx-auto max-w-4xl">
-          <div className="mx-auto mb-12 text-center">
-            <p className="brand-label mb-2">{companyContent.name}</p>
-            <h3 className="text-3xl font-black uppercase tracking-tight sm:text-4xl">
-              <span className="text-orange">Bali</span>
-              <span className="text-muted mx-2">•</span>
-              <span className="text-foreground">Tech</span>
+  useEffect(() => {
+    registerGsap();
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      gsap.from(".excellence-showcase__card", {
+        opacity: 0,
+        y: 48,
+        duration: 0.75,
+        stagger: 0.09,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".excellence-showcase__cards",
+          start: "top 86%",
+        },
+      });
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="excellence-showcase section-with-net"
+      aria-labelledby="excellence-showcase-title"
+    >
+      <SectionAnimatedNet />
+      <div className="excellence-showcase__grid-bg" aria-hidden />
+      <div className="excellence-showcase__atmosphere" aria-hidden>
+        <span className="excellence-showcase__orb excellence-showcase__orb--left" />
+        <span className="excellence-showcase__orb excellence-showcase__orb--right" />
+      </div>
+
+      <div className="excellence-showcase__inner">
+        <header className="excellence-showcase__header">
+          <p className="excellence-showcase__eyebrow brand-label">
+            {excellence.label}
+          </p>
+          <span className="excellence-showcase__watermark" aria-hidden>
+            {excellence.label}
+          </span>
+          <h2 id="excellence-showcase-title" className="excellence-showcase__title">
+            {excellence.title}{" "}
+            <span className="excellence-showcase__highlight heading-last-word">
+              {excellence.highlight}
+              <HeadingBrush />
+            </span>
+          </h2>
+          <p className="excellence-showcase__subtitle">
+            {vision.text} {mission.tagline}
+          </p>
+        </header>
+
+        <div className="excellence-showcase__brand">
+          <div className="excellence-showcase__brand-rule" aria-hidden />
+          <div className="excellence-showcase__brand-center">
+            <p className="excellence-showcase__brand-label">{name}</p>
+            <h3 className="excellence-showcase__brand-name">
+              <span className="excellence-showcase__brand-bali">Bali</span>
+              <span className="excellence-showcase__brand-dot" aria-hidden>
+                •
+              </span>
+              <span className="excellence-showcase__brand-tech">Tech</span>
             </h3>
           </div>
+          <div className="excellence-showcase__brand-rule" aria-hidden />
+        </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {excellence.features.map((feature, index) => (
-              <BentoTilt key={feature.num}>
-                <div className="glow-border h-full rounded-2xl bg-card p-6">
-                  <div className="mb-3 flex items-center gap-3">
-                    <span className="text-sm font-bold text-orange">
+        <div className="excellence-showcase__cards">
+          {excellence.features.map((feature, index) => {
+            const Icon = featureIcons[index];
+
+            return (
+              <BentoTilt key={feature.num} className="excellence-showcase__card-tilt">
+                <article className="excellence-showcase__card">
+                  <span className="excellence-showcase__card-glow" aria-hidden />
+                  <span className="excellence-showcase__card-edge" aria-hidden />
+
+                  <div className="excellence-showcase__card-top">
+                    <span className="excellence-showcase__card-num">
                       {feature.num}
                     </span>
-                    {(() => {
-                      const Icon = featureIcons[index];
-                      return <Icon size={20} className="text-orange" />;
-                    })()}
+                    <span className="excellence-showcase__card-icon" aria-hidden>
+                      <Icon size={20} strokeWidth={1.75} />
+                    </span>
                   </div>
-                  <h3 className="mb-2 font-bold text-foreground">
+
+                  <div className="excellence-showcase__card-divider" aria-hidden />
+
+                  <h3 className="excellence-showcase__card-title">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-muted">{feature.description}</p>
-                </div>
+                  <p className="excellence-showcase__card-text">
+                    {feature.description}
+                  </p>
+                </article>
               </BentoTilt>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>

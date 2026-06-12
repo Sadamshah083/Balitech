@@ -44,3 +44,9 @@ prisma/dev.db-journal
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large site videos (exceed GitHub 100MB limit — keep locally, host separately)
+public/balitech_Video/
+public/management_trip/
+public/independence video/
+public/newyear/

@@ -33,7 +33,7 @@ export default function SectionUnderline() {
   );
 
   return (
-    <div ref={ref} className="section-underline-wrap relative py-5">
+    <div ref={ref} className="section-underline-wrap relative">
       <div className="section-underline-line mx-auto h-px w-full max-w-5xl origin-center" />
       <div className="section-underline-dot absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_10px_color-mix(in_srgb,var(--line-accent)_60%,transparent)]" />
     </div>

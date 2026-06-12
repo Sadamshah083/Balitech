@@ -3,6 +3,7 @@
 import Image from "next/image";
 import BentoTilt from "@/components/animations/BentoTilt";
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { siteImages } from "@/lib/images";
 
 const performers = [
@@ -38,7 +39,8 @@ export default function TopPerformers() {
   const others = performers.filter((p) => !p.featured);
 
   return (
-    <section id="team" className="section-gradient py-20">
+    <section id="team" className="section-gradient section-with-net py-20">
+      <SectionAnimatedNet />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 text-center">
           <p className="brand-label mb-4">Our Team</p>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   createSessionToken,
+  getJwtExpiresIn,
   setAuthCookie,
   verifyPassword,
 } from "@/lib/auth";
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       admin: { id: admin.id, email: admin.email, name: admin.name },
+      token,
+      expiresIn: getJwtExpiresIn(),
     });
   } catch {
     return NextResponse.json(

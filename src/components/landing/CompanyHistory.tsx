@@ -1,11 +1,13 @@
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { companyContent } from "@/lib/content";
 
 const { about } = companyContent;
 
 export default function CompanyHistory() {
   return (
-    <section id="history" className="section-gradient px-4 py-20 sm:px-6 lg:px-8">
+    <section id="history" className="section-gradient section-with-net px-4 py-20 sm:px-6 lg:px-8">
+      <SectionAnimatedNet />
       <div className="mx-auto max-w-4xl text-center">
         <p className="brand-label mb-4">{about.historyLabel}</p>
         <AnimatedTitle containerClass="mx-auto max-w-3xl">

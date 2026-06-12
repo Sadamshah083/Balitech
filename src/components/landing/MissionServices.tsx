@@ -1,4 +1,6 @@
 import { Phone, Target, TrendingUp } from "lucide-react";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
+import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
 import { companyContent } from "@/lib/content";
 import { siteImages } from "@/lib/images";
 
@@ -24,10 +26,11 @@ const services = [
 
 export default function MissionServices() {
   return (
-    <section className="py-20">
+    <section className="section-with-net py-20">
+      <SectionAnimatedNet />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="mb-4 text-center text-3xl font-bold text-foreground md:text-4xl">
-          {mission.tagline}
+        <h2 className="mb-4 text-center text-5xl font-bold text-foreground md:text-6xl">
+          <HeadingLastWord text={mission.tagline} />
         </h2>
         <p className="mx-auto mb-12 max-w-2xl text-center text-muted">
           {mission.text}
@@ -36,7 +39,7 @@ export default function MissionServices() {
         <div className="mb-12 grid gap-8 sm:grid-cols-3">
           {services.map((service) => (
             <div key={service.title} className="text-center">
-              <div className="mx-auto mb-4 inline-flex rounded-full bg-orange/10 p-5 text-orange">
+              <div className="brand-icon-wrap mx-auto mb-4 rounded-full p-5">
                 <service.icon size={36} />
               </div>
               <h3 className="mb-2 text-lg font-bold text-foreground">

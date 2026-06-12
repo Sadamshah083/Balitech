@@ -1,9 +1,5 @@
-export function getCampaignApplyHref(
-  campaignTitle: string,
-  pathname: string = "/"
-) {
-  const base = pathname === "/services" ? "/services" : "/";
-  return `${base}?campaign=${encodeURIComponent(campaignTitle)}#contact`;
+export function getCampaignApplyHref(campaignTitle: string) {
+  return `/join-us?campaign=${encodeURIComponent(campaignTitle)}#apply`;
 }
 
 export function getCampaignFromSearch(search: string) {

@@ -10,9 +10,24 @@ function createPrismaClient() {
   });
 }
 
+/** Ensures cached client includes all current schema models (avoids stale dev cache). */
+function isPrismaClientReady(client: PrismaClient) {
+  const delegate = client as PrismaClient & {
+    blog?: { findMany: unknown };
+    office?: { findMany: unknown };
+    mediaItem?: { findMany: unknown };
+  };
+
+  return (
+    typeof delegate.blog?.findMany === "function" &&
+    typeof delegate.office?.findMany === "function" &&
+    typeof delegate.mediaItem?.findMany === "function"
+  );
+}
+
 function getPrismaClient() {
   const cached = globalForPrisma.prisma;
-  if (cached?.blog) {
+  if (cached && isPrismaClientReady(cached)) {
     return cached;
   }
 
@@ -24,3 +39,13 @@ function getPrismaClient() {
 }
 
 export const prisma = getPrismaClient();
+
+export function isMediaItemReady() {
+  return typeof (prisma as PrismaClient & { mediaItem?: { findMany: unknown } })
+    .mediaItem?.findMany === "function";
+}
+
+export function isOfficeReady() {
+  return typeof (prisma as PrismaClient & { office?: { findMany: unknown } })
+    .office?.findMany === "function";
+}

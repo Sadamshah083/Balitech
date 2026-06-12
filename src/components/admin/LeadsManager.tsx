@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { adminFetch } from "@/lib/admin-token";
 
 type Lead = {
   id: string;
@@ -20,7 +21,7 @@ export default function LeadsManager() {
   const [loading, setLoading] = useState(true);
 
   async function fetchLeads() {
-    const res = await fetch("/api/leads");
+    const res = await adminFetch("/api/leads");
     if (res.ok) {
       const data = await res.json();
       setLeads(data.leads);
@@ -29,11 +30,14 @@ export default function LeadsManager() {
   }
 
   useEffect(() => {
-    fetchLeads();
+    const handle = requestAnimationFrame(() => {
+      fetchLeads();
+    });
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   async function updateStatus(id: string, status: string) {
-    const res = await fetch("/api/leads", {
+    const res = await adminFetch("/api/leads", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status }),

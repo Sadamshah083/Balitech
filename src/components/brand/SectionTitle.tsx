@@ -1,3 +1,5 @@
+import { HeadingBrush, HeadingLastWord } from "@/components/brand/HeadingLastWord";
+
 type SectionTitleProps = {
   label?: string;
   title: string;
@@ -16,15 +18,19 @@ export default function SectionTitle({
   return (
     <div className={`mb-12 ${centered ? "text-center" : ""}`}>
       {label && <p className="brand-label mb-3">{label}</p>}
-      <h2 className="brand-heading text-3xl md:text-4xl">
-        {title}{" "}
-        {highlight && (
-          <span className="brand-underline-orange">{highlight}</span>
+      <h2 className="brand-heading text-5xl md:text-6xl">
+        {highlight ? (
+          <>
+            {title}{" "}
+            <span className="heading-last-word">
+              <span className="brand-underline-orange">{highlight}</span>
+              <HeadingBrush />
+            </span>
+          </>
+        ) : (
+          <HeadingLastWord text={title} />
         )}
       </h2>
-      <div
-        className={`mt-3 h-0.5 w-16 bg-orange/60 ${centered ? "mx-auto" : ""}`}
-      />
       {subtitle && (
         <p
           className={`mt-4 max-w-2xl text-muted ${centered ? "mx-auto" : ""}`}

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BrandArcs, BrandBubbles } from "@/components/brand/BrandDecorations";
+import { setAdminToken } from "@/lib/admin-token";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function AdminLoginPage() {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
@@ -29,7 +31,11 @@ export default function AdminLoginPage() {
         return;
       }
 
-      router.push("/admin");
+      if (data.token) {
+        setAdminToken(data.token);
+      }
+
+      router.push("/admin/leads");
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");

@@ -1,4 +1,6 @@
 import { BrandArcs, BrandBubbles } from "@/components/brand/BrandDecorations";
+import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 
 type PageBannerProps = {
   title: string;
@@ -12,7 +14,8 @@ export default function PageBanner({ title, subtitle, image }: PageBannerProps) 
   const rest = words.slice(1).join(" ");
 
   return (
-    <section className="relative flex min-h-[280px] items-center justify-center overflow-hidden pt-24 sm:min-h-[320px]">
+    <section className="section-with-net relative flex min-h-[280px] items-center justify-center overflow-hidden pt-24 sm:min-h-[320px]">
+      <SectionAnimatedNet />
       {image && (
         <>
           <div
@@ -31,19 +34,21 @@ export default function PageBanner({ title, subtitle, image }: PageBannerProps) 
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
         <p className="brand-label mb-3">Bali Tech Pvt. Ltd</p>
-        <h1 className="brand-heading text-3xl uppercase tracking-wide sm:text-4xl md:text-5xl">
+        <h1 className="brand-heading text-5xl uppercase tracking-wide sm:text-6xl md:text-7xl">
           {rest ? (
             <>
               <span className="orange-gradient-text">{firstWord}</span>{" "}
-              <span className="brand-tech-text brand-underline">{rest}</span>
+              <HeadingLastWord
+                text={rest}
+                lastWordClassName="brand-tech-text"
+              />
             </>
           ) : (
-            <span className="brand-tech-text brand-underline">{title}</span>
+            <HeadingLastWord text={title} lastWordClassName="brand-tech-text" />
           )}
         </h1>
-        <div className="mx-auto mt-4 h-0.5 w-20 bg-orange/50" />
         {subtitle && (
-          <p className="mx-auto mt-4 max-w-2xl text-base text-muted md:text-lg">
+          <p className="mx-auto mt-6 max-w-2xl text-base text-muted md:text-lg">
             {subtitle}
           </p>
         )}

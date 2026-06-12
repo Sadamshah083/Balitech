@@ -10,6 +10,7 @@ import {
   tagsFromInput,
   tagsToInput,
 } from "@/lib/blog";
+import { adminFetch } from "@/lib/admin-token";
 
 type Blog = {
   id: string;
@@ -45,7 +46,7 @@ export default function BlogsManager() {
   const [saving, setSaving] = useState(false);
 
   async function fetchBlogs() {
-    const res = await fetch("/api/blogs");
+    const res = await adminFetch("/api/blogs");
     if (res.ok) {
       const data = await res.json();
       setBlogs(data.blogs);
@@ -54,7 +55,10 @@ export default function BlogsManager() {
   }
 
   useEffect(() => {
-    fetchBlogs();
+    const handle = requestAnimationFrame(() => {
+      fetchBlogs();
+    });
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   function openCreate() {
@@ -96,12 +100,12 @@ export default function BlogsManager() {
     };
 
     const res = editingId
-      ? await fetch(`/api/blogs/${editingId}`, {
+      ? await adminFetch(`/api/blogs/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         })
-      : await fetch("/api/blogs", {
+      : await adminFetch("/api/blogs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -118,7 +122,7 @@ export default function BlogsManager() {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this blog post?")) return;
-    const res = await fetch(`/api/blogs/${id}`, { method: "DELETE" });
+    const res = await adminFetch(`/api/blogs/${id}`, { method: "DELETE" });
     if (res.ok) fetchBlogs();
   }
 

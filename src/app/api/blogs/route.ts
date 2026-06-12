@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireApiAuth } from "@/lib/auth";
 import { slugify } from "@/lib/blog";
+import { fallbackBlogs } from "@/lib/fallback-blogs";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,30 +10,34 @@ export async function GET(request: Request) {
   const limit = Number(searchParams.get("limit") ?? 0);
 
   if (publicOnly) {
-    const blogs = await prisma.blog.findMany({
-      where: { isPublished: true },
-      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-      take: limit > 0 ? limit : undefined,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        content: true,
-        image: true,
-        tags: true,
-        format: true,
-        order: true,
-        createdAt: true,
-      },
-    });
-    return NextResponse.json({ blogs });
+    try {
+      const blogs = await prisma.blog.findMany({
+        where: { isPublished: true },
+        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+        take: limit > 0 ? limit : undefined,
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          content: true,
+          image: true,
+          tags: true,
+          format: true,
+          order: true,
+          createdAt: true,
+        },
+      });
+      return NextResponse.json({ blogs });
+    } catch (error) {
+      console.error("[blogs] Database unavailable, serving fallback:", error);
+      const blogs =
+        limit > 0 ? fallbackBlogs.slice(0, limit) : fallbackBlogs;
+      return NextResponse.json({ blogs, fallback: true });
+    }
   }
-
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireApiAuth(request);
+  if (auth.response) return auth.response;
 
   const blogs = await prisma.blog.findMany({
     orderBy: [{ order: "asc" }, { createdAt: "desc" }],
@@ -42,10 +47,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireApiAuth(request);
+  if (auth.response) return auth.response;
 
   try {
     const body = await request.json();

@@ -1,8 +1,22 @@
+const EMPLOYEE_COUNT = "500+";
+
 export const companyContent = {
   name: "BALITECH",
   legalName: "Bali Tech Pvt. Ltd",
   tagline: "Together We Build Success.",
   missionTagline: "Empowering Your Vision, Shaping Tomorrow.",
+
+  workforce: {
+    count: EMPLOYEE_COUNT,
+    label: "Employees",
+    labelLong: "Employees Nationwide",
+  },
+
+  heroStats: [
+    { value: EMPLOYEE_COUNT, label: "Employees" },
+    { value: "24/5", label: "Operations" },
+    { value: "2022", label: "Established" },
+  ] as const,
 
   about: {
     label: "About BALITECH",
@@ -10,12 +24,52 @@ export const companyContent = {
     description:
       "BALITECH is a rapidly growing BPO organization dedicated to operational excellence, employee development, and delivering high-quality client services. With a strong focus on professionalism, innovation, and performance, BALITECH continues to build a dynamic work environment that supports both business success and career growth.",
     historyLabel: "History",
-    historyHeadline: "From 7 People to 400+ Professionals",
+    historyHeadline: `From 7 People to ${EMPLOYEE_COUNT} Professionals`,
     goalsLabel: "Goals",
+    collageLabel: "About BALITECH",
+    collageTitle: "Annual Trips",
+    collageIntro:
+      "Relive BALITECH annual trips — team adventures from 2025 and 2026.",
+    collageSwipeLabel: " Culture Day and Prize Distribution",
+    annualTrips: {
+      trip2k25: {
+        title: "Annual Trip 2k25",
+        subtitle: "Team bonding beyond the floor",
+        description:
+          "Our 2025 annual trip brought the BALITECH family together for celebration, recognition, and unforgettable moments — rewarding dedication with experiences that strengthen culture and connection.",
+        highlights: [
+          "Team celebrations & recognition",
+          "Shared memories across departments",
+          "Culture that rewards performance",
+        ],
+      },
+      trip2k26: {
+        title: "Annual Trip 2k26",
+        subtitle: "Growing stronger together",
+        description:
+          "The 2026 annual trip reflects BALITECH's continued growth — a larger team, bigger milestones, and the same commitment to people-first culture, leadership, and professional excellence.",
+        highlights: [
+          `${EMPLOYEE_COUNT} professionals, one BALITECH family`,
+          "Leadership & top-performer highlights",
+          "Momentum for the year ahead",
+        ],
+      },
+      managementTrip: {
+        title: "Management Trip",
+        subtitle: "Leadership beyond the office",
+        description:
+          "BALITECH management trips bring our leaders together for strategy, bonding, and shared vision — strengthening the culture that drives performance across every campaign.",
+        highlights: [
+          "Leadership alignment & planning",
+          "Team-building across management",
+          "Vision for organizational growth",
+        ],
+      },
+    },
     history: [
       "BALITECH was established in April 2022 with a vision, determination, and a small team of only 7 people. The company began with a single setup of 40 agents and gradually evolved through hard work, consistency, and continuous improvement.",
       "Despite early challenges, BALITECH remained focused on building strong teams, developing leadership, and creating a professional organizational structure. Through dedication and resilience, the company successfully expanded into a recognized and fast-growing BPO organization.",
-      "Today, BALITECH proudly operates with more than 400 employees and manages multiple successful international campaigns while continuing to expand its operations and workforce nationwide.",
+      `Today, BALITECH proudly operates with ${EMPLOYEE_COUNT} employees and manages multiple successful international campaigns while continuing to expand its operations and workforce nationwide.`,
     ],
     showcaseLabel: "Inside BALITECH",
     showcaseHeadline: "Built for Performance. Designed for People.",
@@ -32,7 +86,7 @@ export const companyContent = {
       },
       {
         title: "Scalable Operations",
-        text: "From a 7-person founding team to 400+ professionals nationwide — built on consistency, compliance, and operational discipline.",
+        text: `From a 7-person founding team to ${EMPLOYEE_COUNT} professionals nationwide — built on consistency, compliance, and operational discipline.`,
       },
     ],
   },
@@ -94,15 +148,16 @@ export const companyContent = {
 
   achievements: {
     label: "Achievements",
-    title: "Our Achievements",
+    title: "Metrics Of Our Successful Achievements",
+    watermark: "NUMBER",
     stats: [
-      { value: "400+", label: "Employees Nationwide" },
+      { value: EMPLOYEE_COUNT, label: "Employees Nationwide" },
       { value: "24/5", label: "Operational Services" },
       { value: "1000+", label: "Growth Vision Target" },
       { value: "Multi", label: "International Campaigns" },
     ],
     highlights: [
-      "Successfully operating with 400+ employees",
+      `Successfully operating with ${EMPLOYEE_COUNT} employees`,
       "Managing multiple international campaigns",
       "Running 24/5 operational services",
       "Building strong employee retention and growth",
@@ -118,6 +173,11 @@ export const companyContent = {
     title: "Our Strategic Campaigns That Deliver",
     subtitle:
       "Industry-specific campaigns managed and optimized by our expert teams. Click a campaign to apply.",
+    location: "Rawalpindi Branch",
+    defaultRequirements: [
+      "Good communication skills",
+      "Professional attitude and team collaboration",
+    ],
     items: [
       { title: "ACA Campaign", icon: "shield", description: "Affordable Care Act enrollment and support campaigns." },
       { title: "Medical Billing", icon: "file-text", description: "Professional medical billing and claims processing services." },
@@ -169,7 +229,7 @@ export const companyContent = {
       {
         num: "02",
         title: "Skilled Professionals",
-        description: "400+ trained agents developing into high-performing leaders nationwide.",
+        description: `${EMPLOYEE_COUNT} trained agents developing into high-performing leaders nationwide.`,
       },
       {
         num: "03",
@@ -195,45 +255,32 @@ export const companyContent = {
   },
 
   ceo: {
-    name: "Sir Shiraz Bali",
+    name: "Muhammad Shiraz Bali",
     title: "Chief Executive Officer",
     shortTitle: "CEO",
     company: "BALITECH",
-    image: "/ceo-sir-shiraz-bali.png",
+    image: "/ceo-muhammad-shiraz-bali.png",
     label: "CEO Words",
     sectionTitle: "Leadership That Builds People",
-    quotes: [
+    quoteGroups: [
       {
-        text: "Leadership is not about building a company, it's about building people who build the company.",
-        attribution: true,
+        lines: [
+          "From vision to reality, BALITECH continues to grow through dedication, leadership, and teamwork.",
+          "Success is achieved when vision, hard work, and leadership move together.",
+        ],
       },
       {
-        text: "From vision to reality, BALITECH continues to grow through dedication, leadership, and teamwork.",
-        attribution: false,
+        lines: [
+          "We don't just create jobs; we create opportunities, leaders, and futures.",
+          "BALITECH was built on struggle, driven by vision, and powered by people.",
+          "Our goal is not only growth in numbers, but growth in professionalism, culture, and success.",
+        ],
       },
       {
-        text: "Success is achieved when vision, hard work, and leadership move together.",
-        attribution: true,
-      },
-      {
-        text: "We don't just create jobs; we create opportunities, leaders, and futures.",
-        attribution: false,
-      },
-      {
-        text: "BALITECH was built on struggle, driven by vision, and powered by people.",
-        attribution: false,
-      },
-      {
-        text: "Our goal is not only growth in numbers, but growth in professionalism, culture, and success.",
-        attribution: true,
-      },
-      {
-        text: "Together, we are building one of the fastest-growing organizations in the industry.",
-        attribution: false,
-      },
-      {
-        text: "Dream big, lead stronger, and grow together — that is the BALITECH vision.",
-        attribution: false,
+        lines: [
+          "Together, we are building one of the fastest-growing organizations in the industry.",
+          "Dream big, lead stronger, and grow together — that is the BALITECH vision.",
+        ],
       },
     ],
   },
@@ -253,10 +300,102 @@ export const companyContent = {
   },
 
   career: {
-    title: "Step Into A Growth-Driven Career Opportunity",
+    titleLine: "Step Into A Growth-Driven",
+    titleHighlight: "Career Opportunity",
     description:
-      "Join BALITECH and build a rewarding career with one of the fastest-growing BPO organizations in the industry.",
+      "Your next career opportunity is here! Explore openings, showcase your talent, and take the first step toward a fulfilling career with BALITECH.",
+    cta: "Apply Now",
     salary:
       "Salary: Competitive, based on experience and interview performance.",
+  },
+
+  joinUs: {
+    hero: {
+      eyebrow: "Careers at BALITECH",
+      titleLine: "Become A Part Of",
+      titleHighlight: "Our Team",
+      subtitle:
+        "Explore openings, showcase your talent, and take the first step toward a fulfilling career with one of Pakistan's fastest-growing BPO organizations.",
+    },
+    form: {
+      title: "Apply Now To Join Our Team",
+      subtitle:
+        "Submit your details below, and we'll get back to you shortly regarding your inquiry or concern.",
+      experienceOptions: [
+        { value: "", label: "Do you have previous experience in the BPO industry?" },
+        { value: "yes", label: "Yes, I have BPO experience" },
+        { value: "no", label: "No, I'm a fresher" },
+      ],
+      branches: [
+        { value: "", label: "Select a branch" },
+        { value: "rawalpindi", label: "Rawalpindi Branch" },
+        { value: "islamabad", label: "Islamabad Branch" },
+      ],
+      positions: [
+        { value: "", label: "Position you're applying for" },
+        { value: "csr", label: "Customer Service Representative (CSR)" },
+        { value: "sales", label: "Sales Agent" },
+        { value: "lead-gen", label: "Lead Generation Agent" },
+        { value: "support", label: "Customer Support Specialist" },
+        { value: "team-lead", label: "Team Lead" },
+      ],
+      positionPlaceholderNoBranch: "Choose a branch first",
+      messagePlaceholder: "Any additional message...",
+    },
+    openings: {
+      label: "Open Positions",
+      title: "Current Job Openings",
+      jobs: [
+        {
+          id: "csr-rawalpindi",
+          title: "CSR",
+          role: "Customer Service Representative",
+          location: "Rawalpindi Branch",
+          bullets: ["Freshers can apply", "Good communication skills"],
+        },
+        {
+          id: "csr-islamabad",
+          title: "CSR",
+          role: "Customer Service Representative",
+          location: "Islamabad Branch",
+          bullets: ["Freshers can apply", "Professional attitude required"],
+        },
+        {
+          id: "sales-rawalpindi",
+          title: "Sales Agent",
+          role: "Outbound Sales & Verification",
+          location: "Rawalpindi Branch",
+          bullets: ["Experience preferred", "Strong communication skills"],
+        },
+      ],
+    },
+    appointment: {
+      title: "Let's Meet With Us — Make An Appointment First",
+      address: "Rawalpindi Branch, Pakistan",
+      mapEmbedUrl:
+        "https://maps.google.com/maps?q=Rawalpindi,+Pakistan&hl=en&z=14&output=embed",
+      mapTitle: "BALITECH office location map",
+    },
+    contact: {
+      hoursLabel: "Days Open",
+      hours: "Monday – Friday (9:00 AM – 6:00 PM)",
+      emailLabel: "Email",
+      email: "info@balitech.com",
+      phoneLabel: "Phone",
+      phone: "0331 8638312",
+      phoneHref: "tel:+923318638312",
+    },
+    benefits: {
+      label: "Why Join Us",
+      title: "Grow With A Performance-Driven Team",
+      items: [
+        { num: "01", title: "Daily, Weekly & Monthly Bonuses" },
+        { num: "02", title: "Skill Development Initiatives" },
+        { num: "03", title: "Collaborative Culture" },
+        { num: "04", title: "Performance-Based Promotion" },
+        { num: "05", title: "Dynamic Work Environment" },
+        { num: "06", title: "Inclusive Environment" },
+      ],
+    },
   },
 } as const;

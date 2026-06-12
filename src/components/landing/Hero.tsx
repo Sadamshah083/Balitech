@@ -1,30 +1,52 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { gsap, registerGsap } from "@/lib/gsap-register";
-import HeroBrushStroke from "@/components/landing/HeroBrushStroke";
-import HeroCutRounds from "@/components/landing/HeroCutRounds";
+import HeroBackgroundSlider, {
+  HeroSlideDots,
+} from "@/components/landing/HeroBackgroundSlider";
 import HeroLeftRail from "@/components/landing/HeroLeftRail";
-import HeroLocalTime from "@/components/landing/HeroLocalTime";
-import HeroMissionScroll from "@/components/landing/HeroMissionScroll";
 import { companyContent } from "@/lib/content";
-import { siteImages } from "@/lib/images";
 
 const HERO_HEIGHT = "100dvh";
 
 const JAGGED_EDGE_PATH =
-  "M0,0.78 C0.055,0.76 0.105,0.82 0.155,0.8 C0.205,0.78 0.255,0.86 0.305,0.84 C0.355,0.82 0.405,0.89 0.455,0.87 C0.505,0.85 0.555,0.93 0.605,0.91 C0.655,0.89 0.705,0.965 0.755,0.945 C0.805,0.92 0.855,0.96 0.895,0.94 C0.935,0.915 0.975,0.95 1,0.93";
+  "M0,0.907 C0.055,0.900 0.105,0.922 0.155,0.915 C0.205,0.907 0.255,0.937 0.305,0.929 C0.355,0.922 0.405,0.948 0.455,0.940 C0.505,0.933 0.555,0.963 0.605,0.955 C0.655,0.948 0.705,0.976 0.755,0.968 C0.805,0.959 0.855,0.974 0.895,0.966 C0.935,0.957 0.975,0.970 1,0.963";
 
 export default function Hero() {
-  const { theme } = useTheme();
   const sectionRef = useRef<HTMLElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoaderActive, setIsLoaderActive] = useState(true);
+  const [isLoaderFadingOut, setIsLoaderFadingOut] = useState(false);
+  const [visibleCharCount, setVisibleCharCount] = useState(0);
+  const [activeHeroDot, setActiveHeroDot] = useState(0);
 
   useEffect(() => {
-    const fallback = setTimeout(() => setIsLoading(false), 4000);
-    return () => clearTimeout(fallback);
+    const charInterval = setInterval(() => {
+      setVisibleCharCount((prev) => {
+        if (prev < 20) {
+          return prev + 1;
+        } else {
+          clearInterval(charInterval);
+          return prev;
+        }
+      });
+    }, 90);
+
+    const fadeTimeout = setTimeout(() => {
+      setIsLoaderFadingOut(true);
+      setIsLoading(false);
+    }, 3100);
+
+    const removeTimeout = setTimeout(() => {
+      setIsLoaderActive(false);
+    }, 3700);
+
+    return () => {
+      clearInterval(charInterval);
+      clearTimeout(fadeTimeout);
+      clearTimeout(removeTimeout);
+    };
   }, []);
 
   useEffect(() => {
@@ -33,40 +55,73 @@ export default function Hero() {
     registerGsap();
 
     const ctx = gsap.context(() => {
-      gsap.from(".hero-center-item", {
-        y: 30,
-        opacity: 0,
-        duration: 0.9,
-        stagger: 0.12,
-        ease: "power3.out",
-        delay: 0.15,
-      });
+      const tl = gsap.timeline();
 
-      gsap.from(".hero-brush-stroke", {
-        scaleX: 0,
-        opacity: 0,
-        duration: 0.85,
-        stagger: 0.1,
-        ease: "power3.out",
-        delay: 0.55,
-        transformOrigin: "left center",
-      });
+      // 1. Background image zoom and accents entry
+      tl.fromTo(
+        ".hero-bg-slider",
+        { scale: 1.12, opacity: 0.8 },
+        { scale: 1, opacity: 1, duration: 1.4, ease: "power2.out" }
+      );
 
-      gsap.from(".hero-cut-label", {
-        x: -12,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        delay: 0.65,
-      });
+      // 2. Stats rail slides in and elements stagger
+      tl.fromTo(
+        ".hero-left-rail",
+        { y: 48, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.0, ease: "power4.out" },
+        "-=0.7"
+      );
+      tl.fromTo(
+        ".hero-left-rail__line",
+        { scaleX: 0, transformOrigin: "right center" },
+        { scaleX: 1, duration: 0.8, ease: "power3.out" },
+        "-=0.5"
+      );
+      tl.fromTo(
+        ".hero-left-rail__item",
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.12, ease: "power3.out" },
+        "-=0.5"
+      );
+
+      // 3. Giant BALITECH cut label letters tracking slide & fade
+      tl.fromTo(
+        ".hero-cut-label",
+        { y: 25, opacity: 0, letterSpacing: "0.45em" },
+        { y: 0, opacity: 1, letterSpacing: "0.28em", duration: 1.2, ease: "power3.out" },
+        "-=0.7"
+      );
+
+      // 4. Jagged edge stroke entry
+      tl.fromTo(
+        ".hero-jagged-edge",
+        { scaleX: 0, opacity: 0, transformOrigin: "left center" },
+        { scaleX: 1, opacity: 1, duration: 1.1, ease: "power2.inOut" },
+        "-=1.1"
+      );
+
+      // 5. Logo highlight animation at the very end
+      const logoLink = document.querySelector(".brand-logo-link");
+      if (logoLink) {
+        tl.fromTo(
+          logoLink,
+          { scale: 1, filter: "brightness(1) drop-shadow(0 0 0px var(--orange-glow))" },
+          {
+            scale: 1.15,
+            filter: "brightness(1.55) drop-shadow(0 0 16px var(--orange-glow))",
+            duration: 0.5,
+            yoyo: true,
+            repeat: 1,
+            ease: "power2.out"
+          }
+        );
+      }
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [isLoading, theme]);
+  }, [isLoading]);
 
-  const handleImageReady = () => {
-    setIsLoading(false);
-  };
+  const handleImageReady = () => {};
 
   return (
     <section
@@ -75,15 +130,44 @@ export default function Hero() {
       className="hero-section relative overflow-hidden"
       style={{ height: HERO_HEIGHT, minHeight: HERO_HEIGHT }}
     >
-      {isLoading && (
+      {isLoaderActive && (
         <div
-          className="hero-loader absolute inset-0 z-[100] flex items-center justify-center bg-background"
+          className={`hero-loader absolute inset-0 z-[100] flex flex-col items-center justify-center bg-[color:var(--background)] gap-12 transition-opacity duration-700 ease-in-out ${
+            isLoaderFadingOut ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
           style={{ height: HERO_HEIGHT, minHeight: HERO_HEIGHT }}
         >
-          <div className="three-body">
-            <div className="three-body__dot" />
-            <div className="three-body__dot" />
-            <div className="three-body__dot" />
+          <div className="hero-loader__content flex flex-col items-center gap-10 w-full max-w-4xl px-6 relative z-10">
+            <div className="hero-loader__title w-full flex flex-row flex-wrap justify-center items-center font-calligraphy text-7xl md:text-9xl font-normal text-white text-center select-none">
+              {"Welcome to Bali Tech".split("").map((char, index) => (
+                <span
+                  key={index}
+                  className={`hero-loader__char transition-all duration-500 ease-out inline-block transform origin-bottom ${
+                    visibleCharCount > index
+                      ? "opacity-100 scale-100 rotate-0 translate-y-0"
+                      : "opacity-0 scale-0 -rotate-12 translate-y-6"
+                  }`}
+                >
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              ))}
+            </div>
+
+            <div className="hero-loader__progress flex flex-col items-center gap-4 w-72 md:w-96 transition-all duration-500">
+              <div className="hero-loader__progress-track w-full h-[3px] rounded-full overflow-hidden relative">
+                <div
+                  className="hero-loader__progress-fill absolute top-0 left-0 h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${Math.min(100, Math.round((visibleCharCount / 20) * 100))}%` }}
+                />
+                <div className="hero-loader__progress-spark absolute top-0 h-full w-8 pointer-events-none" aria-hidden />
+              </div>
+              <div className="w-full flex justify-between items-center text-[10px] md:text-xs font-mono tracking-[0.25em] text-white/40 px-1 select-none">
+                <span className="hero-loader__status animate-pulse">INITIALIZING NODE</span>
+                <span className="hero-loader__percent text-white font-bold tracking-normal">
+                  {String(Math.min(100, Math.round((visibleCharCount / 20) * 100))).padStart(3, "0")}%
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -91,10 +175,10 @@ export default function Hero() {
       <svg className="hero-clip-defs" aria-hidden width="0" height="0">
         <defs>
           <clipPath id="hero-bottom-jagged-clip" clipPathUnits="objectBoundingBox">
-            <path d="M0,0 H1 V0.93 C0.975,0.95 0.935,0.915 0.895,0.94 C0.855,0.96 0.805,0.92 0.755,0.945 C0.705,0.965 0.655,0.89 0.605,0.91 C0.555,0.93 0.505,0.85 0.455,0.87 C0.405,0.89 0.355,0.82 0.305,0.84 C0.255,0.86 0.205,0.78 0.155,0.8 C0.105,0.82 0.055,0.76 0,0.78 Z" />
+            <path d="M0,0 H1 V0.963 C0.975,0.970 0.935,0.957 0.895,0.966 C0.855,0.974 0.805,0.959 0.755,0.968 C0.705,0.976 0.655,0.948 0.605,0.955 C0.555,0.963 0.505,0.933 0.455,0.940 C0.405,0.948 0.355,0.922 0.305,0.929 C0.255,0.937 0.205,0.907 0.155,0.915 C0.105,0.922 0.055,0.900 0,0.907 Z" />
           </clipPath>
           <clipPath id="hero-bottom-cut-zone-clip" clipPathUnits="objectBoundingBox">
-            <path d="M0,0.78 C0.055,0.76 0.105,0.82 0.155,0.8 C0.205,0.78 0.255,0.86 0.305,0.84 C0.355,0.82 0.405,0.89 0.455,0.87 C0.505,0.85 0.555,0.93 0.605,0.91 C0.655,0.89 0.705,0.965 0.755,0.945 C0.805,0.92 0.855,0.96 0.895,0.94 C0.935,0.915 0.975,0.95 1,0.93 L1,1 L0,1 Z" />
+            <path d="M0,0.907 C0.055,0.900 0.105,0.922 0.155,0.915 C0.205,0.907 0.255,0.937 0.305,0.929 C0.355,0.922 0.405,0.948 0.455,0.940 C0.505,0.933 0.555,0.963 0.605,0.955 C0.655,0.948 0.705,0.976 0.755,0.968 C0.805,0.959 0.855,0.974 0.895,0.966 C0.935,0.957 0.975,0.970 1,0.963 L1,1 L0,1 Z" />
           </clipPath>
         </defs>
       </svg>
@@ -108,45 +192,16 @@ export default function Hero() {
           className="relative w-full"
           style={{ height: HERO_HEIGHT, minHeight: HERO_HEIGHT }}
         >
-          <Image
-            src={siteImages.hero}
-            alt="Bali Tech professional call center team"
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-            onLoad={handleImageReady}
+          <HeroBackgroundSlider
+            onFirstImageReady={handleImageReady}
+            onActiveDotChange={setActiveHeroDot}
           />
         </div>
 
-        <div className="hero-text-scrim pointer-events-none absolute inset-0 z-[1]" />
+        <div className="hero-overlay pointer-events-none absolute inset-0 z-[1]" aria-hidden />
+        <div className="hero-left-shade pointer-events-none absolute inset-y-0 left-0 w-full z-[2]" aria-hidden />
 
-        <HeroLeftRail />
-
-        <div className="hero-content absolute inset-0 z-30 flex items-center justify-center px-4 sm:px-6">
-          <div className="hero-copy">
-            <p className="hero-center-item brand-label mb-3 sm:mb-4">
-              {companyContent.hero.label}
-            </p>
-            <h1 className="hero-center-item hero-title-theme text-2xl font-black uppercase leading-[1.1] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-              {companyContent.hero.titleLine1}
-              <br />
-              <span className="hero-title-line2">
-                {companyContent.hero.titleLine2}
-                <HeroBrushStroke variant="title" />
-              </span>
-            </h1>
-
-            <div className="hero-center-item hero-tagline-wrap mt-3 sm:mt-4">
-              <p className="hero-tagline-text text-sm font-semibold italic text-[var(--orange)] sm:text-base">
-                &ldquo;{companyContent.hero.tagline}&rdquo;
-              </p>
-              <HeroBrushStroke variant="tagline-top" />
-              <HeroBrushStroke variant="tagline-bottom" />
-            </div>
-
-          </div>
-        </div>
+        <HeroSlideDots activeDot={activeHeroDot} />
 
       </div>
 
@@ -159,16 +214,14 @@ export default function Hero() {
         <path
           d={JAGGED_EDGE_PATH}
           fill="none"
-          stroke="var(--orange)"
+          stroke="rgba(255, 255, 255, 0.22)"
           strokeWidth="0.005"
           vectorEffect="non-scaling-stroke"
         />
       </svg>
 
-      <HeroCutRounds />
-      <HeroMissionScroll text={companyContent.hero.subtitle} />
-      <HeroLocalTime />
-      <p className="hero-cut-label">Professional way</p>
+      <HeroLeftRail />
+      <p className="hero-cut-label">{companyContent.name}</p>
     </section>
   );
 }

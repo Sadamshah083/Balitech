@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, Headphones, Users } from "lucide-react";
-import BentoTilt from "@/components/animations/BentoTilt";
-import AnimatedTitle from "@/components/animations/AnimatedTitle";
+import { ArrowRight, Clock, Headphones, Users } from "lucide-react";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
+import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 import { companyContent } from "@/lib/content";
 
 const { services } = companyContent;
@@ -11,39 +11,67 @@ const serviceIcons = [Clock, Headphones, Users];
 
 export default function ServiceCards() {
   return (
-    <section id="services" className="section-gradient py-20">
-      <div className="mx-auto mb-14 max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-        <p className="brand-label mb-4">{services.label}</p>
-        <AnimatedTitle containerClass="mx-auto max-w-4xl">
-          {services.title}
-        </AnimatedTitle>
-      </div>
+    <section
+      id="services"
+      className="services-showcase section-with-net"
+      aria-labelledby="services-showcase-title"
+    >
+      <SectionAnimatedNet />
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3 sm:px-6 lg:px-8">
-        {services.cards.map((service, index) => (
-          <BentoTilt key={service.title}>
-            <article className="glow-border group flex h-full flex-col rounded-2xl bg-card p-8 transition-colors duration-300">
-              <div className="brand-icon-wrap mb-6 inline-flex rounded-xl p-4">
-                {(() => {
-                  const Icon = serviceIcons[index];
-                  return <Icon size={32} />;
-                })()}
-              </div>
-              <h3 className="mb-3 text-xl font-bold text-foreground">
-                {service.title}
-              </h3>
-              <p className="mb-6 flex-1 text-sm leading-relaxed text-muted">
-                {service.description}
-              </p>
-              <Link
-                href="/services"
-                className="text-sm font-semibold uppercase tracking-wider text-orange transition hover:text-orange-light"
-              >
-                Read More →
-              </Link>
-            </article>
-          </BentoTilt>
-        ))}
+      <div className="services-showcase__inner">
+        <header className="services-showcase__header">
+          <p className="services-showcase__eyebrow brand-label">
+            {services.label}
+          </p>
+          <span className="services-showcase__watermark" aria-hidden>
+            Services
+          </span>
+          <h2 id="services-showcase-title" className="services-showcase__title">
+            {services.title.replace(" Solutions", "")}{" "}
+            <span className="services-showcase__highlight heading-last-word">
+              Solutions
+              <HeadingBrush />
+            </span>
+          </h2>
+        </header>
+
+        <div className="services-showcase__cards">
+          {services.cards.map((service, index) => {
+            const Icon = serviceIcons[index];
+
+            return (
+              <article key={service.title} className="services-showcase__card">
+                <div className="services-showcase__card-top">
+                  <span className="services-showcase__card-num">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="services-showcase__card-icon" aria-hidden>
+                    <Icon size={20} strokeWidth={1.65} />
+                  </span>
+                </div>
+
+                <div className="services-showcase__card-divider" aria-hidden />
+
+                <h3 className="services-showcase__card-title">
+                  {service.title}
+                </h3>
+                <p className="services-showcase__card-text">
+                  {service.description}
+                </p>
+
+                <div className="services-showcase__card-footer">
+                  <Link
+                    href="/services"
+                    className="services-showcase__card-link"
+                  >
+                    Read More
+                    <ArrowRight size={15} strokeWidth={2.25} aria-hidden />
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

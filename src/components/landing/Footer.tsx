@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Globe, Mail, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import BrandLogo from "@/components/brand/BrandLogo";
 import { companyContent } from "@/lib/content";
-import { joinUsHref, navLinks } from "@/lib/navigation";
+import { applyNowLabel, joinUsHref, navLinks } from "@/lib/navigation";
 
 const { footer, tagline } = companyContent;
 
@@ -10,15 +11,13 @@ export default function Footer() {
     <footer className="border-t border-orange/25 bg-surface py-16">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:grid-cols-2 lg:grid-cols-4 sm:px-6 lg:px-8">
         <div>
-          <div className="mb-4 flex items-baseline gap-1.5">
-            <span className="text-xl font-black uppercase tracking-tight text-orange">
-              Bali
-            </span>
-            <span className="text-muted">•</span>
-            <span className="text-xl font-black uppercase tracking-tight text-foreground">
-              Tech
-            </span>
-          </div>
+          <BrandLogo
+            href="/"
+            width={240}
+            height={46}
+            imageClassName="max-w-[10rem] sm:max-w-[11rem]"
+            className="mb-4"
+          />
           <p className="text-sm leading-relaxed text-muted">
             {footer.description}
           </p>
@@ -43,9 +42,9 @@ export default function Footer() {
             <li>
               <Link
                 href={joinUsHref}
-                className="text-sm text-muted transition hover:text-orange"
+                className="btn-primary inline-flex rounded-full px-4 py-1.5 text-sm font-bold uppercase tracking-wider"
               >
-                Join Us
+                {applyNowLabel}
               </Link>
             </li>
           </ul>
@@ -78,7 +77,7 @@ export default function Footer() {
               <a
                 key={i}
                 href="#"
-                className="rounded-full border border-orange/40 p-2.5 text-orange transition hover:bg-orange hover:text-on-primary"
+                className="brand-icon-wrap rounded-full border border-orange/40 p-2.5 transition hover:bg-orange hover:text-on-primary"
               >
                 <Icon size={18} />
               </a>

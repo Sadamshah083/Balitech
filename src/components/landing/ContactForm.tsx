@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
 import BentoTilt from "@/components/animations/BentoTilt";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { getCampaignFromSearch } from "@/lib/apply";
 
 export default function ContactForm() {
@@ -22,13 +23,15 @@ export default function ContactForm() {
     const selectedCampaign = getCampaignFromSearch(window.location.search);
 
     if (selectedCampaign) {
-      setCampaign(selectedCampaign);
-      setForm((prev) => ({
-        ...prev,
-        message:
-          prev.message ||
-          `I would like to apply for the ${selectedCampaign} campaign.`,
-      }));
+      requestAnimationFrame(() => {
+        setCampaign(selectedCampaign);
+        setForm((prev) => ({
+          ...prev,
+          message:
+            prev.message ||
+            `I would like to apply for the ${selectedCampaign} campaign.`,
+        }));
+      });
     }
 
     if (window.location.hash === "#contact") {
@@ -71,7 +74,8 @@ export default function ContactForm() {
   }
 
   return (
-    <section id="contact" className="scroll-mt-24 py-20">
+    <section id="contact" className="section-with-net scroll-mt-24 py-14">
+      <SectionAnimatedNet />
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <p className="brand-label mb-4">Contact</p>

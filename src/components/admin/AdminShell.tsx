@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, LayoutDashboard, LogOut, Megaphone, Users } from "lucide-react";
-import ThemeToggle from "@/components/theme/ThemeToggle";
+import { BookOpen, Building2, ImageIcon, LayoutDashboard, LogOut, Megaphone, Users } from "lucide-react";
+import { adminFetch, clearAdminToken } from "@/lib/admin-token";
 
 const navItems = [
   { href: "/admin/leads", label: "Leads", icon: Users },
   { href: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
+  { href: "/admin/offices", label: "Offices", icon: Building2 },
+  { href: "/admin/media", label: "Gallery & Media", icon: ImageIcon },
   { href: "/admin/blogs", label: "Blogs", icon: BookOpen },
 ];
 
@@ -22,7 +24,8 @@ export default function AdminShell({
   const router = useRouter();
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await adminFetch("/api/auth/logout", { method: "POST" });
+    clearAdminToken();
     router.push("/admin/login");
     router.refresh();
   }
@@ -82,7 +85,6 @@ export default function AdminShell({
             <LayoutDashboard size={20} className="text-orange" />
             <h1 className="text-lg font-bold text-foreground">Dashboard</h1>
           </div>
-          <ThemeToggle />
         </header>
         <div className="p-8">{children}</div>
       </main>

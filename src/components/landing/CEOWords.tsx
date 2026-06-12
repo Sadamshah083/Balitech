@@ -4,17 +4,18 @@ import Image from "next/image";
 import { Quote } from "lucide-react";
 import BentoTilt from "@/components/animations/BentoTilt";
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { companyContent } from "@/lib/content";
 
 const { ceo } = companyContent;
-const featuredQuote = ceo.quotes[0];
-const otherQuotes = ceo.quotes.slice(1);
+const [featuredGroup, ...otherGroups] = ceo.quoteGroups;
 
 export default function CEOWords() {
   return (
-    <section id="ceo" className="section-gradient py-20">
+    <section id="ceo" className="section-gradient section-with-net pt-14 pb-8">
+      <SectionAnimatedNet />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-14 text-center">
+        <div className="mb-10 text-center">
           <p className="brand-label mb-4">{ceo.label}</p>
           <AnimatedTitle containerClass="mx-auto max-w-4xl">
             {ceo.sectionTitle}
@@ -46,41 +47,43 @@ export default function CEOWords() {
                 </div>
               </div>
               <div className="flex flex-col justify-center bg-card p-8 md:p-12">
-                <Quote
-                  size={32}
-                  className="mb-4 text-orange/60"
-                  aria-hidden
-                />
-                <blockquote className="text-lg font-medium leading-relaxed text-foreground/90 md:text-xl">
-                  &ldquo;{featuredQuote.text}&rdquo;
-                </blockquote>
-                {featuredQuote.attribution && (
-                  <p className="mt-6 text-sm font-bold uppercase tracking-wider text-orange">
-                    — {ceo.shortTitle} {ceo.name}, {ceo.title}
-                  </p>
-                )}
+                <Quote size={32} className="mb-4 text-orange/60" aria-hidden />
+                <div className="space-y-4">
+                  {featuredGroup.lines.map((line) => (
+                    <blockquote
+                      key={line}
+                      className="text-lg font-medium leading-relaxed text-foreground/90 md:text-xl"
+                    >
+                      &ldquo;{line}&rdquo;
+                    </blockquote>
+                  ))}
+                </div>
+                <p className="mt-6 text-sm font-bold uppercase tracking-wider text-orange">
+                  — {ceo.shortTitle} {ceo.name}
+                </p>
               </div>
             </div>
           </div>
         </BentoTilt>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {otherQuotes.map((quote) => (
-            <BentoTilt key={quote.text}>
-              <div className="glow-border flex h-full flex-col rounded-2xl bg-card p-6">
-                <Quote
-                  size={20}
-                  className="mb-3 text-orange/50"
-                  aria-hidden
-                />
-                <blockquote className="flex-1 text-sm leading-relaxed text-foreground/85">
-                  &ldquo;{quote.text}&rdquo;
-                </blockquote>
-                {quote.attribution && (
-                  <p className="mt-4 text-xs font-bold uppercase tracking-wider text-orange">
-                    — {ceo.shortTitle} {ceo.name}
-                  </p>
-                )}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {otherGroups.map((group) => (
+            <BentoTilt key={group.lines[0]}>
+              <div className="glow-border flex h-full flex-col rounded-2xl bg-card p-6 md:p-8">
+                <Quote size={20} className="mb-4 text-orange/50" aria-hidden />
+                <div className="flex flex-1 flex-col gap-4">
+                  {group.lines.map((line) => (
+                    <blockquote
+                      key={line}
+                      className="text-sm leading-relaxed text-foreground/85 md:text-base"
+                    >
+                      &ldquo;{line}&rdquo;
+                    </blockquote>
+                  ))}
+                </div>
+                <p className="mt-6 text-xs font-bold uppercase tracking-wider text-orange">
+                  — {ceo.shortTitle} {ceo.name}
+                </p>
               </div>
             </BentoTilt>
           ))}

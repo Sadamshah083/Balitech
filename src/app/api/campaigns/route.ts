@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireApiAuth } from "@/lib/auth";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -21,10 +21,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ campaigns });
   }
 
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireApiAuth(request);
+  if (auth.response) return auth.response;
 
   const campaigns = await prisma.campaign.findMany({
     orderBy: { order: "asc" },
@@ -34,10 +32,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireApiAuth(request);
+  if (auth.response) return auth.response;
 
   try {
     const body = await request.json();

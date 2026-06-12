@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { fallbackOffices } from "../src/lib/fallback-offices";
+import { fallbackMediaItems } from "../src/lib/fallback-media";
 
 const programDescriptions: Record<string, string> = {
   "ACA Campaign": "Affordable Care Act enrollment and support campaigns.",
@@ -124,6 +126,44 @@ async function main() {
   if (blogCount === 0) {
     await prisma.blog.createMany({ data: defaultBlogs });
     console.log("Default blogs seeded.");
+  }
+
+  const officeCount = await prisma.office.count();
+  if (officeCount === 0) {
+    await prisma.office.createMany({
+      data: fallbackOffices.map((office) => ({
+        name: office.name,
+        slug: office.slug,
+        address: office.address,
+        phone: office.phone,
+        email: office.email,
+        hours: office.hours,
+        city: office.city,
+        country: office.country,
+        image: office.image,
+        mapEmbedUrl: office.mapEmbedUrl,
+        order: office.order,
+        isHeadOffice: office.isHeadOffice,
+      })),
+    });
+    console.log("Default offices seeded.");
+  }
+
+  const mediaCount = await prisma.mediaItem.count();
+  if (mediaCount === 0) {
+    await prisma.mediaItem.createMany({
+      data: fallbackMediaItems.map((item) => ({
+        title: item.title,
+        alt: item.alt,
+        src: item.src,
+        kind: item.kind,
+        section: item.section,
+        category: item.category,
+        order: item.order,
+        isFeatured: item.isFeatured,
+      })),
+    });
+    console.log("Default gallery media seeded.");
   }
 }
 

@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import Script from "next/script";
-import { Geist } from "next/font/google";
+import { Geist, Great_Vibes } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { companyContent } from "@/lib/content";
 import "./globals.css";
-
-const themeInitScript = `(function(){try{var t=localStorage.getItem("balitech-theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
+const greatVibes = Great_Vibes({
+  weight: "400",
+  variable: "--font-great-vibes",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "BALITECH | Professional Outsourcing",
-  description:
-    "BALITECH — a rapidly growing BPO organization dedicated to operational excellence, employee development, and high-quality client services nationwide.",
+  description: `BALITECH — ${companyContent.workforce.count} ${companyContent.workforce.label.toLowerCase()} nationwide, dedicated to operational excellence, employee development, and high-quality client services.`,
 };
 
 export default function RootLayout({
@@ -25,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${greatVibes.variable} h-full antialiased`}
       data-theme="dark"
       suppressHydrationWarning
     >
@@ -33,11 +36,6 @@ export default function RootLayout({
         className="min-h-full bg-background text-foreground transition-colors duration-300"
         suppressHydrationWarning
       >
-        <Script
-          id="balitech-theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

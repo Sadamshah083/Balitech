@@ -1,6 +1,7 @@
 "use client";
 
 import { PropsWithChildren, useEffect, useRef } from "react";
+import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 import { cn } from "@/lib/cn";
 import { gsap, registerGsap } from "@/lib/gsap-register";
 
@@ -39,18 +40,33 @@ export default function AnimatedTitle({
 
   return (
     <div ref={containerRef} className={cn("animated-title", containerClass)}>
-      {text.split("<br />").map((line) => (
-        <h2
-          key={line}
-          className="flex flex-wrap items-center justify-center gap-2 px-4 md:gap-3"
-        >
-          {line.split(" ").map((word) => (
-            <span key={`${line}-${word}`} className="animated-word">
-              {word}
-            </span>
-          ))}
-        </h2>
-      ))}
+      {text.split("<br />").map((line) => {
+        const words = line.trim().split(/\s+/).filter(Boolean);
+
+        return (
+          <h2
+            key={line}
+            className="flex flex-wrap items-end justify-center gap-x-2 gap-y-1 px-4 md:gap-x-3"
+          >
+            {words.map((word, index) => {
+              const isLast = index === words.length - 1;
+
+              return (
+                <span key={`${line}-${word}`} className="animated-word">
+                  {isLast ? (
+                    <span className="heading-last-word">
+                      {word}
+                      <HeadingBrush />
+                    </span>
+                  ) : (
+                    word
+                  )}
+                </span>
+              );
+            })}
+          </h2>
+        );
+      })}
     </div>
   );
 }

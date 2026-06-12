@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SitePage from "@/components/layout/SitePage";
+import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { formatBlogDate, parseTags } from "@/lib/blog";
 import { prisma } from "@/lib/prisma";
 
@@ -38,7 +39,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   return (
     <SitePage>
-      <article className="section-gradient py-24">
+      <article className="section-gradient section-with-net py-24">
+        <SectionAnimatedNet />
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/blog"
