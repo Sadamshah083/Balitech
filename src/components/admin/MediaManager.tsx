@@ -21,6 +21,7 @@ type MediaItem = {
   order: number;
   isFeatured: boolean;
   isActive: boolean;
+  fromCatalog?: boolean;
 };
 
 const emptyForm = {
@@ -46,6 +47,7 @@ export default function MediaManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [filterSection, setFilterSection] = useState("all");
 
   async function fetchMedia() {
@@ -75,7 +77,7 @@ export default function MediaManager() {
   }
 
   function openEdit(item: MediaItem) {
-    setEditingId(item.id);
+    setEditingId(item.fromCatalog ? null : item.id);
     setForm({
       title: item.title,
       alt: item.alt ?? "",
@@ -128,12 +130,27 @@ export default function MediaManager() {
     setSaving(false);
   }
 
-  async function handleDelete(id: string, title: string) {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    const res = await adminFetch(`/api/media/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setMedia((prev) => prev.filter((m) => m.id !== id));
+  async function handleDelete(item: MediaItem) {
+    if (item.fromCatalog) {
+      alert(
+        "This is a default website image. Use “Sync Website Defaults” or edit and save to add it to the database first."
+      );
+      return;
     }
+    if (!confirm(`Delete "${item.title}"? This cannot be undone.`)) return;
+    const res = await adminFetch(`/api/media/${item.id}`, { method: "DELETE" });
+    if (res.ok) {
+      setMedia((prev) => prev.filter((m) => m.id !== item.id));
+    }
+  }
+
+  async function handleSyncDefaults() {
+    setSyncing(true);
+    const res = await adminFetch("/api/media/sync", { method: "POST" });
+    if (res.ok) {
+      await fetchMedia();
+    }
+    setSyncing(false);
   }
 
   const filtered =
@@ -154,14 +171,24 @@ export default function MediaManager() {
             Manage photos and videos across the gallery, workspace, and video sections.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="btn-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
-        >
-          <Plus size={16} />
-          Add Media
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={openCreate}
+            className="btn-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+          >
+            <Plus size={16} />
+            Add Media
+          </button>
+          <button
+            type="button"
+            onClick={handleSyncDefaults}
+            disabled={syncing}
+            className="rounded-full border border-foreground/15 px-5 py-2.5 text-sm font-semibold text-muted transition hover:border-orange hover:text-orange disabled:opacity-60"
+          >
+            {syncing ? "Syncing..." : "Sync Website Defaults"}
+          </button>
+        </div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -201,7 +228,11 @@ export default function MediaManager() {
           className="glow-border mb-8 space-y-4 rounded-2xl bg-card p-6"
         >
           <h3 className="font-bold text-foreground">
-            {editingId ? "Edit Media" : "New Media Item"}
+            {editingId
+              ? "Edit Media"
+              : form.src && media.some((m) => m.src === form.src && m.fromCatalog)
+                ? "Save Website Default to Database"
+                : "New Media Item"}
           </h3>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -366,7 +397,7 @@ export default function MediaManager() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(item.id, item.title)}
+                      onClick={() => handleDelete(item)}
                       className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-red-400"
                       title="Delete"
                     >
@@ -378,6 +409,9 @@ export default function MediaManager() {
                 <div className="flex flex-wrap gap-2 text-xs text-muted">
                   <span>{item.category}</span>
                   <span>Order: {item.order}</span>
+                  {item.fromCatalog && (
+                    <span className="text-blue-300">Website default</span>
+                  )}
                   {item.isFeatured && (
                     <span className="text-orange">Featured</span>
                   )}

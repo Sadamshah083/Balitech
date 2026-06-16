@@ -1,4 +1,4 @@
-import { prisma, isOfficeReady } from "@/lib/prisma";
+import { prisma, isDatabaseAvailable, isOfficeReady } from "@/lib/prisma";
 import { fallbackOffices, type PublicOffice } from "@/lib/fallback-offices";
 
 export type { PublicOffice };
@@ -33,7 +33,7 @@ const publicOfficeSelect = {
 } as const;
 
 export async function getPublicOffices(): Promise<PublicOffice[]> {
-  if (!isOfficeReady()) {
+  if (!isOfficeReady() || !(await isDatabaseAvailable())) {
     return fallbackOffices;
   }
 

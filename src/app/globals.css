@@ -2001,6 +2001,232 @@ input:disabled,
   background: color-mix(in srgb, var(--orange) 70%, transparent);
 }
 
+/* ── Med Alert bonus achievers — Instagram-style portrait phones ── */
+.bonus-achievers-block {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+  width: 100%;
+  padding-inline: 0;
+}
+
+.bonus-achievers-block--fullbleed {
+  width: 100vw;
+  max-width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  overflow: hidden;
+}
+
+.bonus-achievers-block__header {
+  padding-inline: clamp(0.75rem, 2.5vw, 1.5rem);
+}
+
+.bonus-achievers-block__title {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+.bonus-achievers-block__subtitle {
+  margin: 0 0 0.35rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--foreground) 62%, transparent);
+}
+
+.bonus-instagram-row {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  --bonus-screen-h-center: clamp(17rem, 24vw, 24rem);
+  --bonus-screen-h-side: clamp(12rem, 16vw, 16.5rem);
+  --bonus-card-gap: clamp(-1.5rem, -2.8vw, -0.75rem);
+}
+
+.bonus-instagram-row--coverflow {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+
+.bonus-instagram-row--coverflow .bonus-instagram-row__viewport {
+  perspective: clamp(900px, 120vw, 1800px);
+  perspective-origin: 50% 42%;
+  overflow: hidden;
+  width: 100%;
+  min-height: clamp(19rem, 32vw, 30rem);
+  padding-block: clamp(1rem, 2.5vw, 1.75rem) 1rem;
+  touch-action: pan-x;
+  cursor: grab;
+  transform-style: preserve-3d;
+}
+
+.bonus-instagram-row__viewport {
+  overflow: hidden;
+  width: 100%;
+  padding-block: 0.75rem 1rem;
+  touch-action: pan-x;
+  cursor: grab;
+}
+
+.bonus-instagram-row__viewport:active {
+  cursor: grabbing;
+}
+
+.bonus-instagram-row--coverflow .bonus-instagram-row__track {
+  position: relative;
+  width: 100%;
+  height: clamp(19rem, 32vw, 30rem);
+  transform-style: preserve-3d;
+}
+
+.bonus-instagram-row--coverflow .bonus-instagram-row__slot {
+  position: absolute;
+  top: 50%;
+  margin: 0;
+  flex: none;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  pointer-events: auto;
+}
+
+.bonus-instagram-row--coverflow .bonus-instagram-row__slot.is-offscreen {
+  pointer-events: none;
+}
+
+.bonus-instagram-row__track {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--bonus-card-gap);
+  width: max-content;
+  will-change: transform;
+}
+
+.award-distribution-section {
+  overflow-x: clip;
+}
+
+.bonus-instagram-row__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.bonus-instagram-card {
+  flex: 0 0 auto;
+  width: fit-content;
+}
+
+.bonus-instagram-card--cflow.gallery-phone-card {
+  transition: none;
+}
+
+.bonus-instagram-row--coverflow .bonus-instagram-card--center .bonus-instagram-card__shell {
+  box-shadow:
+    0 28px 60px color-mix(in srgb, #000 55%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--orange) 35%, transparent),
+    0 0 40px color-mix(in srgb, var(--orange) 18%, transparent);
+}
+
+.bonus-instagram-row--coverflow .bonus-instagram-card--center {
+  border-color: color-mix(in srgb, var(--orange) 45%, transparent);
+}
+
+.bonus-instagram-card--center .bonus-instagram-card__screen {
+  height: var(--bonus-screen-h-center) !important;
+  width: calc(var(--bonus-screen-h-center) * 9 / 16) !important;
+}
+
+.bonus-instagram-row__slot:not(.is-center) .bonus-instagram-card__screen {
+  height: var(--bonus-screen-h-side) !important;
+  width: calc(var(--bonus-screen-h-side) * 9 / 16) !important;
+}
+
+.bonus-instagram-row--coverflow
+  .bonus-instagram-row__slot[data-offset="0"]
+  .bonus-instagram-card__screen {
+  height: var(--bonus-screen-h-center) !important;
+  width: calc(var(--bonus-screen-h-center) * 9 / 16) !important;
+}
+
+.bonus-instagram-row--coverflow
+  .bonus-instagram-row__slot:not([data-offset="0"])
+  .bonus-instagram-card__screen {
+  height: var(--bonus-screen-h-side) !important;
+  width: calc(var(--bonus-screen-h-side) * 9 / 16) !important;
+}
+
+.bonus-instagram-card__shell {
+  box-shadow:
+    0 12px 40px color-mix(in srgb, #000 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+.bonus-instagram-card__screen {
+  height: var(--bonus-screen-h-side);
+  width: calc(var(--bonus-screen-h-side) * 9 / 16);
+  border-radius: 0.85rem;
+  background: #0a0a0f;
+}
+
+.bonus-instagram-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: #0a0a0f;
+}
+
+.bonus-instagram-card__name {
+  margin-top: 0.65rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--foreground) 78%, transparent);
+}
+
+@media (min-width: 768px) {
+  .bonus-instagram-row {
+    --bonus-screen-h-center: clamp(19rem, 26vw, 28rem);
+    --bonus-screen-h-side: clamp(14rem, 16vw, 19rem);
+  }
+
+  .bonus-instagram-card__name {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bonus-instagram-row {
+    --bonus-screen-h-center: clamp(21rem, 24vw, 30rem);
+    --bonus-screen-h-side: clamp(15rem, 15vw, 20rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .bonus-instagram-row {
+    --bonus-screen-h-center: clamp(15rem, 52vw, 19rem);
+    --bonus-screen-h-side: clamp(11rem, 34vw, 14rem);
+  }
+
+  .bonus-instagram-row--coverflow .bonus-instagram-row__viewport {
+    perspective: 720px;
+    min-height: clamp(17rem, 58vw, 22rem);
+  }
+
+  .bonus-instagram-row--coverflow .bonus-instagram-row__track {
+    height: clamp(17rem, 58vw, 22rem);
+  }
+}
+
 /* ── Explore links row ── */
 .explore-links-section {
   position: relative;

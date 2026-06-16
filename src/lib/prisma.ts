@@ -2,11 +2,13 @@ import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  dbAvailable: boolean | undefined;
+  dbCheckPromise: Promise<boolean> | undefined;
 };
 
 function createPrismaClient() {
   return new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["error"] : [],
+    log: [],
   });
 }
 
@@ -48,4 +50,28 @@ export function isMediaItemReady() {
 export function isOfficeReady() {
   return typeof (prisma as PrismaClient & { office?: { findMany: unknown } })
     .office?.findMany === "function";
+}
+
+export async function isDatabaseAvailable(): Promise<boolean> {
+  if (globalForPrisma.dbAvailable === true) {
+    return true;
+  }
+
+  if (!globalForPrisma.dbCheckPromise) {
+    globalForPrisma.dbCheckPromise = prisma
+      .$queryRaw`SELECT 1`
+      .then(() => {
+        globalForPrisma.dbAvailable = true;
+        return true;
+      })
+      .catch(() => {
+        globalForPrisma.dbAvailable = false;
+        return false;
+      })
+      .finally(() => {
+        globalForPrisma.dbCheckPromise = undefined;
+      });
+  }
+
+  return globalForPrisma.dbCheckPromise;
 }

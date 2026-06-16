@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
-import { fallbackMediaItems } from "@/lib/fallback-media";
+import { getAdminMediaList, getPublicMedia, syncMediaCatalog } from "@/lib/media";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,48 +9,14 @@ export async function GET(request: Request) {
   const section = searchParams.get("section") ?? undefined;
 
   if (publicOnly) {
-    try {
-      const media = await prisma.mediaItem.findMany({
-        where: {
-          isActive: true,
-          ...(section ? { section } : {}),
-        },
-        orderBy: { order: "asc" },
-        select: {
-          id: true,
-          title: true,
-          alt: true,
-          src: true,
-          kind: true,
-          section: true,
-          category: true,
-          order: true,
-          isFeatured: true,
-        },
-      });
-      if (media.length === 0) {
-        const fallback = section
-          ? fallbackMediaItems.filter((item) => item.section === section)
-          : fallbackMediaItems;
-        return NextResponse.json({ media: fallback, fallback: true });
-      }
-      return NextResponse.json({ media });
-    } catch (error) {
-      console.error("[media] Database unavailable:", error);
-      const fallback = section
-        ? fallbackMediaItems.filter((item) => item.section === section)
-        : fallbackMediaItems;
-      return NextResponse.json({ media: fallback, fallback: true });
-    }
+    const media = await getPublicMedia(section);
+    return NextResponse.json({ media });
   }
 
   const auth = await requireApiAuth(request);
   if (auth.response) return auth.response;
 
-  const media = await prisma.mediaItem.findMany({
-    where: section ? { section } : undefined,
-    orderBy: { order: "asc" },
-  });
+  const media = await getAdminMediaList(section);
 
   return NextResponse.json({ media });
 }

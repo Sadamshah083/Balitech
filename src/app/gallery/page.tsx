@@ -5,6 +5,7 @@ import GalleryGrid from "@/components/gallery/GalleryGrid";
 import GalleryPortraitPlayer from "@/components/gallery/GalleryPortraitPlayer";
 import OfficeGallery from "@/components/gallery/OfficeGallery";
 import EventsGallery from "@/components/landing/EventsGallery";
+import AwardDistributionSection from "@/components/landing/AwardDistributionSection";
 import {
   getFeaturedVideo,
   getGalleryMedia,
@@ -71,6 +72,7 @@ export default async function GalleryPage() {
       {eventGalleryItems.length > 0 && (
         <EventsGallery items={eventGalleryItems} />
       )}
+      <AwardDistributionSection />
       {workspaceItems.length > 0 && <OfficeGallery items={workspaceItems} />}
       {galleryItems.length > 0 && <GalleryGrid items={galleryItems} />}
     </SitePage>

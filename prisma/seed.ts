@@ -164,6 +164,32 @@ async function main() {
       })),
     });
     console.log("Default gallery media seeded.");
+  } else {
+    let synced = 0;
+    for (const item of fallbackMediaItems) {
+      const existing = await prisma.mediaItem.findFirst({
+        where: { src: item.src, section: item.section },
+      });
+      if (existing) continue;
+
+      await prisma.mediaItem.create({
+        data: {
+          title: item.title,
+          alt: item.alt,
+          src: item.src,
+          kind: item.kind,
+          section: item.section,
+          category: item.category,
+          order: item.order,
+          isFeatured: item.isFeatured,
+          isActive: true,
+        },
+      });
+      synced += 1;
+    }
+    if (synced > 0) {
+      console.log(`Synced ${synced} new website media item(s).`);
+    }
   }
 }
 

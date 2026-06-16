@@ -12,8 +12,13 @@ export const siteImages = {
       objectPosition: "center center",
     },
     {
-      src: "/hero/hero-office-callcenter.jpg",
-      alt: "Bali Tech call center floor and workspace",
+      src: "/hero/hero-team-group-outdoor.jpg",
+      alt: "BALITECH team group photo outdoors",
+      objectPosition: "center center",
+    },
+    {
+      src: "/hero/hero-pine-view-hotel.jpg",
+      alt: "BALITECH team at Pine View Hotel",
       objectPosition: "center center",
     },
   ],

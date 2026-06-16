@@ -5,6 +5,7 @@ import ServiceCards from "@/components/landing/ServiceCards";
 import About from "@/components/landing/About";
 import AnimatedExploreLinks from "@/components/landing/AnimatedExploreLinks";
 import EventsGallerySection from "@/components/landing/EventsGallerySection";
+import AwardDistributionSection from "@/components/landing/AwardDistributionSection";
 import Metrics from "@/components/landing/Metrics";
 import Campaigns from "@/components/landing/Campaigns";
 import CallCenterFeatures from "@/components/landing/CallCenterFeatures";
@@ -32,6 +33,7 @@ export default function Home() {
         <AnimatedExploreLinks />
       </AnimateSection>
       <EventsGallerySection />
+      <AwardDistributionSection />
       <AnimateSection delay={0.05}>
         <Metrics />
       </AnimateSection>
