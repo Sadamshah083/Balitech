@@ -16,6 +16,7 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://balitech.org"),
   title: "BALITECH | Professional Outsourcing",
   description: `BALITECH — ${companyContent.workforce.count} ${companyContent.workforce.label.toLowerCase()} nationwide, dedicated to operational excellence, employee development, and high-quality client services.`,
 };
