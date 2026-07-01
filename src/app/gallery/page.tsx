@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SitePage from "@/components/layout/SitePage";
 import PageBanner from "@/components/layout/PageBanner";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
+import FruitDayGallery from "@/components/gallery/FruitDayGallery";
 import GalleryPortraitPlayer from "@/components/gallery/GalleryPortraitPlayer";
 import OfficeGallery from "@/components/gallery/OfficeGallery";
 import EventsGallery from "@/components/landing/EventsGallery";
@@ -13,7 +14,6 @@ import {
   getPublicMedia,
   getWorkspaceMedia,
 } from "@/lib/media";
-import { siteImages } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "Gallery | Bali Tech Pvt. Ltd",
@@ -30,9 +30,6 @@ export default async function GalleryPage() {
       getFeaturedVideo(),
       getPublicMedia("events"),
     ]);
-
-  const bannerImage =
-    galleryItems[0]?.src ?? eventsItems[0]?.src ?? siteImages.gallery.main;
 
   const portraitVideoItems = portraitVideos.map((item) => ({
     id: item.id,
@@ -63,8 +60,8 @@ export default async function GalleryPage() {
       <PageBanner
         title="Gallery"
         subtitle="Celebrating milestones, team spirit, and excellence at Bali Tech."
-        image={bannerImage}
       />
+      <FruitDayGallery />
       <GalleryPortraitPlayer
         portraitVideos={portraitVideoItems}
         featuredVideo={featuredVideoItem}

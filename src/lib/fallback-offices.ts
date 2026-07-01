@@ -14,74 +14,51 @@ export type PublicOffice = {
   isHeadOffice: boolean;
 };
 
+export const officeHours = "Mon - Fri from 6 Pm to 4 oclock";
+
+export const removedOfficeSlugs = new Set([
+  "islamabad-office",
+  "iran-road-office",
+]);
+
 function mapUrl(address: string) {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&hl=en&z=14&output=embed`;
 }
 
 export const fallbackOffices: PublicOffice[] = [
   {
-    id: "head-office",
-    name: "Head Office",
-    slug: "head-office",
+    id: "maryam-business-centre",
+    name:
+      "Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400",
+    slug: "maryam-business-centre",
     address:
       "Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400",
     phone: "0331 8638312",
     email: "info@balitech.com",
-    hours: "Mon – Sat: 9:00 AM – 6:00 PM",
+    hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",
-    image: "/balitech_office/DSC03829.JPG",
+    image: null,
     mapEmbedUrl: mapUrl(
-      "Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi"
+      "Office 8, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400"
     ),
     order: 1,
     isHeadOffice: true,
   },
   {
-    id: "islamabad-office",
-    name: "Islamabad Office",
-    slug: "islamabad-office",
-    address: "Plot No.349-352 street No 5 industrial Area 1-9/3, Islamabad",
-    phone: "0331 8638312",
-    email: "info@balitech.com",
-    hours: "Mon – Sat: 9:00 AM – 6:00 PM",
-    city: "Islamabad",
-    country: "Pakistan",
-    image: "/balitech_office/DSC03814.JPG",
-    mapEmbedUrl: mapUrl("Plot 349-352 Street 5 I-9/3 Industrial Area Islamabad"),
-    order: 2,
-    isHeadOffice: false,
-  },
-  {
-    id: "commercial-office",
-    name: "Commercial Office",
-    slug: "commercial-office",
+    id: "ideas-building-plaza",
+    name: "Ideas Building Plaza — Satellite Town B Block",
+    slug: "ideas-building-plaza",
     address:
       "Office No 1, 3rd Floor, Satellite Town B Block, Ideas Building Plaza Rwp",
     phone: "0331 8638312",
     email: "info@balitech.com",
-    hours: "Mon – Sat: 9:00 AM – 6:00 PM",
+    hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",
-    image: "/gallery/gallery-office-workplace-1.jpg",
+    image: null,
     mapEmbedUrl: mapUrl("Ideas Building Plaza Satellite Town B Block Rawalpindi"),
-    order: 3,
-    isHeadOffice: false,
-  },
-  {
-    id: "iran-road-office",
-    name: "Iran Road Office",
-    slug: "iran-road-office",
-    address:
-      "Plaza No A-74, Iran Road Satellite Town-A Rawalpindi Punjab Pakistan",
-    phone: "0331 8638312",
-    email: "info@balitech.com",
-    hours: "Mon – Sat: 9:00 AM – 6:00 PM",
-    city: "Rawalpindi",
-    country: "Pakistan",
-    image: "/gallery/gallery-office-workplace-2.jpg",
-    mapEmbedUrl: mapUrl("Plaza A-74 Iran Road Satellite Town-A Rawalpindi"),
-    order: 4,
+    order: 2,
     isHeadOffice: false,
   },
 ];

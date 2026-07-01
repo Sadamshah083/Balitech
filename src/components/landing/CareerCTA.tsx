@@ -21,9 +21,6 @@ export default function CareerCTA() {
             aria-hidden
           />
 
-          <div className="career-cta-card__ring" aria-hidden />
-          <div className="career-cta-card__ring career-cta-card__ring--inner" aria-hidden />
-
           <div className="career-cta-card__content">
             <h2 id="career-cta-title" className="career-cta-card__title">
               {career.titleLine}{" "}

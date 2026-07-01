@@ -8,7 +8,7 @@ import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 
 const links = [
-  { href: "/our-team", label: "Our Team" },
+  { href: "/our-team", label: "Our Growth" },
   { href: "/gallery", label: "Gallery" },
   { href: "/our-offices", label: "Our Offices" },
 ];

@@ -8,6 +8,7 @@ export const mediaSectionOptions = [
   { value: "hero", label: "Hero Slides" },
   { value: "awards", label: "Award Distribution (Homepage)" },
   { value: "bonus-achievers", label: "Med Alert Bonus Achievers" },
+  { value: "aca-self-verifiers", label: "ACA Self Verifiers Best Performers" },
   { value: "promotions", label: "Team Promotions (Homepage)" },
   { value: "workspace", label: "Office Workspace Section" },
   { value: "portrait-video", label: "Portrait Videos Row" },
@@ -22,6 +23,7 @@ export const mediaCategoryOptions = [
   "Team",
   "Training",
   "Office",
+  "Fruit Day",
 ] as const;
 
 export const mediaKindOptions = [
@@ -117,6 +119,10 @@ export async function getAwardMedia() {
 
 export async function getBonusAchievers() {
   return getPublicMedia("bonus-achievers");
+}
+
+export async function getAcaSelfVerifiers() {
+  return getPublicMedia("aca-self-verifiers");
 }
 
 export async function getPromotions() {

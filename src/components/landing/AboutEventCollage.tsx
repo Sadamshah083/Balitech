@@ -22,11 +22,16 @@ const DEFAULT_TRIP_INDEX = 1;
 
 const carouselImages = images;
 
-const leftPanelImages = carouselImages.slice(0, 4);
-const rightColumnImages = carouselImages.slice(4);
+const cultureGalleryMidpoint = Math.ceil(carouselImages.length / 2);
+const horizontalImages = carouselImages.slice(0, cultureGalleryMidpoint);
+const verticalImages = carouselImages.slice(cultureGalleryMidpoint);
 
-const leftColumnOneImages = leftPanelImages.filter((_, index) => index % 2 === 0);
-const leftColumnTwoImages = leftPanelImages.filter((_, index) => index % 2 === 1);
+const horizontalColumnOneImages = horizontalImages.filter(
+  (_, index) => index % 2 === 0
+);
+const horizontalColumnTwoImages = horizontalImages.filter(
+  (_, index) => index % 2 === 1
+);
 
 function loopSlides<T>(slides: T[]) {
   return [...slides, ...slides];
@@ -225,12 +230,12 @@ export default function AboutEventCollage() {
           </p>
 
           <div className="culture-gallery-section">
-            <div className="culture-gallery-section__left">
+            <div className="culture-gallery-section__horizontal">
               <div className="culture-gallery-col culture-gallery-col--left">
                 <div className="culture-gallery-track culture-gallery-track--right">
-                  {loopSlides(leftColumnOneImages).map((slide, index) => (
+                  {loopSlides(horizontalColumnOneImages).map((slide, index) => (
                     <div
-                      key={`left-one-${slide.src}-${index}`}
+                      key={`horizontal-one-${slide.src}-${index}`}
                       className="culture-gallery-slide"
                     >
                       <Image
@@ -239,7 +244,7 @@ export default function AboutEventCollage() {
                         fill
                         draggable={false}
                         className="object-cover"
-                        sizes="(max-width: 767px) 100vw, 33vw"
+                        sizes="(max-width: 767px) 100vw, 50vw"
                       />
                     </div>
                   ))}
@@ -248,9 +253,9 @@ export default function AboutEventCollage() {
 
               <div className="culture-gallery-col culture-gallery-col--left">
                 <div className="culture-gallery-track culture-gallery-track--right">
-                  {loopSlides(leftColumnTwoImages).map((slide, index) => (
+                  {loopSlides(horizontalColumnTwoImages).map((slide, index) => (
                     <div
-                      key={`left-two-${slide.src}-${index}`}
+                      key={`horizontal-two-${slide.src}-${index}`}
                       className="culture-gallery-slide"
                     >
                       <Image
@@ -259,7 +264,7 @@ export default function AboutEventCollage() {
                         fill
                         draggable={false}
                         className="object-cover"
-                        sizes="(max-width: 767px) 100vw, 33vw"
+                        sizes="(max-width: 767px) 100vw, 50vw"
                       />
                     </div>
                   ))}
@@ -267,12 +272,12 @@ export default function AboutEventCollage() {
               </div>
             </div>
 
-            <div className="culture-gallery-section__right">
+            <div className="culture-gallery-section__vertical">
               <div className="culture-gallery-col culture-gallery-col--right">
                 <div className="culture-gallery-track culture-gallery-track--up">
-                  {loopSlides(rightColumnImages).map((slide, index) => (
+                  {loopSlides(verticalImages).map((slide, index) => (
                     <div
-                      key={`right-${slide.src}-${index}`}
+                      key={`vertical-${slide.src}-${index}`}
                       className="culture-gallery-slide"
                     >
                       <Image
@@ -281,13 +286,24 @@ export default function AboutEventCollage() {
                         fill
                         draggable={false}
                         className="object-cover"
-                        sizes="(max-width: 767px) 100vw, 33vw"
+                        sizes="(max-width: 767px) 100vw, 50vw"
                       />
                     </div>
                   ))}
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="culture-gallery-video">
+            <video
+              className="culture-gallery-video__player"
+              src={videos.fruitDayCommercial.src}
+              controls
+              playsInline
+              preload="metadata"
+              aria-label={videos.fruitDayCommercial.label}
+            />
           </div>
         </div>
       </section>

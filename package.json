@@ -9,6 +9,8 @@
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "optimize:hero": "node scripts/build-hero-hq.mjs",
+    "import:aca-verifiers": "node scripts/import-aca-verifiers.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

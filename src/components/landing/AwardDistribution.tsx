@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
 
@@ -15,7 +15,6 @@ export type AwardItem = {
 
 type AwardDistributionProps = {
   items: AwardItem[];
-  mobileHighlights?: AwardItem[];
 };
 
 type ImagePair = {
@@ -76,231 +75,8 @@ const smoothSwipe = {
   ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
 };
 
-function BonusAchieverCard({
-  item,
-  centered = false,
-}: {
-  item: AwardItem;
-  centered?: boolean;
-}) {
-  const isRemote = item.image.startsWith("http");
-
-  return (
-    <article
-      className={`bonus-instagram-card bonus-instagram-card--cflow gallery-device gallery-device--phone gallery-phone-card${
-        centered ? " bonus-instagram-card--center" : ""
-      }`}
-    >
-      <div className="gallery-device__shell gallery-phone bonus-instagram-card__shell">
-        <div
-          className="gallery-device__screen gallery-phone__screen bonus-instagram-card__screen"
-          style={{ "--video-aspect": 9 / 16 } as React.CSSProperties}
-        >
-          <Image
-            src={item.image}
-            alt={item.alt ?? item.title}
-            fill
-            unoptimized={isRemote}
-            sizes="280px"
-            className="bonus-instagram-card__image object-contain"
-          />
-        </div>
-      </div>
-      <p className="gallery-device__title bonus-instagram-card__name">{item.title}</p>
-    </article>
-  );
-}
-
-function getCoverflowSlotMotion(offset: number, stepPx: number) {
-  const absOffset = Math.abs(offset);
-
-  if (absOffset > 3) {
-    return {
-      left: `calc(50% + ${offset * stepPx}px)`,
-      x: "-50%",
-      y: "-50%",
-      rotateY: 0,
-      scale: 0.55,
-      z: -140,
-      opacity: 0,
-    };
-  }
-
-  const x = offset * stepPx;
-  let rotateY = 0;
-  let scale = 1;
-  let z = 72;
-  let opacity = 1;
-  let filter = "none";
-
-  if (offset === 0) {
-    rotateY = 0;
-    scale = 1;
-    z = 72;
-    opacity = 1;
-  } else if (absOffset === 1) {
-    rotateY = offset < 0 ? 42 : -42;
-    scale = 0.9;
-    z = 24;
-    opacity = 0.94;
-    filter = "brightness(0.92) saturate(0.96)";
-  } else if (absOffset === 2) {
-    rotateY = offset < 0 ? 54 : -54;
-    scale = 0.82;
-    z = -18;
-    opacity = 0.82;
-    filter = "brightness(0.86) saturate(0.9)";
-  } else {
-    rotateY = offset < 0 ? 64 : -64;
-    scale = 0.74;
-    z = -64;
-    opacity = 0.68;
-    filter = "brightness(0.78) saturate(0.85)";
-  }
-
-  return {
-    left: `calc(50% + ${x}px)`,
-    x: "-50%",
-    y: "-50%",
-    rotateY,
-    scale,
-    z,
-    opacity,
-    filter,
-    zIndex: 20 - absOffset * 4,
-  };
-}
-
-function InstagramMobileRow({
-  title,
-  subtitle,
-  items,
-}: {
-  title: string;
-  subtitle: string;
-  items: AwardItem[];
-}) {
-  const [activeIndex, setActiveIndex] = useState(() =>
-    Math.min(2, Math.max(0, items.length - 1))
-  );
-  const [paused, setPaused] = useState(false);
-  const [stepPx, setStepPx] = useState(132);
-  const viewportRef = useRef<HTMLDivElement>(null);
-
-  const count = items.length;
-
-  const updateStep = useCallback(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-    const vw = viewport.clientWidth;
-    setStepPx(Math.max(96, Math.min(vw * 0.168, 248)));
-  }, []);
-
-  useLayoutEffect(() => {
-    updateStep();
-  }, [updateStep, items, activeIndex]);
-
-  useEffect(() => {
-    window.addEventListener("resize", updateStep);
-    return () => window.removeEventListener("resize", updateStep);
-  }, [updateStep]);
-
-  const goNext = useCallback(() => {
-    setActiveIndex((current) => (current + 1) % count);
-  }, [count]);
-
-  const goPrev = useCallback(() => {
-    setActiveIndex((current) => (current - 1 + count) % count);
-  }, [count]);
-
-  useEffect(() => {
-    if (count < 2 || paused) return;
-    const timer = window.setInterval(goNext, 4500);
-    return () => window.clearInterval(timer);
-  }, [count, paused, goNext]);
-
-  if (count === 0) return null;
-
-  return (
-    <div className="bonus-achievers-block bonus-achievers-block--fullbleed">
-      <div className="bonus-achievers-block__header">
-        <h3 className="bonus-achievers-block__title">{title}</h3>
-        <p className="bonus-achievers-block__subtitle">{subtitle}</p>
-      </div>
-
-      <div
-        className="bonus-instagram-row bonus-instagram-row--coverflow"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-      >
-        <motion.div
-          ref={viewportRef}
-          className="bonus-instagram-row__viewport"
-          drag={count > 1 ? "x" : false}
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.12}
-          dragMomentum={false}
-          onDragEnd={(_, info) => {
-            if (info.offset.x < -40 || info.velocity.x < -350) goNext();
-            else if (info.offset.x > 40 || info.velocity.x > 350) goPrev();
-          }}
-        >
-          <div
-            className="bonus-instagram-row__track"
-            style={{ "--cflow-step": `${stepPx}px` } as React.CSSProperties}
-          >
-            {items.map((item, index) => {
-              const offset = index - activeIndex;
-              const absOffset = Math.abs(offset);
-              const motionProps = getCoverflowSlotMotion(offset, stepPx);
-
-              return (
-                <motion.div
-                  key={item.id}
-                  className={`bonus-instagram-row__slot${
-                    absOffset > 3 ? " is-offscreen" : ""
-                  }`}
-                  data-offset={offset}
-                  aria-hidden={absOffset > 3}
-                  animate={motionProps}
-                  transition={smoothSwipe}
-                  style={{
-                    transformOrigin:
-                      offset < 0 ? "100% 50%" : offset > 0 ? "0% 50%" : "50% 50%",
-                  }}
-                >
-                  <BonusAchieverCard item={item} centered={offset === 0} />
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {count > 1 && (
-          <div className="bonus-instagram-row__dots" aria-hidden>
-            {items.map((item, dotIndex) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-label={`Show ${item.title}`}
-                className={`events-gallery-showcase__dot ${
-                  dotIndex === activeIndex
-                    ? "events-gallery-showcase__dot--active"
-                    : ""
-                }`}
-                onClick={() => setActiveIndex(dotIndex)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function AwardDistribution({
   items,
-  mobileHighlights = [],
 }: AwardDistributionProps) {
   const sorted = useMemo(
     () =>
@@ -481,14 +257,6 @@ export default function AwardDistribution({
           )}
         </div>
       </div>
-
-      {mobileHighlights.length > 0 && (
-        <InstagramMobileRow
-          title="Top Performers & Promotions"
-          subtitle="Bonus achievers and career milestones at BALITECH"
-          items={mobileHighlights}
-        />
-      )}
     </section>
   );
 }

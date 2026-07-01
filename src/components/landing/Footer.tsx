@@ -1,10 +1,62 @@
 import Link from "next/link";
-import { Globe, Mail, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
+import SocialPlatformIcon from "@/components/brand/SocialPlatformIcon";
 import { companyContent } from "@/lib/content";
 import { applyNowLabel, joinUsHref, navLinks } from "@/lib/navigation";
 
 const { footer, tagline } = companyContent;
+
+type SocialLink = (typeof footer.socialBranches)[number]["links"][number];
+type SocialBranch = (typeof footer.socialBranches)[number];
+
+function SocialLinkItem({ link }: { link: SocialLink }) {
+  const icon = <SocialPlatformIcon platform={link.platform} size={17} />;
+
+  if (!link.href) {
+    return (
+      <span
+        className="footer-social-icon footer-social-icon--round footer-social-icon--placeholder"
+        aria-label={`${link.label} — coming soon`}
+      >
+        {icon}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={link.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={link.label}
+      className="footer-social-icon footer-social-icon--round brand-icon-wrap transition hover:bg-orange hover:text-on-primary"
+    >
+      {icon}
+    </a>
+  );
+}
+
+function SocialBranchBlock({ branch }: { branch: SocialBranch }) {
+  return (
+    <div className="footer-social-branch">
+      <h5 className="footer-social-branch__title">{branch.title}</h5>
+      <div className="footer-social-branch__icons">
+        {branch.links.map((link) => (
+          <SocialLinkItem key={`${branch.title}-${link.platform}`} link={link} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function getBranch(title: string) {
+  const branch = footer.socialBranches.find((item) => item.title === title);
+  if (!branch) {
+    throw new Error(`Missing footer social branch: ${title}`);
+  }
+  return branch;
+}
 
 export default function Footer() {
   return (
@@ -55,7 +107,8 @@ export default function Footer() {
           <ul className="space-y-3 text-sm text-muted">
             <li className="flex items-start gap-2">
               <MapPin size={16} className="mt-0.5 shrink-0 text-orange" />
-              Rawalpindi, Pakistan
+              Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad,
+              Rawalpindi, Punjab 4400
             </li>
             <li className="flex items-center gap-2">
               <Phone size={16} className="shrink-0 text-orange" />
@@ -70,18 +123,17 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="footer-social-section sm:col-span-2 lg:col-span-1">
           <h4 className="mb-4 font-bold text-foreground">Follow Us</h4>
-          <div className="flex gap-3">
-            {[Share2, MessageCircle, Globe].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                className="brand-icon-wrap rounded-full border border-orange/40 p-2.5 transition hover:bg-orange hover:text-on-primary"
-              >
-                <Icon size={18} />
-              </a>
-            ))}
+          <div className="footer-social-board">
+            <div className="footer-social-board__col footer-social-board__col--active">
+              <SocialBranchBlock branch={getBranch("Commercial Branch")} />
+              <SocialBranchBlock branch={getBranch("Shamsabad Branch")} />
+            </div>
+            <div className="footer-social-board__col footer-social-board__col--inactive">
+              <SocialBranchBlock branch={getBranch("Iran Road Branch")} />
+              <SocialBranchBlock branch={getBranch("I-9/3 Branch")} />
+            </div>
           </div>
         </div>
       </div>

@@ -49,14 +49,22 @@ export default function GalleryGrid({ items }: GalleryGridProps) {
               key={item.id}
               className="glow-border group overflow-hidden rounded-2xl bg-card"
             >
-              <div className="relative h-56 overflow-hidden">
+              <div
+                className={`relative overflow-hidden ${
+                  item.category === "Fruit Day" ? "h-64 sm:h-72" : "h-56"
+                }`}
+              >
                 <Image
                   src={item.src}
                   alt={item.alt ?? item.title}
                   fill
                   unoptimized={item.src.startsWith("http")}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition duration-500 group-hover:scale-105"
+                  className={`object-cover transition duration-500 group-hover:scale-105${
+                    item.category === "Fruit Day"
+                      ? " object-contain bg-background p-1"
+                      : ""
+                  }`}
                 />
               </div>
               <div className="p-5">

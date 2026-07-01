@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
-import { buildMapEmbedUrl, slugifyOffice } from "@/lib/offices";
+import { buildMapEmbedUrl, getPublicOffices, slugifyOffice } from "@/lib/offices";
 import { fallbackOffices } from "@/lib/fallback-offices";
 
 export async function GET(request: Request) {
@@ -10,28 +10,7 @@ export async function GET(request: Request) {
 
   if (publicOnly) {
     try {
-      const offices = await prisma.office.findMany({
-        where: { isActive: true },
-        orderBy: { order: "asc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          address: true,
-          phone: true,
-          email: true,
-          hours: true,
-          city: true,
-          country: true,
-          image: true,
-          mapEmbedUrl: true,
-          order: true,
-          isHeadOffice: true,
-        },
-      });
-      if (offices.length === 0) {
-        return NextResponse.json({ offices: fallbackOffices, fallback: true });
-      }
+      const offices = await getPublicOffices();
       return NextResponse.json({ offices });
     } catch (error) {
       console.error("[offices] Database unavailable:", error);

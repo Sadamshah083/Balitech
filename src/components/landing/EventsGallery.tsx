@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
-import { HeadingBrush } from "@/components/brand/HeadingLastWord";
+import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
 
 export type EventGalleryItem = {
   id: string;
@@ -167,7 +167,7 @@ export default function EventsGallery({ items }: EventsGalleryProps) {
             id="events-gallery-title"
             className="brand-heading text-3xl sm:text-4xl md:text-5xl"
           >
-            <HeadingBrush text="Moments That Define Us" />
+            <HeadingLastWord text="Moments That Define Us" />
           </h2>
         </header>
       </div>

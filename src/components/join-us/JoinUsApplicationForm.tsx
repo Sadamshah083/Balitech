@@ -37,7 +37,7 @@ export default function JoinUsApplicationForm() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [campaign, setCampaign] = useState<string | null>(null);
   const [cvName, setCvName] = useState("");
-  const [branches, setBranches] = useState(joinUs.form.branches);
+  const [branches, setBranches] = useState<{ value: string; label: string }[]>([...joinUs.form.branches]);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",

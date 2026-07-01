@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Building2, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { adminFetch } from "@/lib/admin-token";
+import { officeHours } from "@/lib/fallback-offices";
 
 type Office = {
   id: string;
@@ -28,7 +29,7 @@ const emptyForm = {
   address: "",
   phone: "",
   email: "",
-  hours: "Mon – Sat: 9:00 AM – 6:00 PM",
+  hours: officeHours,
   city: "",
   country: "Pakistan",
   image: "",
@@ -173,7 +174,7 @@ export default function OfficesManager() {
           <div className="grid gap-4 sm:grid-cols-2">
             <input
               type="text"
-              placeholder="Branch name * (e.g. Head Office)"
+              placeholder="Branch name * (e.g. Maryam Business Centre)"
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -277,7 +278,7 @@ export default function OfficesManager() {
                 }
                 className="accent-orange"
               />
-              Head office (primary contact & map)
+              Head office (primary location & map)
             </label>
           </div>
 
@@ -334,7 +335,7 @@ export default function OfficesManager() {
                       {office.name}
                       {office.isHeadOffice && (
                         <span className="ml-2 rounded-full bg-orange/15 px-2 py-0.5 text-xs font-bold text-orange">
-                          Head Office
+                          Primary
                         </span>
                       )}
                     </h3>

@@ -1,27 +1,9 @@
 export const siteImages = {
-  hero: "/hero/hero-meeting-foreground.jpg",
-  heroSlides: [
-    {
-      src: "/hero/hero-meeting-foreground.jpg",
-      alt: "Bali Tech team meeting discussion",
-      objectPosition: "center center",
-    },
-    {
-      src: "/hero/hero-outdoor-night.jpg",
-      alt: "Bali Tech team outdoor gathering at night",
-      objectPosition: "center center",
-    },
-    {
-      src: "/hero/hero-team-group-outdoor.jpg",
-      alt: "BALITECH team group photo outdoors",
-      objectPosition: "center center",
-    },
-    {
-      src: "/hero/hero-pine-view-hotel.jpg",
-      alt: "BALITECH team at Pine View Hotel",
-      objectPosition: "center center",
-    },
-  ],
+  hero: "/herovideo/Balitech%20hero%20video.mp4",
+  heroVideo: {
+    src: "/herovideo/Balitech%20hero%20video.mp4",
+    label: "BALITECH hero video",
+  },
   about:
     "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=85",
   aboutCollage: {
@@ -39,35 +21,79 @@ export const siteImages = {
         src: "/management_trip/Management%20Trip.mp4",
         label: "Management Trip",
       },
+      fruitDayCommercial: {
+        src: "/baliCulture_Day/fruit-day-commercial.mp4",
+        label: "Fruit Day Commercial",
+      },
     },
     images: [
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.23%20PM%20(1).jpeg",
-        alt: "BALITECH Bali Culture Day — team celebration",
+        alt: "BALITECH Culture Day and Prize Distribution — team celebration",
       },
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.24%20PM.jpeg",
-        alt: "BALITECH Bali Culture Day — office festivities",
+        alt: "BALITECH Culture Day and Prize Distribution — office festivities",
       },
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.25%20PM.jpeg",
-        alt: "BALITECH Bali Culture Day — top performer award",
+        alt: "BALITECH Culture Day and Prize Distribution — top performer award",
       },
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.33%20PM.jpeg",
-        alt: "BALITECH Bali Culture Day — cultural event",
+        alt: "BALITECH Culture Day and Prize Distribution — cultural event",
       },
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.34%20PM.jpeg",
-        alt: "BALITECH Bali Culture Day — team gathering",
+        alt: "BALITECH Culture Day and Prize Distribution — team gathering",
       },
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.34%20PM%20(1).jpeg",
-        alt: "BALITECH Bali Culture Day — celebration highlights",
+        alt: "BALITECH Culture Day and Prize Distribution — celebration highlights",
       },
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.34%20PM%20(2).jpeg",
-        alt: "BALITECH Bali Culture Day — team culture",
+        alt: "BALITECH Culture Day and Prize Distribution — team culture",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-01.png",
+        alt: "BALITECH Culture Day and Prize Distribution — team at summer celebration backdrop",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-02.png",
+        alt: "BALITECH Culture Day and Prize Distribution — team in green shirts",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-03.png",
+        alt: "BALITECH Culture Day and Prize Distribution — employees at summer festivities",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-04.png",
+        alt: "BALITECH Culture Day and Prize Distribution — team with fruit-themed photo frames",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-05.png",
+        alt: "BALITECH Culture Day and Prize Distribution — prize distribution ceremony",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-06.png",
+        alt: "BALITECH Culture Day and Prize Distribution — team photo with Hello Summer sign",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-07.png",
+        alt: "BALITECH Culture Day and Prize Distribution — summer celebration highlights",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-08.png",
+        alt: "BALITECH Culture Day and Prize Distribution — office celebration collage",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-09.png",
+        alt: "BALITECH Culture Day and Prize Distribution — Happy Summer team celebration",
+      },
+      {
+        src: "/baliCulture_Day/fruit-day/fruit-day-10.png",
+        alt: "BALITECH Culture Day and Prize Distribution — canvas painting activity",
       },
     ],
   },

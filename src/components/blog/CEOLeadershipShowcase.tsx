@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useRef, type ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import { Quote } from "lucide-react";
-import BentoTilt from "@/components/animations/BentoTilt";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 import { companyContent } from "@/lib/content";
@@ -25,17 +24,11 @@ type CEOLeadershipShowcaseProps = {
 function Reveal({
   children,
   className,
-  tilt = true,
 }: {
   children: ReactNode;
   className?: string;
-  tilt?: boolean;
 }) {
-  if (!tilt) {
-    return <div className={className}>{children}</div>;
-  }
-
-  return <BentoTilt className={className}>{children}</BentoTilt>;
+  return <div className={className}>{children}</div>;
 }
 
 export default function CEOLeadershipShowcase({
@@ -146,7 +139,7 @@ export default function CEOLeadershipShowcase({
           </div>
         )}
 
-        <Reveal className="ceo-leadership-showcase__reveal" tilt={!isPage}>
+        <Reveal className="ceo-leadership-showcase__reveal">
           <article
             className={cn(
               "ceo-leadership-showcase__hero",
@@ -169,7 +162,6 @@ export default function CEOLeadershipShowcase({
                     sizes="(max-width: 768px) 100vw, 42vw"
                     priority
                   />
-                  <div className="ceo-leadership-showcase__portrait-shine" aria-hidden />
                 </div>
                 <div className="ceo-leadership-showcase__identity">
                   <p className="ceo-leadership-showcase__name">{ceo.name}</p>
@@ -217,7 +209,7 @@ export default function CEOLeadershipShowcase({
           )}
         >
           {otherGroups.map((group, index) => (
-            <Reveal key={group.lines[0]} className="ceo-leadership-showcase__reveal ceo-leadership-showcase__grid-item" tilt={!isPage}>
+            <Reveal key={group.lines[0]} className="ceo-leadership-showcase__reveal ceo-leadership-showcase__grid-item">
               <article
                 className={cn(
                   "ceo-leadership-showcase__card",

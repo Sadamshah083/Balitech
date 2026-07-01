@@ -30,7 +30,7 @@ export const companyContent = {
     collageTitle: "Annual Trips",
     collageIntro:
       "Relive BALITECH annual trips — team adventures from 2025 and 2026.",
-    collageSwipeLabel: " Culture Day and Prize Distribution",
+    collageSwipeLabel: "Culture Day and Prize Distribution",
     annualTrips: {
       trip2k25: {
         title: "Annual Trip 2k25",
@@ -255,7 +255,7 @@ export const companyContent = {
   },
 
   ceo: {
-    name: "Muhammad Shiraz Bali",
+    name: "Sheraz Bali",
     title: "Chief Executive Officer",
     shortTitle: "CEO",
     company: "BALITECH",
@@ -288,6 +288,88 @@ export const companyContent = {
   footer: {
     description:
       "BALITECH — a rapidly growing BPO organization delivering high-quality client services, operational excellence, and career growth opportunities nationwide.",
+    socialBranches: [
+      {
+        title: "Iran Road Branch",
+        links: [
+          {
+            platform: "instagram",
+            href: "",
+            label: "Iran Road Branch on Instagram",
+          },
+          {
+            platform: "facebook",
+            href: "",
+            label: "Iran Road Branch on Facebook",
+          },
+          {
+            platform: "tiktok",
+            href: "",
+            label: "Iran Road Branch on TikTok",
+          },
+        ],
+      },
+      {
+        title: "I-9/3 Branch",
+        links: [
+          {
+            platform: "instagram",
+            href: "",
+            label: "I-9/3 Branch on Instagram",
+          },
+          {
+            platform: "facebook",
+            href: "",
+            label: "I-9/3 Branch on Facebook",
+          },
+          {
+            platform: "tiktok",
+            href: "",
+            label: "I-9/3 Branch on TikTok",
+          },
+        ],
+      },
+      {
+        title: "Commercial Branch",
+        links: [
+          {
+            platform: "instagram",
+            href: "https://www.instagram.com/balitech.commercial/",
+            label: "Commercial Branch on Instagram",
+          },
+          {
+            platform: "facebook",
+            href: "https://www.facebook.com/balitech.commercial/",
+            label: "Commercial Branch on Facebook",
+          },
+          {
+            platform: "tiktok",
+            href: "https://www.tiktok.com/@balitech.commercial",
+            label: "Commercial Branch on TikTok",
+          },
+        ],
+      },
+      {
+        title: "Shamsabad Branch",
+        links: [
+          {
+            platform: "instagram",
+            href: "https://www.instagram.com/balitechpvt.ltd/",
+            label: "Shamsabad Branch on Instagram",
+          },
+          {
+            platform: "facebook",
+            href: "https://www.facebook.com/Balitechpvt.ltd",
+            label: "Shamsabad Branch on Facebook",
+          },
+          {
+            platform: "tiktok",
+            href: "https://www.tiktok.com/@balitech.pvt.ltd",
+            label: "Shamsabad Branch on TikTok",
+          },
+        ],
+      },
+    ],
   },
 
   hero: {
@@ -313,7 +395,7 @@ export const companyContent = {
     hero: {
       eyebrow: "Careers at BALITECH",
       titleLine: "Become A Part Of",
-      titleHighlight: "Our Team",
+      titleHighlight: "Our Growth",
       subtitle:
         "Explore openings, showcase your talent, and take the first step toward a fulfilling career with one of Pakistan's fastest-growing BPO organizations.",
     },
@@ -371,14 +453,15 @@ export const companyContent = {
     },
     appointment: {
       title: "Let's Meet With Us — Make An Appointment First",
-      address: "Rawalpindi Branch, Pakistan",
+      address:
+        "Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400",
       mapEmbedUrl:
-        "https://maps.google.com/maps?q=Rawalpindi,+Pakistan&hl=en&z=14&output=embed",
-      mapTitle: "BALITECH office location map",
+        "https://maps.google.com/maps?q=Office%208%2C%20Maryam%20Business%20Centre%2C%20Murree%20Road%2C%20Shamsabad%2C%20Rawalpindi%2C%20Punjab%204400&hl=en&z=14&output=embed",
+      mapTitle: "Maryam Business Centre location map",
     },
     contact: {
       hoursLabel: "Days Open",
-      hours: "Monday – Friday (9:00 AM – 6:00 PM)",
+      hours: "Mon - Fri from 6 Pm to 4 oclock",
       emailLabel: "Email",
       email: "info@balitech.com",
       phoneLabel: "Phone",

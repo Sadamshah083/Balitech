@@ -1,7 +1,8 @@
 import { prisma, isDatabaseAvailable, isOfficeReady } from "@/lib/prisma";
-import { fallbackOffices, type PublicOffice } from "@/lib/fallback-offices";
+import { fallbackOffices, removedOfficeSlugs, officeHours, type PublicOffice } from "@/lib/fallback-offices";
 
 export type { PublicOffice };
+export { officeHours };
 
 export function slugifyOffice(text: string) {
   return text
@@ -33,22 +34,25 @@ const publicOfficeSelect = {
 } as const;
 
 export async function getPublicOffices(): Promise<PublicOffice[]> {
+  let offices: PublicOffice[];
+
   if (!isOfficeReady() || !(await isDatabaseAvailable())) {
-    return fallbackOffices;
+    offices = fallbackOffices;
+  } else {
+    try {
+      const dbOffices = await prisma.office.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
+        select: publicOfficeSelect,
+      });
+      offices = dbOffices.length === 0 ? fallbackOffices : dbOffices;
+    } catch (error) {
+      console.error("[offices] Database unavailable, serving fallback:", error);
+      offices = fallbackOffices;
+    }
   }
 
-  try {
-    const offices = await prisma.office.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-      select: publicOfficeSelect,
-    });
-    if (offices.length === 0) return fallbackOffices;
-    return offices;
-  } catch (error) {
-    console.error("[offices] Database unavailable, serving fallback:", error);
-    return fallbackOffices;
-  }
+  return offices.filter((office) => !removedOfficeSlugs.has(office.slug));
 }
 
 export async function getHeadOffice(): Promise<PublicOffice | null> {

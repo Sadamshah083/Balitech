@@ -8,7 +8,7 @@ import Metrics from "@/components/landing/Metrics";
 import { siteImages } from "@/lib/images";
 
 export const metadata: Metadata = {
-  title: "Our Team | Bali Tech Pvt. Ltd",
+  title: "Our Growth | Bali Tech Pvt. Ltd",
   description: "Meet the talented professionals behind Bali Tech's success.",
 };
 
@@ -16,7 +16,7 @@ export default function OurTeamPage() {
   return (
     <SitePage>
       <PageBanner
-        title="Our Team"
+        title="Our Growth"
         subtitle="Dedicated professionals committed to delivering excellence every day."
         image={siteImages.career}
       />
