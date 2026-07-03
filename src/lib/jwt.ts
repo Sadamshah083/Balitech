@@ -11,6 +11,7 @@ export const AUTH_COOKIE_NAME = "balitech_admin_token";
 export type SessionPayload = {
   adminId: string;
   email: string;
+  role: string;
 };
 
 function getSecretKey() {
@@ -21,6 +22,7 @@ export async function signSessionToken(payload: SessionPayload) {
   return new SignJWT({
     adminId: payload.adminId,
     email: payload.email,
+    role: payload.role,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.adminId)
@@ -47,12 +49,13 @@ export async function verifySessionToken(
           ? payload.sub
           : null;
     const email = typeof payload.email === "string" ? payload.email : null;
+    const role = typeof payload.role === "string" ? payload.role : "admin";
 
     if (!adminId || !email) {
       return null;
     }
 
-    return { adminId, email };
+    return { adminId, email, role };
   } catch {
     return null;
   }

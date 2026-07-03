@@ -1244,6 +1244,10 @@ input:disabled,
   transition: border-color 0.2s;
 }
 
+select.brand-input {
+  border-radius: 0.5rem;
+}
+
 .brand-input::placeholder {
   color: var(--muted);
 }
@@ -1354,7 +1358,7 @@ input:disabled,
 }
 
 .footer-social-icon--round {
-  border-radius: 999px;
+  border-radius: 0.5rem;
 }
 
 .footer-social-icon--placeholder {
@@ -1376,6 +1380,108 @@ input:disabled,
     flex-direction: column;
     gap: 1.25rem;
   }
+}
+
+.footer-locations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.footer-locations__heading {
+  margin: 0;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.footer-locations__grid {
+  display: grid;
+  gap: 1.5rem 1.25rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .footer-locations__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer-locations__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.footer-locations__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+}
+
+.footer-locations__name {
+  margin: 0;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: flex-end;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+  line-height: 1.35;
+}
+
+.footer-locations__address {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--foreground) 72%, transparent);
+}
+
+.footer-locations__pin {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  color: var(--orange);
+}
+
+.admin-sidebar {
+  height: 100dvh;
+}
+
+.admin-sidebar__nav {
+  min-height: 0;
+}
+
+.admin-sidebar__footer {
+  position: sticky;
+  bottom: 0;
+}
+
+.admin-shell .admin-surface {
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.admin-shell .admin-card {
+  border-radius: 0.5rem;
+}
+
+.admin-shell .btn-primary,
+.admin-shell .btn-secondary {
+  border-radius: 0.5rem;
 }
 
 .hero-orange-glow {

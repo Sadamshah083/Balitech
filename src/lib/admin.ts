@@ -10,12 +10,12 @@ export async function requireAdmin() {
 
   const admin = await prisma.admin.findUnique({
     where: { id: session.adminId },
-    select: { id: true, email: true, name: true },
+    select: { id: true, email: true, name: true, role: true },
   });
 
   if (!admin) {
     redirect("/admin/login");
   }
 
-  return admin;
+  return admin as { id: string; email: string; name: string; role: string };
 }

@@ -183,11 +183,7 @@ export default function Campaigns() {
   const maxIndex = Math.max(0, total - cardsPerView);
   const pageCount = maxIndex + 1;
 
-  useEffect(() => {
-    if (activeIndex > maxIndex) {
-      setActiveIndex(maxIndex);
-    }
-  }, [activeIndex, maxIndex]);
+  const clampedActiveIndex = Math.min(activeIndex, maxIndex);
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
@@ -199,7 +195,7 @@ export default function Campaigns() {
 
     const update = () => {
       setSlideOffset(
-        measureCarouselOffset(viewport, track, cardsPerView, activeIndex)
+        measureCarouselOffset(viewport, track, cardsPerView, clampedActiveIndex)
       );
     };
 
@@ -207,7 +203,7 @@ export default function Campaigns() {
     const observer = new ResizeObserver(update);
     observer.observe(viewport);
     return () => observer.disconnect();
-  }, [activeIndex, cardsPerView, total, displayCampaigns]);
+  }, [clampedActiveIndex, cardsPerView, total, displayCampaigns]);
 
   const goTo = useCallback(
     (index: number) => {
@@ -218,12 +214,12 @@ export default function Campaigns() {
   );
 
   const showPrevious = useCallback(() => {
-    goTo(activeIndex - 1);
-  }, [activeIndex, goTo]);
+    goTo(clampedActiveIndex - 1);
+  }, [clampedActiveIndex, goTo]);
 
   const showNext = useCallback(() => {
-    goTo(activeIndex + 1);
-  }, [activeIndex, goTo]);
+    goTo(clampedActiveIndex + 1);
+  }, [clampedActiveIndex, goTo]);
 
   return (
     <section id="campaigns" className="section-with-net py-14">
@@ -271,7 +267,7 @@ export default function Campaigns() {
               className="campaigns-carousel__btn"
               aria-label="Previous campaign"
               onClick={showPrevious}
-              disabled={activeIndex === 0}
+              disabled={clampedActiveIndex === 0}
             >
               <ChevronLeft aria-hidden size={24} strokeWidth={2.5} />
             </button>
@@ -283,10 +279,10 @@ export default function Campaigns() {
                   type="button"
                   role="tab"
                   className={`campaigns-carousel__dot${
-                    index === activeIndex ? " is-active" : ""
+                    index === clampedActiveIndex ? " is-active" : ""
                   }`}
                   aria-label={`Go to campaign slide ${index + 1}`}
-                  aria-selected={index === activeIndex}
+                  aria-selected={index === clampedActiveIndex}
                   onClick={() => goTo(index)}
                 />
               ))}
@@ -297,7 +293,7 @@ export default function Campaigns() {
               className="campaigns-carousel__btn"
               aria-label="Next campaign"
               onClick={showNext}
-              disabled={activeIndex >= maxIndex}
+              disabled={clampedActiveIndex >= maxIndex}
             >
               <ChevronRight aria-hidden size={24} strokeWidth={2.5} />
             </button>

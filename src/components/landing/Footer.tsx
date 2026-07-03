@@ -94,7 +94,7 @@ export default function Footer() {
             <li>
               <Link
                 href={joinUsHref}
-                className="btn-primary inline-flex rounded-full px-4 py-1.5 text-sm font-bold uppercase tracking-wider"
+                className="btn-primary inline-flex rounded-lg px-4 py-1.5 text-sm font-bold uppercase tracking-wider"
               >
                 {applyNowLabel}
               </Link>
@@ -105,20 +105,19 @@ export default function Footer() {
         <div>
           <h4 className="mb-4 font-bold text-foreground">Contact Us</h4>
           <ul className="space-y-3 text-sm text-muted">
-            <li className="flex items-start gap-2">
-              <MapPin size={16} className="mt-0.5 shrink-0 text-orange" />
-              Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad,
-              Rawalpindi, Punjab 4400
-            </li>
-            <li className="flex items-center gap-2">
-              <Phone size={16} className="shrink-0 text-orange" />
-              <a href="tel:+923318638312" className="hover:text-orange">
-                0331 8638312
-              </a>
-            </li>
+            {footer.phones.map((phone) => (
+              <li key={phone.href} className="flex items-center gap-2">
+                <Phone size={16} className="shrink-0 text-orange" aria-hidden />
+                <a href={phone.href} className="font-semibold text-foreground hover:text-orange">
+                  {phone.label}
+                </a>
+              </li>
+            ))}
             <li className="flex items-center gap-2">
               <Mail size={16} className="shrink-0 text-orange" />
-              info@balitech.com
+              <a href={`mailto:${footer.contact.email}`} className="hover:text-orange">
+                {footer.contact.email}
+              </a>
             </li>
           </ul>
         </div>
@@ -138,7 +137,22 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto mt-12 max-w-7xl border-t border-foreground/10 px-4 pt-8 text-center text-sm text-muted sm:px-6 lg:px-8">
+      <div className="footer-locations mx-auto mt-12 max-w-7xl border-t border-foreground/10 px-4 pt-8 sm:px-6 lg:px-8">
+        <h4 className="footer-locations__heading">Our Offices</h4>
+        <div className="footer-locations__grid">
+          {footer.locations.map((location) => (
+            <div key={location.name} className="footer-locations__item">
+              <h5 className="footer-locations__name">{location.name}</h5>
+              <p className="footer-locations__address">
+                <MapPin size={14} className="footer-locations__pin" aria-hidden />
+                {location.address}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 pt-6 text-center text-sm text-muted sm:px-6 lg:px-8">
         © {new Date().getFullYear()} Bali Tech Pvt. Ltd. All rights reserved.
       </div>
     </footer>

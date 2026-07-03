@@ -175,7 +175,7 @@ export default function MediaManager() {
           <button
             type="button"
             onClick={openCreate}
-            className="btn-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+            className="btn-primary flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
           >
             <Plus size={16} />
             Add Media
@@ -184,7 +184,7 @@ export default function MediaManager() {
             type="button"
             onClick={handleSyncDefaults}
             disabled={syncing}
-            className="rounded-full border border-foreground/15 px-5 py-2.5 text-sm font-semibold text-muted transition hover:border-orange hover:text-orange disabled:opacity-60"
+            className="rounded-lg border border-foreground/15 px-5 py-2.5 text-sm font-semibold text-muted transition hover:border-orange hover:text-orange disabled:opacity-60"
           >
             {syncing ? "Syncing..." : "Sync Website Defaults"}
           </button>
@@ -195,7 +195,7 @@ export default function MediaManager() {
         <button
           type="button"
           onClick={() => setFilterSection("all")}
-          className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+          className={`rounded-lg px-4 py-1.5 text-xs font-bold transition ${
             filterSection === "all"
               ? "bg-orange text-white"
               : "border border-foreground/15 text-muted hover:border-orange hover:text-orange"
@@ -210,7 +210,7 @@ export default function MediaManager() {
               key={option.value}
               type="button"
               onClick={() => setFilterSection(option.value)}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+              className={`rounded-lg px-4 py-1.5 text-xs font-bold transition ${
                 filterSection === option.value
                   ? "bg-orange text-white"
                   : "border border-foreground/15 text-muted hover:border-orange hover:text-orange"
@@ -225,7 +225,7 @@ export default function MediaManager() {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="glow-border mb-8 space-y-4 rounded-2xl bg-card p-6"
+          className="glow-border mb-8 space-y-4 rounded-lg admin-card bg-card p-6"
         >
           <h3 className="font-bold text-foreground">
             {editingId
@@ -333,7 +333,7 @@ export default function MediaManager() {
             <button
               type="submit"
               disabled={saving}
-              className="btn-primary rounded-full px-6 py-2 text-sm font-semibold disabled:opacity-60"
+              className="btn-primary rounded-lg px-6 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {saving ? "Saving..." : editingId ? "Update Media" : "Create Media"}
             </button>
@@ -343,7 +343,7 @@ export default function MediaManager() {
                 setShowForm(false);
                 setEditingId(null);
               }}
-              className="rounded-full border border-foreground/15 px-6 py-2 text-sm text-muted hover:text-foreground"
+              className="rounded-lg border border-foreground/15 px-6 py-2 text-sm text-muted hover:text-foreground"
             >
               Cancel
             </button>
@@ -352,7 +352,7 @@ export default function MediaManager() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="glow-border rounded-2xl bg-card p-12 text-center">
+        <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
           <ImageIcon size={40} className="mx-auto mb-4 text-orange/60" />
           <p className="text-muted">No media in this section. Add items above.</p>
         </div>
@@ -361,7 +361,7 @@ export default function MediaManager() {
           {filtered.map((item) => (
             <div
               key={item.id}
-              className={`glow-border overflow-hidden rounded-2xl bg-card ${!item.isActive ? "opacity-50" : ""}`}
+              className={`glow-border overflow-hidden rounded-lg admin-card bg-card ${!item.isActive ? "opacity-50" : ""}`}
             >
               <div className="relative flex h-36 items-center justify-center bg-background-dark">
                 {item.kind === "video" ? (

@@ -148,7 +148,7 @@ export default function BlogsManager() {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="glow-border mb-8 space-y-4 rounded-2xl bg-card p-6"
+          className="glow-border mb-8 space-y-4 rounded-lg admin-card bg-card p-6"
         >
           <h3 className="font-bold text-foreground">
             {editingId ? "Edit Blog" : "New Blog"}
@@ -267,7 +267,7 @@ export default function BlogsManager() {
           </div>
 
           {form.image && (
-            <div className="relative h-40 w-full overflow-hidden rounded-xl">
+            <div className="relative h-40 w-full overflow-hidden rounded-lg">
               <Image
                 src={form.image}
                 alt="Preview"
@@ -306,10 +306,10 @@ export default function BlogsManager() {
           {blogs.map((blog) => (
             <div
               key={blog.id}
-              className="glow-border flex flex-col gap-4 rounded-2xl bg-card p-4 sm:flex-row sm:items-center"
+              className="glow-border flex flex-col gap-4 rounded-lg admin-card bg-card p-4 sm:flex-row sm:items-center"
             >
               {blog.image && (
-                <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-xl sm:h-20 sm:w-32">
+                <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-lg sm:h-20 sm:w-32">
                   <Image
                     src={blog.image}
                     alt={blog.title}
@@ -322,7 +322,7 @@ export default function BlogsManager() {
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-bold text-foreground">{blog.title}</h3>
-                  <span className="rounded-full bg-orange/15 px-2 py-0.5 text-xs font-bold uppercase text-orange">
+                  <span className="rounded-lg bg-orange/15 px-2 py-0.5 text-xs font-bold uppercase text-orange">
                     {blog.format}
                   </span>
                   {!blog.isPublished && (
@@ -336,7 +336,7 @@ export default function BlogsManager() {
                   {parseTags(blog.tags).map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full border border-orange/30 px-2 py-0.5 text-[10px] font-bold uppercase text-orange"
+                      className="rounded-lg border border-orange/30 px-2 py-0.5 text-[10px] font-bold uppercase text-orange"
                     >
                       {tag}
                     </span>

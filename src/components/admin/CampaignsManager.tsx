@@ -122,7 +122,7 @@ export default function CampaignsManager() {
         <button
           type="button"
           onClick={openCreate}
-          className="btn-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+          className="btn-primary flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
         >
           <Plus size={16} />
           Add Campaign
@@ -132,64 +132,78 @@ export default function CampaignsManager() {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="glow-border mb-8 space-y-4 rounded-2xl bg-card p-6"
+          className="glow-border mb-8 space-y-4 rounded-lg admin-card bg-card p-6"
         >
           <h3 className="font-bold text-foreground">
             {editingId ? "Edit Campaign" : "New Campaign"}
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            <input
-              type="text"
-              placeholder="Title *"
-              required
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="brand-input"
-            />
-            <select
-              value={form.icon}
-              onChange={(e) => setForm({ ...form, icon: e.target.value })}
-              className="brand-input"
-            >
-              {campaignIconOptions.map((icon) => (
-                <option key={icon} value={icon}>
-                  {icon}
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              placeholder="Order"
-              value={form.order}
-              onChange={(e) =>
-                setForm({ ...form, order: parseInt(e.target.value) || 0 })
-              }
-              className="brand-input"
-            />
-            <label className="flex items-center gap-2 text-sm text-foreground">
+            <div>
+              <label className="brand-label mb-2 block">Title *</label>
               <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={(e) =>
-                  setForm({ ...form, isActive: e.target.checked })
-                }
-                className="accent-orange"
+                type="text"
+                placeholder="Campaign Title"
+                required
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="brand-input w-full"
               />
-              Active (visible on website)
-            </label>
+            </div>
+            <div>
+              <label className="brand-label mb-2 block">Icon *</label>
+              <select
+                value={form.icon}
+                onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                className="brand-input w-full"
+              >
+                {campaignIconOptions.map((icon) => (
+                  <option key={icon} value={icon}>
+                    {icon}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="brand-label mb-2 block">Order</label>
+              <input
+                type="number"
+                placeholder="Sort Order"
+                value={form.order}
+                onChange={(e) =>
+                  setForm({ ...form, order: parseInt(e.target.value) || 0 })
+                }
+                className="brand-input w-full"
+              />
+            </div>
+            <div className="flex items-center pt-8">
+              <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.isActive}
+                  onChange={(e) =>
+                    setForm({ ...form, isActive: e.target.checked })
+                  }
+                  className="accent-orange"
+                />
+                Active (visible on website)
+              </label>
+            </div>
           </div>
-          <textarea
-            placeholder="Description"
-            rows={2}
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="brand-input w-full"
-          />
-          <div className="flex gap-3">
+          <div>
+            <label className="brand-label mb-2 block">Description</label>
+            <textarea
+              placeholder="Campaign Description"
+              rows={2}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="brand-input w-full"
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={saving}
-              className="btn-primary rounded-full px-6 py-2 text-sm font-semibold disabled:opacity-60"
+              className="btn-primary rounded-lg px-6 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {saving ? "Saving..." : editingId ? "Update" : "Create"}
             </button>
@@ -199,7 +213,7 @@ export default function CampaignsManager() {
                 setShowForm(false);
                 setEditingId(null);
               }}
-              className="rounded-full border border-foreground/15 px-6 py-2 text-sm text-muted hover:text-foreground"
+              className="rounded-lg border border-foreground/15 px-6 py-2 text-sm text-muted hover:text-foreground"
             >
               Cancel
             </button>
@@ -208,58 +222,80 @@ export default function CampaignsManager() {
       )}
 
       {campaigns.length === 0 ? (
-        <div className="glow-border rounded-2xl bg-card p-12 text-center">
+        <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
           <p className="text-muted">No campaigns yet. Add your first campaign above.</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {campaigns.map((campaign) => {
-            const Icon = getCampaignIcon(campaign.icon);
-            return (
-              <div
-                key={campaign.id}
-                className={`glow-border rounded-2xl bg-card p-6 ${!campaign.isActive ? "opacity-50" : ""}`}
-              >
-                <div className="mb-4 flex items-start justify-between">
-                  <div className="rounded-full bg-orange/10 p-3 text-orange">
-                    <Icon size={24} />
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => openEdit(campaign)}
-                      className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-orange"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(campaign.id)}
-                      className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-red-400"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-                <h3 className="font-bold text-foreground">{campaign.title}</h3>
-                {campaign.description && (
-                  <p className="mt-1 text-sm text-muted">
-                    {campaign.description}
-                  </p>
-                )}
-                <div className="mt-3 flex items-center gap-3 text-xs text-muted">
-                  <span>Order: {campaign.order}</span>
-                  <span
-                    className={
-                      campaign.isActive ? "text-green-400" : "text-red-400"
-                    }
+        <div className="admin-surface border border-foreground/10">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px] text-left text-sm">
+            <thead className="bg-card text-muted">
+              <tr>
+                <th className="px-4 py-3 font-medium">Icon</th>
+                <th className="px-4 py-3 font-medium">Title</th>
+                <th className="px-4 py-3 font-medium">Description</th>
+                <th className="px-4 py-3 font-medium">Order</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {campaigns.map((campaign) => {
+                const Icon = getCampaignIcon(campaign.icon);
+                return (
+                  <tr
+                    key={campaign.id}
+                    className={`border-t border-foreground/8 hover:bg-surface ${
+                      !campaign.isActive ? "opacity-60" : ""
+                    }`}
                   >
-                    {campaign.isActive ? "Active" : "Hidden"}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+                    <td className="px-4 py-3">
+                      <div className="rounded-lg bg-orange/10 p-2 text-orange inline-block">
+                        <Icon size={18} />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-medium text-foreground">
+                      {campaign.title}
+                    </td>
+                    <td className="max-w-[300px] truncate px-4 py-3 text-muted">
+                      {campaign.description ?? "—"}
+                    </td>
+                    <td className="px-4 py-3 text-muted">{campaign.order}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-medium ${
+                          campaign.isActive
+                            ? "bg-green-400/10 text-green-400"
+                            : "bg-red-400/10 text-red-400"
+                        }`}
+                      >
+                        {campaign.isActive ? "Active" : "Hidden"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(campaign)}
+                          className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-orange"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(campaign.id)}
+                          className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-red-400"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          </div>
         </div>
       )}
     </div>

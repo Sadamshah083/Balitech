@@ -155,7 +155,7 @@ export default function OfficesManager() {
         <button
           type="button"
           onClick={openCreate}
-          className="btn-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+          className="btn-primary flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
         >
           <Plus size={16} />
           Add Branch
@@ -165,7 +165,7 @@ export default function OfficesManager() {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="glow-border mb-8 space-y-4 rounded-2xl bg-card p-6"
+          className="glow-border mb-8 space-y-4 rounded-lg admin-card bg-card p-6"
         >
           <h3 className="font-bold text-foreground">
             {editingId ? "Edit Branch" : "New Branch"}
@@ -286,7 +286,7 @@ export default function OfficesManager() {
             <button
               type="submit"
               disabled={saving}
-              className="btn-primary rounded-full px-6 py-2 text-sm font-semibold disabled:opacity-60"
+              className="btn-primary rounded-lg px-6 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {saving ? "Saving..." : editingId ? "Update Branch" : "Create Branch"}
             </button>
@@ -296,7 +296,7 @@ export default function OfficesManager() {
                 setShowForm(false);
                 setEditingId(null);
               }}
-              className="rounded-full border border-foreground/15 px-6 py-2 text-sm text-muted hover:text-foreground"
+              className="rounded-lg border border-foreground/15 px-6 py-2 text-sm text-muted hover:text-foreground"
             >
               Cancel
             </button>
@@ -305,7 +305,7 @@ export default function OfficesManager() {
       )}
 
       {offices.length === 0 ? (
-        <div className="glow-border rounded-2xl bg-card p-12 text-center">
+        <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
           <Building2 size={40} className="mx-auto mb-4 text-orange/60" />
           <p className="text-muted">No branches yet. Add your first office above.</p>
         </div>
@@ -314,7 +314,7 @@ export default function OfficesManager() {
           {offices.map((office) => (
             <div
               key={office.id}
-              className={`glow-border overflow-hidden rounded-2xl bg-card ${!office.isActive ? "opacity-50" : ""}`}
+              className={`glow-border overflow-hidden rounded-lg admin-card bg-card ${!office.isActive ? "opacity-50" : ""}`}
             >
               {office.image && (
                 <div className="relative h-40 w-full">
@@ -334,7 +334,7 @@ export default function OfficesManager() {
                     <h3 className="text-lg font-bold text-foreground">
                       {office.name}
                       {office.isHeadOffice && (
-                        <span className="ml-2 rounded-full bg-orange/15 px-2 py-0.5 text-xs font-bold text-orange">
+                        <span className="ml-2 rounded-lg bg-orange/15 px-2 py-0.5 text-xs font-bold text-orange">
                           Primary
                         </span>
                       )}

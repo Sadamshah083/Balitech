@@ -1,15 +1,25 @@
-import type { Metadata } from "next";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import SitePage from "@/components/layout/SitePage";
 import PageBanner from "@/components/layout/PageBanner";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { getPublicOffices } from "@/lib/offices";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Our Offices | Bali Tech Pvt. Ltd",
+export const metadata = pageMetadata({
+  title: "Our Offices in Rawalpindi & Islamabad",
   description:
-    "Visit or contact Bali Tech offices in Rawalpindi, Islamabad, and across Pakistan.",
-};
+    "Visit Bali Tech Pvt. Ltd offices in Shamsabad, Satellite Town, Iran Road (Rawalpindi) and I-9/3 (Islamabad). Call 0370 0585660 or 0327 1233435.",
+  path: "/our-offices",
+  keywords: [
+    "Bali Tech offices",
+    "BPO office Rawalpindi",
+    "call center Shamsabad",
+    "call center Satellite Town",
+    "BPO office Islamabad I-9/3",
+    "0370 0585660",
+    "0327 1233435",
+  ],
+});
 
 export default async function OurOfficesPage() {
   const offices = await getPublicOffices();

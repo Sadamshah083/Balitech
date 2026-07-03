@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import SitePage from "@/components/layout/SitePage";
 import PageBanner from "@/components/layout/PageBanner";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
@@ -14,12 +13,22 @@ import {
   getPublicMedia,
   getWorkspaceMedia,
 } from "@/lib/media";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Gallery | Bali Tech Pvt. Ltd",
+export const metadata = pageMetadata({
+  title: "Gallery & Events",
   description:
-    "Photos from events, awards, team activities, and office life at Bali Tech.",
-};
+    "Photos and videos from Bali Tech events, awards, annual trips, culture day, top performers, and office life across Rawalpindi and Islamabad.",
+  path: "/gallery",
+  keywords: [
+    "Bali Tech gallery",
+    "BALITECH events",
+    "company culture Pakistan",
+    "annual trip",
+    "top performers",
+    "award distribution",
+  ],
+});
 
 export default async function GalleryPage() {
   const [galleryItems, workspaceItems, portraitVideos, featuredVideo, eventsItems] =

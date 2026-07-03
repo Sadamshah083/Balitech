@@ -6,6 +6,7 @@ import SitePage from "@/components/layout/SitePage";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { formatBlogDate, parseTags } from "@/lib/blog";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_OG_IMAGE, SITE_LEGAL_NAME, SITE_URL } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -18,9 +19,31 @@ export async function generateMetadata({
   const blog = await prisma.blog.findUnique({ where: { slug } });
   if (!blog) return { title: "Blog | Bali Tech" };
 
+  const url = `${SITE_URL}/blog/${blog.slug}`;
+  const description = blog.excerpt ?? blog.title;
+  const image = blog.image ?? DEFAULT_OG_IMAGE;
+
   return {
-    title: `${blog.title} | Bali Tech Blog`,
-    description: blog.excerpt ?? blog.title,
+    title: `${blog.title} | ${SITE_LEGAL_NAME} Blog`,
+    description,
+    keywords: parseTags(blog.tags),
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      title: blog.title,
+      description,
+      siteName: SITE_LEGAL_NAME,
+      publishedTime: blog.createdAt.toISOString(),
+      modifiedTime: blog.updatedAt.toISOString(),
+      images: [{ url: image, alt: blog.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blog.title,
+      description,
+      images: [image],
+    },
   };
 }
 

@@ -1,28 +1,24 @@
 module.exports = {
   apps: [
     {
-      name: 'balitech',
-      script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3000',
-      cwd: './',
-      instances: '1',
-      exec_mode: 'fork',
+      name: "balitech-app",
+      script: "node_modules/next/dist/bin/next",
+      args: "start -p 3005",
+      cwd: "/var/www/balitech-app",
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "600M",
+      exp_backoff_restart_delay: 100,
+      max_restarts: 20,
+      min_uptime: "10s",
+      restart_delay: 3000,
+      kill_timeout: 8000,
       env: {
-        NODE_ENV: 'production',
-        PORT: 3000
-      }
-    }
+        NODE_ENV: "production",
+        PORT: 3005,
+      },
+    },
   ],
-  deploy: {
-    production: {
-      user: 'u296893178',
-      host: '191.101.79.102',
-      port: '65002',
-      ref: 'origin/main',
-      repo: 'https://github.com/Sadamshah083/Balitech.git',
-      path: '/home/u296893178/domains/balitech.org/public_html',
-      'post-deploy': 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
-      'pre-setup': ''
-    }
-  }
 };

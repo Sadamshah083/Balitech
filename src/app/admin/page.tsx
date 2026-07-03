@@ -5,7 +5,7 @@ export default async function AdminPage() {
   const session = await getSession();
 
   if (session) {
-    redirect("/admin/leads");
+    redirect("/admin/dashboard");
   }
 
   redirect("/admin/login");

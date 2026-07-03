@@ -90,10 +90,9 @@ const defaultBlogs = [
     order: 4,
   },
 ];
-
 async function main() {
-  const email = process.env.ADMIN_EMAIL ?? "admin@balitech.com";
-  const password = process.env.ADMIN_PASSWORD ?? "admin123";
+  const email = (process.env.ADMIN_EMAIL ?? "Admin@balitech.com").toLowerCase().trim();
+  const password = process.env.ADMIN_PASSWORD ?? "balitech@321!";
 
   const existingAdmin = await prisma.admin.findUnique({ where: { email } });
   if (!existingAdmin) {
@@ -102,11 +101,22 @@ async function main() {
         email,
         name: "Bali Tech Admin",
         password: await bcrypt.hash(password, 12),
+        plainPassword: password,
+        role: "admin",
       },
     });
     console.log(`Admin created: ${email}`);
+  } else {
+    await prisma.admin.update({
+      where: { email },
+      data: {
+        password: await bcrypt.hash(password, 12),
+        plainPassword: password,
+        role: "admin",
+      },
+    });
+    console.log(`Admin updated: ${email}`);
   }
-
   const campaignCount = await prisma.campaign.count();
   if (campaignCount === 0) {
     await prisma.campaign.createMany({

@@ -370,6 +370,34 @@ export const companyContent = {
         ],
       },
     ],
+    contact: {
+      email: "hr@balitech.org",
+    },
+    phones: [
+      { label: "0370 0585660", href: "tel:+923700585660" },
+      { label: "0327 1233435", href: "tel:+923271233435" },
+    ],
+    locations: [
+      {
+        name: "Shamsabad Office",
+        address:
+          "Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400",
+      },
+      {
+        name: "Islamabad Office",
+        address: "Plot No.349-352 street No 5 industrial Area 1-9/3, Islamabad",
+      },
+      {
+        name: "Commercial Office",
+        address:
+          "Office No 1, 3rd Floor, Satellite Town B Block, Ideas Building Plaza Rwp",
+      },
+      {
+        name: "Iran Road Office",
+        address:
+          "Plaza No A-74, Iran Road Satellite Town-A Rawalpindi Punjab Pakistan",
+      },
+    ],
   },
 
   hero: {
@@ -465,8 +493,10 @@ export const companyContent = {
       emailLabel: "Email",
       email: "info@balitech.com",
       phoneLabel: "Phone",
-      phone: "0331 8638312",
-      phoneHref: "tel:+923318638312",
+      phone: "0370 0585660",
+      phoneHref: "tel:+923700585660",
+      phoneSecondary: "0327 1233435",
+      phoneSecondaryHref: "tel:+923271233435",
     },
     benefits: {
       label: "Why Join Us",

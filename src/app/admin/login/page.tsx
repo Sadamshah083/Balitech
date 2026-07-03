@@ -50,16 +50,12 @@ export default function AdminLoginPage() {
       <BrandBubbles className="right-16 top-20 hidden sm:flex" />
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="mb-4 flex items-baseline justify-center gap-2">
-            <span className="text-2xl font-black uppercase tracking-tight text-orange">
-              Bali
-            </span>
-            <span className="text-muted text-xl">•</span>
-            <span className="text-2xl font-black uppercase tracking-tight text-foreground">
-              Tech
-            </span>
-          </div>
+        <div className="mb-8 text-center flex flex-col items-center">
+          <img
+            src="/bali-tech-logo.png"
+            alt="BaliTech Logo"
+            className="h-12 w-auto object-contain mb-4"
+          />
           <p className="brand-label mb-2">Admin Panel</p>
           <h1 className="brand-heading text-2xl">Sign In</h1>
           <div className="mx-auto mt-3 h-px w-12 bg-white/40" />
@@ -70,7 +66,7 @@ export default function AdminLoginPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="glow-border space-y-5 rounded-2xl bg-card p-8"
+          className="glow-border admin-card space-y-5 rounded-lg bg-card p-8"
         >
           <div>
             <label className="brand-label mb-2 block">Email</label>
@@ -98,7 +94,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full rounded-full py-3 font-bold disabled:opacity-60"
+            className="btn-primary w-full rounded-lg py-3 font-bold disabled:opacity-60"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>

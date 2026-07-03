@@ -32,11 +32,12 @@ export async function POST(request: Request) {
     const token = await createSessionToken({
       adminId: admin.id,
       email: admin.email,
+      role: admin.role,
     });
     await setAuthCookie(token);
 
     return NextResponse.json({
-      admin: { id: admin.id, email: admin.email, name: admin.name },
+      admin: { id: admin.id, email: admin.email, name: admin.name, role: admin.role },
       token,
       expiresIn: getJwtExpiresIn(),
     });
