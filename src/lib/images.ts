@@ -1,31 +1,47 @@
 export const siteImages = {
-  hero: "/herovideo/Balitech%20hero%20video.mp4",
+  /**
+   * The 4K 60fps original is kept in `public/herovideo` as the master, but what
+   * ships is the 1080p derivative from `npm run optimize:media` — the panel is
+   * a few hundred pixels wide and muted, and the original was 42 MB.
+   */
   heroVideo: {
-    src: "/herovideo/Balitech%20hero%20video.mp4",
+    src: "/herovideo/balitech-hero-1080.mp4",
+    poster: "/herovideo/balitech-hero-poster.webp",
     label: "BALITECH hero video",
   },
-  about:
-    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=85",
   aboutCollage: {
     title: "Annual Trips",
+    /**
+     * `poster` lets a player show a real frame while the file itself stays
+     * unfetched — these clips run 19–25 MB each, so nothing downloads until
+     * a visitor presses play.
+     */
     videos: {
       trip2k25: {
         src: "/balitech_Video/Annual%20Trip%202K25.mp4",
         label: "Annual Trip 2k25",
+        poster: "/gallery/trip-posters/annual-trip-2k25.webp",
       },
       trip2k26: {
         src: "/balitech_Video/Balitech%20Annual%20Trip%202K26.mp4",
         label: "Annual Trip 2k26",
+        poster: "/gallery/trip-posters/annual-trip-2k26.webp",
       },
       managementTrip: {
         src: "/management_trip/Management%20Trip.mp4",
         label: "Management Trip",
+        poster: "/gallery/trip-posters/management-trip.webp",
       },
       fruitDayCommercial: {
         src: "/baliCulture_Day/fruit-day-commercial.mp4",
         label: "Fruit Day Commercial",
+        poster: "/gallery/video-posters/fruit-day.webp",
       },
     },
+    /**
+     * Culture Day photos, shown on /gallery. The Fruit Day set is owned
+     * by the /gallery catalog so neither page repeats the other's photos.
+     */
     images: [
       {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.23%20PM%20(1).jpeg",
@@ -55,200 +71,8 @@ export const siteImages = {
         src: "/baliCulture_Day/WhatsApp%20Image%202026-05-11%20at%2012.03.34%20PM%20(2).jpeg",
         alt: "BALITECH Culture Day and Prize Distribution — team culture",
       },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-01.png",
-        alt: "BALITECH Culture Day and Prize Distribution — team at summer celebration backdrop",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-02.png",
-        alt: "BALITECH Culture Day and Prize Distribution — team in green shirts",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-03.png",
-        alt: "BALITECH Culture Day and Prize Distribution — employees at summer festivities",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-04.png",
-        alt: "BALITECH Culture Day and Prize Distribution — team with fruit-themed photo frames",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-05.png",
-        alt: "BALITECH Culture Day and Prize Distribution — prize distribution ceremony",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-06.png",
-        alt: "BALITECH Culture Day and Prize Distribution — team photo with Hello Summer sign",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-07.png",
-        alt: "BALITECH Culture Day and Prize Distribution — summer celebration highlights",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-08.png",
-        alt: "BALITECH Culture Day and Prize Distribution — office celebration collage",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-09.png",
-        alt: "BALITECH Culture Day and Prize Distribution — Happy Summer team celebration",
-      },
-      {
-        src: "/baliCulture_Day/fruit-day/fruit-day-10.png",
-        alt: "BALITECH Culture Day and Prize Distribution — canvas painting activity",
-      },
     ],
   },
-  aboutScroll: [
-    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=85",
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
-  ],
   logo: "/bali-tech-logo.png",
-  logoLight: "/bali-tech-logo.png",
-  heroLeftAccent: "/brand-hero-left-accent.png",
-  heroRightAccent: "/brand-hero-right-accent.png",
-  ceo: "/ceo-muhammad-shiraz-bali.png",
-  office: "/balitech_office/DSC03829.JPG",
-  balitechOffice: [
-    {
-      src: "/balitech_office/DSC03829.JPG",
-      alt: "BALITECH office — main workspace and team floor",
-      title: "Main Office Floor",
-    },
-    {
-      src: "/balitech_office/DSC03814.JPG",
-      alt: "BALITECH office — operations and call center area",
-      title: "Operations Center",
-    },
-    {
-      src: "/balitech_office/DSC03811.JPG",
-      alt: "BALITECH office — team workstations",
-      title: "Team Workstations",
-    },
-  ],
   career: "/career/career-cta-bg.jpg",
-  performers: {
-    featured:
-      "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80",
-    team: [
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-    ],
-  },
-  gallery: {
-    main:
-      "/gallery/gallery-event-1.jpg",
-    events: [
-      "/gallery/gallery-team-group-night.png",
-      "/gallery/gallery-event-3.png",
-      "/gallery/gallery-event-4.jpg",
-      "/gallery/gallery-event-5.png",
-    ],
-    portraitVideos: [
-      {
-        id: "serena-breakfast",
-        title: "ACA Serena Breakfast",
-        category: "Events",
-        src: "/Serena%20Breakfast/ACA%20Serena%20Breakfast.mp4",
-      },
-      {
-        id: "transition",
-        title: "Transition Video",
-        category: "Events",
-        src: "/transition%20video/Transition%20Video1.mp4",
-      },
-      {
-        id: "independence-day",
-        title: "Independence Day Celebration",
-        category: "Events",
-        src: "/independence%20video/Independence%20day%20celeberation.mp4",
-      },
-    ],
-    featuredVideo: {
-      id: "new-year",
-      title: "Balitech New Year",
-      category: "Events",
-      src: "/newyear/Balitech%20New%20Year.mp4",
-    },
-    items: [
-      {
-        title: "Annual Dinner 2025",
-        category: "Events",
-        image:
-          "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80",
-      },
-      {
-        title: "Employee Awards Night",
-        category: "Awards",
-        image:
-          "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        title: "Team Building Retreat",
-        category: "Team",
-        image:
-          "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        title: "Training Workshop",
-        category: "Training",
-        image:
-          "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        title: "Office Celebration",
-        category: "Events",
-        image:
-          "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        title: "Top Performer Ceremony",
-        category: "Awards",
-        image:
-          "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        title: "Main Office Floor",
-        category: "Office",
-        image: "/balitech_office/DSC03829.JPG",
-      },
-      {
-        title: "Operations Center",
-        category: "Office",
-        image: "/balitech_office/DSC03814.JPG",
-      },
-      {
-        title: "Team Workstations",
-        category: "Office",
-        image: "/balitech_office/DSC03811.JPG",
-      },
-      {
-        title: "Leadership Meetup",
-        category: "Team",
-        image:
-          "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        title: "CSR Community Day",
-        category: "Events",
-        image:
-          "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        title: "Commercial Office Floor",
-        category: "Office",
-        image: "/gallery/gallery-office-workplace-1.jpg",
-      },
-      {
-        title: "Commercial Workspaces",
-        category: "Office",
-        image: "/gallery/gallery-office-workplace-2.jpg",
-      },
-      {
-        title: "Commercial Operations",
-        category: "Office",
-        image: "/gallery/gallery-office-workplace-3.jpg",
-      },
-    ],
-  },
 } as const;

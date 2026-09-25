@@ -1,9 +1,6 @@
-"use client";
-
-import { useEffect } from "react";
 import SiteHeader from "@/components/landing/SiteHeader";
 import Footer from "@/components/landing/Footer";
-import { registerGsap } from "@/lib/gsap-register";
+import ScrollAtmosphere from "@/components/effects/ScrollAtmosphere";
 
 export default function SitePage({
   children,
@@ -12,14 +9,11 @@ export default function SitePage({
   children: React.ReactNode;
   indexTheme?: boolean;
 }) {
-  useEffect(() => {
-    registerGsap();
-  }, []);
-
   return (
     <main
       className={`site-main relative min-h-screen overflow-x-hidden bg-background${indexTheme ? " site-main--index" : ""}`}
     >
+      <ScrollAtmosphere />
       <SiteHeader />
       {children}
       <Footer />

@@ -30,9 +30,10 @@ export default function FruitDayGallery() {
           <video
             className="fruit-day-gallery__video"
             src={videos.fruitDayCommercial.src}
+            poster={videos.fruitDayCommercial.poster}
             controls
             playsInline
-            preload="metadata"
+            preload="none"
             aria-label={videos.fruitDayCommercial.label}
           />
         </div>

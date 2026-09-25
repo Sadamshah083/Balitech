@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { refreshPublicPages } from "@/lib/refresh-public-pages";
 import { getAdminMediaList, getPublicMedia, syncMediaCatalog } from "@/lib/media";
 
 export async function GET(request: Request) {
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
       },
     });
 
+    refreshPublicPages();
     return NextResponse.json({ item }, { status: 201 });
   } catch {
     return NextResponse.json(

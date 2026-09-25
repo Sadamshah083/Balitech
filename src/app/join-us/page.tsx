@@ -1,26 +1,22 @@
 import SitePage from "@/components/layout/SitePage";
 import JoinUsHero from "@/components/join-us/JoinUsHero";
 import JoinUsApplicationForm from "@/components/join-us/JoinUsApplicationForm";
-import JoinUsOpenings from "@/components/join-us/JoinUsOpenings";
+import JoinUsApplyScroll from "@/components/join-us/JoinUsApplyScroll";
+import JoinUsJobs from "@/components/join-us/JoinUsJobs";
 import JoinUsContact from "@/components/join-us/JoinUsContact";
 import JoinUsBenefits from "@/components/join-us/JoinUsBenefits";
+import EventsGallerySection from "@/components/landing/EventsGallerySection";
+import AnimateSection from "@/components/animations/AnimateSection";
 import { getHeadOffice } from "@/lib/offices";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbSchema, pageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
+import { Suspense } from "react";
 
 export const metadata = pageMetadata({
   title: "Join Us — Careers & Job Openings",
   description:
-    "Apply to join BALITECH. Call center, customer support, and BPO careers in Rawalpindi & Islamabad. Competitive salary, career growth, and a professional workplace culture.",
+    "Call center, customer support, and BPO careers in Rawalpindi & Islamabad. Competitive salary, real career growth, and a professional workplace.",
   path: "/join-us",
-  keywords: [
-    "Bali Tech careers",
-    "BPO jobs Rawalpindi",
-    "call center jobs Islamabad",
-    "customer support jobs Pakistan",
-    "night shift jobs",
-    "apply BALITECH",
-    "BPO hiring Pakistan",
-  ],
 });
 
 export default async function JoinUsPage() {
@@ -28,12 +24,21 @@ export default async function JoinUsPage() {
 
   return (
     <SitePage>
+      <JsonLd
+        data={breadcrumbSchema([{ name: "Careers", path: "/join-us" }])}
+      />
       <div className="join-us-page">
+        <Suspense fallback={null}>
+          <JoinUsApplyScroll />
+        </Suspense>
         <JoinUsHero />
         <JoinUsApplicationForm />
-        <JoinUsOpenings />
-        <JoinUsContact headOffice={headOffice} />
+        <JoinUsJobs />
         <JoinUsBenefits />
+        <AnimateSection delay={0.05}>
+          <EventsGallerySection />
+        </AnimateSection>
+        <JoinUsContact headOffice={headOffice} />
       </div>
     </SitePage>
   );

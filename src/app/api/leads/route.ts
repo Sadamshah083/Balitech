@@ -1,6 +1,9 @@
+import { unlink } from "fs/promises";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { MAX_CV_BYTES, resolveCvAbsolutePath, saveLeadCv } from "@/lib/cv-upload";
+import { buildPositionWhere, extractPositionFromMessage } from "@/lib/lead-position";
 
 const DEFAULT_PAGE_SIZE = 10;
 const MAX_PAGE_SIZE = 50;
@@ -16,14 +19,38 @@ export async function GET(request: Request) {
     Math.max(1, Number(url.searchParams.get("limit")) || DEFAULT_PAGE_SIZE)
   );
   const skip = (page - 1) * limit;
+  const queue = url.searchParams.get("queue");
+  const where = {
+    AND: [
+      buildPositionWhere(url.searchParams.get("position")),
+      ...(queue ? [{ queue }] : []),
+    ],
+  };
 
   const [leads, total] = await Promise.all([
     prisma.lead.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        company: true,
+        position: true,
+        message: true,
+        cvFileName: true,
+        cvPath: true,
+        status: true,
+        createdAt: true,
+        referenceId: true,
+        queue: true,
+        flags: true,
+      },
     }),
-    prisma.lead.count(),
+    prisma.lead.count({ where }),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -39,25 +66,98 @@ export async function GET(request: Request) {
   });
 }
 
+async function parseLeadPayload(request: Request) {
+  const contentType = request.headers.get("content-type") || "";
+
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await request.formData();
+    const cv = formData.get("cv");
+
+    return {
+      name: String(formData.get("name") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      phone: formData.get("phone") ? String(formData.get("phone")) : null,
+      company: formData.get("company") ? String(formData.get("company")) : null,
+      position: formData.get("position")
+        ? String(formData.get("position"))
+        : null,
+      message: formData.get("message") ? String(formData.get("message")) : null,
+      cvFile: cv instanceof File && cv.size > 0 ? cv : null,
+    };
+  }
+
+  const body = await request.json();
+  return {
+    name: String(body.name ?? ""),
+    email: String(body.email ?? ""),
+    phone: body.phone ? String(body.phone) : null,
+    company: body.company ? String(body.company) : null,
+    position: body.position ? String(body.position) : null,
+    message: body.message ? String(body.message) : null,
+    cvFile: null as File | null,
+  };
+}
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { name, email, phone, company, message } = body;
+    const { name, email, phone, company, position, message, cvFile } =
+      await parseLeadPayload(request);
 
-    if (!name?.trim() || !email?.trim()) {
+    if (!name.trim() || !email.trim()) {
       return NextResponse.json(
         { error: "Name and email are required" },
         { status: 400 }
       );
     }
 
+    let cvFileName: string | null = null;
+    let cvPath: string | null = null;
+
+    if (cvFile) {
+      if (cvFile.size > MAX_CV_BYTES) {
+        return NextResponse.json(
+          { error: "CV file must be 5MB or smaller" },
+          { status: 400 }
+        );
+      }
+      try {
+        const saved = await saveLeadCv(cvFile);
+        cvFileName = saved.cvFileName;
+        cvPath = saved.cvPath;
+      } catch (error) {
+        return NextResponse.json(
+          {
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to upload CV file",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const messageWithoutCvLine = message
+      ? message
+          .split("\n")
+          .filter((line) => !/^CV File:/i.test(line.trim()))
+          .join("\n")
+          .trim()
+      : null;
+
+    const resolvedPosition =
+      position?.trim() || extractPositionFromMessage(messageWithoutCvLine);
+
     const lead = await prisma.lead.create({
       data: {
-        name: String(name).trim(),
-        email: String(email).trim().toLowerCase(),
-        phone: phone ? String(phone).trim() : null,
-        company: company ? String(company).trim() : null,
-        message: message ? String(message).trim() : null,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone ? phone.trim() : null,
+        company: company ? company.trim() : null,
+        position: resolvedPosition || null,
+        message: messageWithoutCvLine || null,
+        cvFileName,
+        cvPath,
       },
     });
 
@@ -76,7 +176,7 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, name, email, phone, company, message, status } = body;
+    const { id, name, email, phone, company, position, message, status } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -89,10 +189,21 @@ export async function PATCH(request: Request) {
       where: { id },
       data: {
         ...(name !== undefined && { name: String(name).trim() }),
-        ...(email !== undefined && { email: String(email).trim().toLowerCase() }),
-        ...(phone !== undefined && { phone: phone ? String(phone).trim() : null }),
-        ...(company !== undefined && { company: company ? String(company).trim() : null }),
-        ...(message !== undefined && { message: message ? String(message).trim() : null }),
+        ...(email !== undefined && {
+          email: String(email).trim().toLowerCase(),
+        }),
+        ...(phone !== undefined && {
+          phone: phone ? String(phone).trim() : null,
+        }),
+        ...(company !== undefined && {
+          company: company ? String(company).trim() : null,
+        }),
+        ...(position !== undefined && {
+          position: position ? String(position).trim() : null,
+        }),
+        ...(message !== undefined && {
+          message: message ? String(message).trim() : null,
+        }),
         ...(status !== undefined && { status: String(status).trim() }),
       },
     });
@@ -121,9 +232,22 @@ export async function DELETE(request: Request) {
       );
     }
 
+    const existing = await prisma.lead.findUnique({
+      where: { id },
+      select: { cvPath: true },
+    });
+
     await prisma.lead.delete({
       where: { id },
     });
+
+    if (existing?.cvPath) {
+      try {
+        await unlink(resolveCvAbsolutePath(existing.cvPath));
+      } catch {
+        /* file may already be gone */
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch {

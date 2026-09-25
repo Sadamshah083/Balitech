@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
@@ -60,10 +61,30 @@ export function extractBearerToken(request: Request): string | null {
   return token || null;
 }
 
+/**
+ * A static key for server-to-server integrations such as the CRM. Unlike a
+ * login token it has no expiry; revoke it by changing or removing
+ * CRM_API_TOKEN in the server's .env and restarting the app.
+ */
+const CRM_SESSION: SessionPayload = {
+  adminId: "crm-integration",
+  email: "crm-integration@balitech.org",
+  role: "admin",
+};
+
+function isCrmApiToken(token: string) {
+  const expected = process.env.CRM_API_TOKEN?.trim();
+  if (!expected || expected.length < 32) return false;
+  const a = Buffer.from(token);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 export async function getSessionFromRequest(
   request: Request
 ): Promise<SessionPayload | null> {
   const bearer = extractBearerToken(request);
+  if (bearer && isCrmApiToken(bearer)) return CRM_SESSION;
   if (bearer) {
     const session = await verifySessionToken(bearer);
     if (session) return session;

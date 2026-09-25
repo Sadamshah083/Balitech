@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
         setAdminToken(data.token);
       }
 
-      router.push("/admin/leads");
+      router.replace("/admin/dashboard");
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");

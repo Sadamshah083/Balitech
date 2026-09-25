@@ -52,6 +52,14 @@ public/independence video/
 public/newyear/
 public/baliCulture_Day/fruit-day-commercial.mp4
 
+# Admin-uploaded blog covers (keep folder, ignore files)
+public/blogs/*
+!public/blogs/.gitkeep
+
+# Admin-uploaded media (keep folder, ignore files)
+public/media/*
+!public/media/.gitkeep
+
 # Deployment artifacts (contain build output)
 *.tar.gz
 deploy_vps.zip
@@ -100,3 +108,17 @@ scripts/recon_vps.py
 scripts/restart_bestleads.py
 scripts/test_http.js
 scripts/zip_app.js
+
+# Uploaded applicant CVs
+/uploads/
+
+# Local UI audit screenshots
+/.tmp-shots/
+/tmp/
+/scripts/_shots/
+
+# Contain hardcoded server passwords; keep local only. Credentials belong in
+# BALITECH_SSH_* env vars.
+scripts/deploy-config.js
+scripts/deploy_new.js
+scripts/test_ssh.js

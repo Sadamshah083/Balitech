@@ -1,13 +1,8 @@
 import { cn } from "@/lib/cn";
 
+/** The three streaks are painted as background layers, so this stays one node. */
 export function HeadingBrush({ className }: { className?: string }) {
-  return (
-    <span className={cn("heading-brush", className)} aria-hidden>
-      <span />
-      <span />
-      <span />
-    </span>
-  );
+  return <span className={cn("heading-brush", className)} aria-hidden />;
 }
 
 type HeadingLastWordProps = {

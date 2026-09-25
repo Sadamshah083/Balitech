@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { adminFetch } from "@/lib/admin-token";
 import {
@@ -8,9 +9,11 @@ import {
   ChevronRight,
   Download,
   Eye,
+  FileArchive,
   Pencil,
   Trash2,
 } from "lucide-react";
+import { FLAG_LABELS, QUEUES, parseFlags, queueLabel } from "@/lib/careers/review";
 
 type Lead = {
   id: string;
@@ -18,9 +21,13 @@ type Lead = {
   email: string;
   phone: string | null;
   company: string | null;
+  position: string | null;
   message: string | null;
   status: string;
   createdAt: string;
+  referenceId?: string | null;
+  queue?: string | null;
+  flags?: string | null;
 };
 
 type Pagination = {
@@ -30,6 +37,22 @@ type Pagination = {
   totalPages: number;
 };
 
+type PositionOption = {
+  value: string;
+  leads: number;
+  cvs: number;
+  group?: "campaign" | "position";
+};
+
+const POSITION_GROUPS = [
+  { group: "campaign", label: "Campaigns" },
+  { group: "position", label: "Positions" },
+] as const;
+
+function positionOptionLabel(p: PositionOption) {
+  return `${p.value} (${p.leads} lead${p.leads === 1 ? "" : "s"} · ${p.cvs} CV${p.cvs === 1 ? "" : "s"})`;
+}
+
 const statusOptions = ["new", "contacted", "converted", "closed"];
 const PAGE_SIZE = 10;
 
@@ -38,11 +61,23 @@ const emptyForm = {
   email: "",
   phone: "",
   company: "",
+  position: "",
   message: "",
   status: "new",
 };
 
+function extractPositionFromMessage(message: string | null) {
+  if (!message) return null;
+  const match = message.match(/^\s*Position:\s*(.+)$/im);
+  return match?.[1]?.trim() || null;
+}
+
+function leadPosition(lead: Lead) {
+  return lead.position?.trim() || extractPositionFromMessage(lead.message);
+}
+
 export default function LeadsManager() {
+  const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -56,23 +91,53 @@ export default function LeadsManager() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [positionFilter, setPositionFilter] = useState("");
+  const [queueFilter, setQueueFilter] = useState("");
+  const [positions, setPositions] = useState<PositionOption[]>([]);
+  const [totalLeads, setTotalLeads] = useState(0);
+  const [totalCvs, setTotalCvs] = useState(0);
+  const [downloadingCvs, setDownloadingCvs] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  const fetchLeads = useCallback(async (page = 1) => {
-    setLoading(true);
-    const res = await adminFetch(
-      `/api/leads?page=${page}&limit=${PAGE_SIZE}`
-    );
+  const fetchLeads = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(PAGE_SIZE),
+      });
+      if (positionFilter) query.set("position", positionFilter);
+      if (queueFilter) query.set("queue", queueFilter);
+
+      const res = await adminFetch(`/api/leads?${query.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setLeads(data.leads);
+        setPagination(data.pagination);
+      }
+      setLoading(false);
+      setInitialized(true);
+    },
+    [positionFilter, queueFilter]
+  );
+
+  const fetchPositions = useCallback(async () => {
+    const res = await adminFetch("/api/leads/positions");
     if (res.ok) {
       const data = await res.json();
-      setLeads(data.leads);
-      setPagination(data.pagination);
+      setPositions(data.positions ?? []);
+      setTotalLeads(data.totals?.leads ?? 0);
+      setTotalCvs(data.totals?.cvs ?? 0);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
     fetchLeads(1);
   }, [fetchLeads]);
+
+  useEffect(() => {
+    fetchPositions();
+  }, [fetchPositions]);
 
   async function updateStatus(id: string, status: string) {
     const res = await adminFetch("/api/leads", {
@@ -94,6 +159,7 @@ export default function LeadsManager() {
       email: lead.email,
       phone: lead.phone || "",
       company: lead.company || "",
+      position: leadPosition(lead) || "",
       message: lead.message || "",
       status: lead.status,
     });
@@ -112,6 +178,7 @@ export default function LeadsManager() {
         email: form.email,
         phone: form.phone || null,
         company: form.company || null,
+        position: form.position || null,
         message: form.message || null,
         status: form.status,
       }),
@@ -120,7 +187,7 @@ export default function LeadsManager() {
       setShowForm(false);
       setEditingLeadId(null);
       setForm(emptyForm);
-      await fetchLeads(pagination.page);
+      await Promise.all([fetchLeads(pagination.page), fetchPositions()]);
     }
     setSaving(false);
   }
@@ -133,7 +200,7 @@ export default function LeadsManager() {
         leads.length === 1 && pagination.page > 1
           ? pagination.page - 1
           : pagination.page;
-      await fetchLeads(nextPage);
+      await Promise.all([fetchLeads(nextPage), fetchPositions()]);
     }
   }
 
@@ -160,6 +227,36 @@ export default function LeadsManager() {
     }
   }
 
+  async function handleDownloadCvs() {
+    setDownloadingCvs(true);
+    try {
+      const query = positionFilter
+        ? `?position=${encodeURIComponent(positionFilter)}`
+        : "";
+      const res = await adminFetch(`/api/leads/cvs${query}`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "Failed to download CVs. Please try again.");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const stamp = new Date().toISOString().slice(0, 10);
+      const slug = positionFilter
+        ? positionFilter.replace(/[^\w]+/g, "-").toLowerCase()
+        : "all-jobs";
+      link.href = url;
+      link.download = `balitech-cvs-${slug}-${stamp}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloadingCvs(false);
+    }
+  }
+
   function goToPage(page: number) {
     if (page < 1 || page > pagination.totalPages || page === pagination.page) {
       return;
@@ -174,7 +271,12 @@ export default function LeadsManager() {
     pagination.total
   );
 
-  if (loading && leads.length === 0) {
+  const selectedPosition = positions.find((p) => p.value === positionFilter);
+  const selectedCvCount = positionFilter
+    ? (selectedPosition?.cvs ?? 0)
+    : totalCvs;
+
+  if (!initialized) {
     return <p className="text-muted">Loading leads...</p>;
   }
 
@@ -184,18 +286,115 @@ export default function LeadsManager() {
         <div>
           <h2 className="text-2xl font-bold text-foreground">Leads</h2>
           <p className="text-sm text-muted">
-            {pagination.total} total inquiries from the website
+            {positionFilter
+              ? `${pagination.total} of ${totalLeads} inquiries match this job`
+              : `${pagination.total} total inquiries from the website`}
           </p>
         </div>
         <button
           type="button"
           onClick={handleExport}
-          disabled={exporting || pagination.total === 0}
+          disabled={exporting || totalLeads === 0}
           className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
         >
           <Download size={16} />
           {exporting ? "Preparing..." : "Download Excel"}
         </button>
+      </div>
+
+      <div className="admin-card glow-border mb-6 rounded-lg bg-card p-4 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="w-full lg:max-w-sm">
+            <label
+              htmlFor="lead-position-filter"
+              className="brand-label mb-2 block"
+            >
+              Filter by job applied
+            </label>
+            <select
+              id="lead-position-filter"
+              value={positionFilter}
+              onChange={(e) => setPositionFilter(e.target.value)}
+              className="brand-input w-full"
+            >
+              <option value="">
+                All jobs ({totalLeads} lead{totalLeads === 1 ? "" : "s"})
+              </option>
+              {POSITION_GROUPS.map(({ group, label }) => {
+                const items = positions.filter((p) => (p.group ?? "position") === group);
+                if (items.length === 0) return null;
+                return (
+                  <optgroup key={group} label={label}>
+                    {items.map((p) => (
+                      <option key={p.value} value={p.value}>
+                        {positionOptionLabel(p)}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
+            </select>
+          </div>
+
+          <div className="w-full lg:max-w-xs">
+            <label htmlFor="lead-queue-filter" className="brand-label mb-2 block">
+              Review queue
+            </label>
+            <select
+              id="lead-queue-filter"
+              value={queueFilter}
+              onChange={(e) => setQueueFilter(e.target.value)}
+              className="brand-input w-full"
+            >
+              <option value="">All queues</option>
+              {QUEUES.map((q) => (
+                <option key={q.value} value={q.value}>
+                  {q.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+            {(positionFilter || queueFilter) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPositionFilter("");
+                  setQueueFilter("");
+                }}
+                className="rounded-lg border border-foreground/15 px-4 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
+              >
+                Clear filter
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleDownloadCvs}
+              disabled={downloadingCvs || selectedCvCount === 0}
+              className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              title={
+                positionFilter
+                  ? `Download CVs for ${positionFilter}`
+                  : "Download CVs for all jobs"
+              }
+            >
+              <FileArchive size={16} />
+              {downloadingCvs
+                ? "Zipping..."
+                : `Download CVs (${selectedCvCount})`}
+            </button>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-muted">
+          {selectedCvCount === 0
+            ? "No uploaded CVs available for this selection."
+            : `Downloads a ZIP with ${selectedCvCount} CV file${
+                selectedCvCount === 1 ? "" : "s"
+              } only — ${
+                positionFilter ? positionFilter : "all jobs"
+              }. Lead data stays in the Excel export.`}
+        </p>
       </div>
 
       {showForm && (
@@ -216,10 +415,9 @@ export default function LeadsManager() {
               />
             </div>
             <div>
-              <label className="brand-label mb-2 block">Email *</label>
+              <label className="brand-label mb-2 block">Email</label>
               <input
                 type="email"
-                required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="brand-input w-full"
@@ -242,6 +440,22 @@ export default function LeadsManager() {
                 onChange={(e) => setForm({ ...form, company: e.target.value })}
                 className="brand-input w-full"
               />
+            </div>
+            <div>
+              <label className="brand-label mb-2 block">Job Applied</label>
+              <input
+                type="text"
+                list="lead-position-options"
+                value={form.position}
+                onChange={(e) => setForm({ ...form, position: e.target.value })}
+                placeholder="e.g. Sales Agent"
+                className="brand-input w-full"
+              />
+              <datalist id="lead-position-options">
+                {positions.map((p) => (
+                  <option key={p.value} value={p.value} />
+                ))}
+              </datalist>
             </div>
             <div className="sm:col-span-2">
               <label className="brand-label mb-2 block">Message</label>
@@ -293,31 +507,58 @@ export default function LeadsManager() {
       {pagination.total === 0 ? (
         <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
           <p className="text-muted">
-            No leads yet. They will appear here when visitors submit the contact
-            form.
+            {positionFilter
+              ? `No leads found for "${positionFilter}". Try a different job or clear the filter.`
+              : "No leads yet. They will appear here when visitors submit the contact form."}
           </p>
         </div>
       ) : (
         <>
           <div className="admin-surface border border-foreground/10">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm">
+              <table className="w-full min-w-[1040px] table-fixed text-left text-sm">
+                {/* Fixed layout, because the widths cannot be left to the
+                    content: applicants paste the office address into Company,
+                    and a single 90-character value wrapped to eleven lines and
+                    set the height of the whole row. Every cell below is one
+                    line and clipped, so rows stay uniform however long a value
+                    is, and the full text is on the lead's own page.
+
+                    The shares are set so that the values that have to be read
+                    in full are not the ones that get clipped: a phone number, a
+                    status control and a date each get enough room at the
+                    minimum width, and the slack comes out of email, company and
+                    message, which are the ones a reader scans rather than
+                    reads. */}
+                <colgroup>
+                  <col className="w-[10%]" />
+                  <col className="w-[12%]" />
+                  {/* 13% because a +92 number needs every pixel of it. */}
+                  <col className="w-[13%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[12%]" />
+                </colgroup>
                 <thead className="bg-card text-muted">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Email</th>
-                    <th className="px-4 py-3 font-medium">Phone</th>
-                    <th className="px-4 py-3 font-medium">Company</th>
-                    <th className="px-4 py-3 font-medium">Message</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Date</th>
-                    <th className="px-4 py-3 font-medium text-center">Actions</th>
+                    <th className="px-3 py-3 font-medium">Name</th>
+                    <th className="px-3 py-3 font-medium">Email</th>
+                    <th className="px-3 py-3 font-medium">Phone</th>
+                    <th className="px-3 py-3 font-medium">Company</th>
+                    <th className="px-3 py-3 font-medium">Job Applied</th>
+                    <th className="px-3 py-3 font-medium">Message / Review</th>
+                    <th className="px-3 py-3 font-medium">Status</th>
+                    <th className="px-3 py-3 font-medium">Date</th>
+                    <th className="px-2 py-3 font-medium text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-muted">
+                      <td colSpan={9} className="px-4 py-8 text-center text-muted">
                         Loading...
                       </td>
                     </tr>
@@ -325,33 +566,88 @@ export default function LeadsManager() {
                     leads.map((lead) => (
                       <tr
                         key={lead.id}
-                        className="border-t border-foreground/8 hover:bg-surface"
+                        role="link"
+                        tabIndex={0}
+                        onClick={() => router.push(`/admin/leads/${lead.id}`)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            router.push(`/admin/leads/${lead.id}`);
+                          }
+                        }}
+                        className="cursor-pointer border-t border-foreground/8 hover:bg-surface"
                       >
-                        <td className="px-4 py-3 font-medium text-foreground">
+                        <td
+                          className="truncate px-3 py-3 font-medium text-foreground"
+                          title={lead.name}
+                        >
                           <Link
                             href={`/admin/leads/${lead.id}`}
                             className="hover:text-orange"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             {lead.name}
                           </Link>
+                          {lead.referenceId && (
+                            <span className="block truncate text-xs font-normal text-muted">
+                              {lead.referenceId}
+                            </span>
+                          )}
                         </td>
-                        <td className="px-4 py-3 text-muted">{lead.email}</td>
-                        <td className="px-4 py-3 text-muted">
+                        <td
+                          className="truncate px-3 py-3 text-muted"
+                          title={lead.email || undefined}
+                        >
+                          {lead.email || "—"}
+                        </td>
+                        <td
+                          className="truncate px-3 py-3 text-muted"
+                          title={lead.phone ?? undefined}
+                        >
                           {lead.phone ?? "—"}
                         </td>
-                        <td className="px-4 py-3 text-muted">
+                        <td
+                          className="truncate px-3 py-3 text-muted"
+                          title={lead.company ?? undefined}
+                        >
                           {lead.company ?? "—"}
                         </td>
-                        <td className="max-w-[200px] truncate px-4 py-3 text-muted">
-                          {lead.message ?? "—"}
+                        <td
+                          className="truncate px-3 py-3 text-muted"
+                          title={leadPosition(lead) ?? undefined}
+                        >
+                          {leadPosition(lead) ?? "—"}
                         </td>
-                        <td className="px-4 py-3">
+                        {lead.referenceId ? (
+                          <td className="px-3 py-3 text-muted">
+                            <span className="block truncate text-xs">{queueLabel(lead.queue)}</span>
+                            {parseFlags(lead.flags).map((flag) => (
+                              <span
+                                key={flag}
+                                className="mr-1 mt-1 inline-block rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange"
+                              >
+                                {FLAG_LABELS[flag] ?? flag}
+                              </span>
+                            ))}
+                          </td>
+                        ) : (
+                          <td
+                            className="truncate px-3 py-3 text-muted"
+                            title={lead.message ?? undefined}
+                          >
+                            {lead.message ?? "—"}
+                          </td>
+                        )}
+                        <td
+                          className="px-3 py-3"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <select
                             value={lead.status}
                             onChange={(e) =>
                               updateStatus(lead.id, e.target.value)
                             }
-                            className="brand-input px-2 py-1"
+                            className="brand-input w-full px-2 py-1"
                           >
                             {statusOptions.map((s) => (
                               <option key={s} value={s}>
@@ -360,11 +656,14 @@ export default function LeadsManager() {
                             ))}
                           </select>
                         </td>
-                        <td className="px-4 py-3 text-muted">
+                        <td className="whitespace-nowrap px-3 py-3 text-muted">
                           {new Date(lead.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="px-4 py-3 text-center">
-                          <div className="flex justify-center gap-2">
+                        <td
+                          className="px-2 py-3 text-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex justify-center gap-1">
                             <Link
                               href={`/admin/leads/${lead.id}`}
                               className="rounded-lg p-2 text-muted transition hover:bg-white/10 hover:text-orange"

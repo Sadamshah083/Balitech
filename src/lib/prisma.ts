@@ -6,10 +6,45 @@ const globalForPrisma = globalThis as unknown as {
   dbCheckPromise: Promise<boolean> | undefined;
 };
 
+const WRITE_OPERATIONS = new Set([
+  "create",
+  "createMany",
+  "createManyAndReturn",
+  "update",
+  "updateMany",
+  "upsert",
+  "delete",
+  "deleteMany",
+  "executeRaw",
+  "executeRawUnsafe",
+]);
+
+/**
+ * Production pages are prerendered at build time, so a release build has to read
+ * from the live database. PRISMA_READONLY makes that provably non-destructive by
+ * refusing every mutating query for the duration of the build.
+ */
 function createPrismaClient() {
-  return new PrismaClient({
+  const client = new PrismaClient({
     log: [],
   });
+
+  if (process.env.PRISMA_READONLY !== "1") {
+    return client;
+  }
+
+  return client.$extends({
+    query: {
+      $allOperations({ model, operation, args, query }) {
+        if (WRITE_OPERATIONS.has(operation)) {
+          throw new Error(
+            `PRISMA_READONLY: blocked ${model ?? "raw"}.${operation}`
+          );
+        }
+        return query(args);
+      },
+    },
+  }) as unknown as PrismaClient;
 }
 
 /** Ensures cached client includes all current schema models (avoids stale dev cache). */

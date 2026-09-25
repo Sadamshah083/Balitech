@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAdminLogin(pathname)) {
     if (session) {
-      return NextResponse.redirect(new URL("/admin/leads", request.url));
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
     return NextResponse.next();
   }

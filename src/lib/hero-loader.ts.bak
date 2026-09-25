@@ -1,0 +1,65 @@
+/**
+ * Home page intro timings. The header stays hidden until the loader fades, and
+ * the ribbon behind the page waits for it to leave, so all three read from here
+ * to avoid drifting apart.
+ *
+ * The write itself is a CSS animation (`hero-intro-write`), not a timer — it has
+ * to start at first paint rather than at hydration — so WRITE_MS below is also
+ * `--intro-write` in globals.css, and the two have to be changed together.
+ *
+ * It is tempting to assume these lengths cap the page's Lighthouse score, since
+ * the overlay is opaque and the hero behind it cannot be the largest contentful
+ * paint until it has gone. They do not, and it is worth knowing why before
+ * trading the animation away for points.
+ *
+ * The wordmark below *is* the LCP element, and Lighthouse attributes almost all
+ * of its LCP to "element render delay" — which reads exactly like this wipe
+ * being the cause. It is not. That phase is simulated from the network and CPU
+ * graph, not measured from the paint the animation produces: cutting the wipe
+ * to 600 ms left the scored LCP within noise of 3.4s and made Speed Index
+ * slightly worse. Halving it to 1100 ms had moved LCP by 0.03s. What is left in
+ * that phase is hydration, so the lever is client-side JavaScript, not this.
+ *
+ * Shortening these makes the score *worse*, which is worth knowing before
+ * trying it a third time. Taking the write to 900 ms and the reveal to 1300 ms
+ * cost six points of desktop performance (94 -> 88, median of three): Speed
+ * Index went 2.13s -> 2.84s and LCP 0.92s -> 1.41s. The overlay is opaque, so
+ * while it is up the browser has quiet time to fetch and decode the hero
+ * behind it; reveal it sooner and that work lands inside the measured window
+ * instead, so the page takes *longer* to look finished. The length of the
+ * intro is buying the hero its loading time.
+ *
+ * So the timings are free to be whatever reads best, and longer is not slower.
+ *
+ * The one change made for its own sake was removing dead air. The wipe finished
+ * at 1500 ms and the overlay then sat there, complete and motionless, for
+ * another 550 ms before starting to fade. It now leaves as soon as the stroke
+ * lands, which a visitor feels even though an audit does not.
+ */
+
+/**
+ * The words the intro writes out.
+ *
+ * Exported because `scripts/optimize-media.js` subsets Great Vibes down to
+ * exactly the characters used here — 3.7 KB instead of 28.9 KB for the full
+ * Latin range, on a High-priority request that the largest contentful paint
+ * waits for. The face is used nowhere else on the site, so reading the string
+ * from here is what keeps the font and the text it has to render in step: edit
+ * this and re-run `npm run optimize:media`.
+ */
+export const HERO_INTRO_WORDMARK = "Welcome to Bali Tech";
+
+/** Length of the ink wipe across the wordmark. */
+export const HERO_LOADER_WRITE_MS = 1500;
+
+/** When the overlay starts fading out, revealing the hero. */
+export const HERO_LOADER_FADE_MS = 1600;
+
+/**
+ * When the overlay has finished leaving and the hero is fully visible.
+ *
+ * It is hidden at this point rather than unmounted — see the note in Hero.tsx —
+ * so this is what the ribbon waits for before building itself, there being
+ * nothing to see behind an opaque panel.
+ */
+export const HERO_LOADER_REMOVE_MS = 2050;

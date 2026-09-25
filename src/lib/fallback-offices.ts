@@ -14,7 +14,9 @@ export type PublicOffice = {
   isHeadOffice: boolean;
 };
 
-export const officeHours = "Mon - Fri from 6 Pm to 4 oclock";
+export const officeHours = "Monday–Friday · 6:00 PM – 4:00 AM";
+
+export const officeEmail = "info@balitech.org";
 
 export const officePhonePrimary = "0370 0585660";
 export const officePhoneSecondary = "0327 1233435";
@@ -34,7 +36,7 @@ export const fallbackOffices: PublicOffice[] = [
     address:
       "Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400",
     phone: officePhoneDisplay,
-    email: "info@balitech.com",
+    email: officeEmail,
     hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",
@@ -49,14 +51,14 @@ export const fallbackOffices: PublicOffice[] = [
     id: "islamabad-office",
     name: "Islamabad Office",
     slug: "islamabad-office",
-    address: "Plot No.349-352 street No 5 industrial Area 1-9/3, Islamabad",
+    address: "Plot No.349-352 street No 1 industrial Area 1-9/3, Islamabad",
     phone: officePhoneDisplay,
-    email: "info@balitech.com",
+    email: officeEmail,
     hours: officeHours,
     city: "Islamabad",
     country: "Pakistan",
     image: null,
-    mapEmbedUrl: mapUrl("Plot No.349-352 street No 5 industrial Area 1-9/3, Islamabad"),
+    mapEmbedUrl: mapUrl("Plot No.349-352 street No 1 industrial Area 1-9/3, Islamabad"),
     order: 2,
     isHeadOffice: false,
   },
@@ -67,7 +69,7 @@ export const fallbackOffices: PublicOffice[] = [
     address:
       "Office No 1, 3rd Floor, Satellite Town B Block, Ideas Building Plaza Rwp",
     phone: officePhoneDisplay,
-    email: "info@balitech.com",
+    email: officeEmail,
     hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",
@@ -82,7 +84,7 @@ export const fallbackOffices: PublicOffice[] = [
     slug: "iran-road-office",
     address: "Plaza No A-74, Iran Road Satellite Town-A Rawalpindi Punjab Pakistan",
     phone: officePhoneDisplay,
-    email: "info@balitech.com",
+    email: officeEmail,
     hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",

@@ -190,6 +190,17 @@ export const fallbackMediaItems: PublicMediaItem[] = [
     isFeatured: false,
   },
   {
+    id: "video-i9-reveal",
+    title: "i9 Reveal",
+    alt: "BALITECH i9 Reveal portrait video",
+    src: "/i9-reveal/i9-reveal.mp4",
+    kind: "video",
+    section: "portrait-video",
+    category: "Events",
+    order: 0,
+    isFeatured: false,
+  },
+  {
     id: "video-serena",
     title: "ACA Serena Breakfast",
     alt: "ACA Serena Breakfast event video",

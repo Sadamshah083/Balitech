@@ -8,22 +8,34 @@ import {
   useRef,
   useState,
 } from "react";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import IntentLink from "@/components/navigation/IntentLink";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
+import CampaignBranches from "@/components/careers/CampaignBranches";
 import { getCampaignApplyHref } from "@/lib/apply";
+import {
+  describeCampaignLocations,
+  initialCampaignLocations,
+  parseCampaignLocations,
+} from "@/lib/campaign-locations";
+import { type ClientCampaign, fetchPublicCampaigns } from "@/lib/campaigns-client";
 import { companyContent } from "@/lib/content";
 import { getCampaignIcon } from "@/lib/icons";
 
 const { programs } = companyContent;
 
-type Campaign = {
-  id: string;
-  title: string;
-  description: string | null;
-  icon: string;
-};
+type Campaign = ClientCampaign;
+
+/** Shown when the endpoint has nothing to give, so the section is never empty. */
+const fallbackCampaignCards = (): Campaign[] =>
+  programs.items.map((item, index) => ({
+    id: `program-${index}`,
+    title: item.title,
+    description: item.description,
+    icon: item.icon,
+    locations: initialCampaignLocations(item.title),
+  }));
 
 function getCardsPerView(width: number) {
   if (width < 640) return 1;
@@ -35,13 +47,15 @@ function getCardsPerView(width: number) {
 function CampaignCard({
   campaign,
   applyHref,
-  location,
 }: {
   campaign: Campaign;
   applyHref: string;
-  location: string;
 }) {
   const icon = getCampaignIcon(campaign.icon);
+  const branches = parseCampaignLocations(
+    campaign.locations,
+    campaign.location ?? programs.location
+  );
   const bullets = [
     campaign.description ?? "",
     ...programs.defaultRequirements,
@@ -49,10 +63,11 @@ function CampaignCard({
 
   return (
     <article className="campaigns-carousel__card">
-      <Link
+      <IntentLink
         href={applyHref}
+        scroll={false}
         className="campaign-job-card group/card"
-        aria-label={`Apply for ${campaign.title} campaign`}
+        aria-label={`Apply for ${campaign.title} campaign at ${describeCampaignLocations(branches)}`}
       >
         <span className="campaign-job-card__shade" aria-hidden />
         <span className="campaign-job-card__glow" aria-hidden />
@@ -63,10 +78,11 @@ function CampaignCard({
 
         <h3 className="campaign-job-card__title">{campaign.title}</h3>
 
-        <p className="campaign-job-card__location">
-          <MapPin size={14} className="campaign-job-card__pin" aria-hidden />
-          {location}
-        </p>
+        <CampaignBranches
+          branches={branches}
+          className="campaign-job-card__location"
+          iconSize={14}
+        />
 
         <ul className="campaign-job-card__list">
           {bullets.map((item) => (
@@ -75,7 +91,7 @@ function CampaignCard({
         </ul>
 
         <span className="campaign-job-card__apply">Apply Now</span>
-      </Link>
+      </IntentLink>
     </article>
   );
 }
@@ -103,7 +119,6 @@ function measureCarouselOffset(
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [location, setLocation] = useState(programs.location);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(4);
   const [slideOffset, setSlideOffset] = useState(0);
@@ -112,48 +127,10 @@ export default function Campaigns() {
 
   useEffect(() => {
     async function load() {
-      try {
-        const [campaignRes, officeRes] = await Promise.all([
-          fetch("/api/campaigns?public=true"),
-          fetch("/api/offices?public=true"),
-        ]);
-
-        if (campaignRes.ok) {
-          const data = await campaignRes.json();
-          if (data.campaigns?.length) {
-            setCampaigns(data.campaigns);
-          } else {
-            setCampaigns(
-              programs.items.map((item, index) => ({
-                id: `program-${index}`,
-                title: item.title,
-                description: item.description,
-                icon: item.icon,
-              }))
-            );
-          }
-        }
-
-        if (officeRes.ok) {
-          const data = await officeRes.json();
-          const head =
-            data.offices?.find(
-              (office: { isHeadOffice: boolean }) => office.isHeadOffice
-            ) ?? data.offices?.[0];
-          if (head?.name) {
-            setLocation(head.name);
-          }
-        }
-      } catch {
-        setCampaigns(
-          programs.items.map((item, index) => ({
-            id: `program-${index}`,
-            title: item.title,
-            description: item.description,
-            icon: item.icon,
-          }))
-        );
-      }
+      /* Shared with the apply form, which needs the same rows to work out
+         which branches a campaign is hiring at. */
+      const list = await fetchPublicCampaigns();
+      setCampaigns(list.length > 0 ? list : fallbackCampaignCards());
     }
 
     load();
@@ -170,14 +147,7 @@ export default function Campaigns() {
   }, []);
 
   const displayCampaigns =
-    campaigns.length > 0
-      ? campaigns
-      : programs.items.map((item, index) => ({
-          id: `program-${index}`,
-          title: item.title,
-          description: item.description,
-          icon: item.icon,
-        }));
+    campaigns.length > 0 ? campaigns : fallbackCampaignCards();
 
   const total = displayCampaigns.length;
   const maxIndex = Math.max(0, total - cardsPerView);
@@ -255,7 +225,6 @@ export default function Campaigns() {
                   key={campaign.id}
                   campaign={campaign}
                   applyHref={getCampaignApplyHref(campaign.title)}
-                  location={location}
                 />
               ))}
             </div>

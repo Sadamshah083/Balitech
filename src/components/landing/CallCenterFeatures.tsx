@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Globe, Headphones, Shield, Target, Users, Zap } from "lucide-react";
 import BentoTilt from "@/components/animations/BentoTilt";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 import { companyContent } from "@/lib/content";
-import { gsap, registerGsap } from "@/lib/gsap-register";
+import { useLazyGsap } from "@/lib/use-lazy-gsap";
 
 const { excellence, vision, mission, name } = companyContent;
 const featureIcons = [Headphones, Users, Shield, Target, Globe, Zap];
@@ -14,27 +14,19 @@ const featureIcons = [Headphones, Users, Shield, Target, Globe, Zap];
 export default function CallCenterFeatures() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    registerGsap();
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const ctx = gsap.context(() => {
-      gsap.from(".excellence-showcase__card", {
-        opacity: 0,
-        y: 48,
-        duration: 0.75,
-        stagger: 0.09,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".excellence-showcase__cards",
-          start: "top 86%",
-        },
-      });
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
+  useLazyGsap(({ gsap }) => {
+    gsap.from(".excellence-showcase__card", {
+      opacity: 0,
+      y: 48,
+      duration: 0.75,
+      stagger: 0.09,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".excellence-showcase__cards",
+        start: "top 86%",
+      },
+    });
+  }, sectionRef);
 
   return (
     <section

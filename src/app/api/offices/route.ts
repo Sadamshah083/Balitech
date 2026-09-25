@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { buildMapEmbedUrl, getPublicOffices, slugifyOffice } from "@/lib/offices";
 import { fallbackOffices } from "@/lib/fallback-offices";
+import { refreshPublicPages } from "@/lib/refresh-public-pages";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -87,6 +88,7 @@ export async function POST(request: Request) {
       },
     });
 
+    refreshPublicPages();
     return NextResponse.json({ office }, { status: 201 });
   } catch {
     return NextResponse.json(

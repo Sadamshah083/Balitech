@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useGSAP } from "@gsap/react";
+import IntentLink from "@/components/navigation/IntentLink";
 import { useRef } from "react";
-import { gsap, registerGsap } from "@/lib/gsap-register";
+import { useLazyGsap } from "@/lib/use-lazy-gsap";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 
@@ -16,10 +15,8 @@ const links = [
 export default function AnimatedExploreLinks() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useGSAP(
-    () => {
-      registerGsap();
-
+  useLazyGsap(
+    ({ gsap }) => {
       gsap.from(".explore-link-item", {
         y: 32,
         opacity: 0,
@@ -50,7 +47,7 @@ export default function AnimatedExploreLinks() {
         }
       );
     },
-    { scope: sectionRef }
+    sectionRef
   );
 
   return (
@@ -62,12 +59,12 @@ export default function AnimatedExploreLinks() {
       <div className="explore-links-section__inner">
         {links.map((item) => (
           <div key={item.href} className="explore-link-item">
-            <Link href={item.href} className="explore-link">
+            <IntentLink href={item.href} className="explore-link">
               <span className="explore-link__text">
                 Explore {item.label} <span aria-hidden>→</span>
               </span>
               <HeadingBrush className="explore-link__brush" />
-            </Link>
+            </IntentLink>
           </div>
         ))}
       </div>

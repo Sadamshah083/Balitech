@@ -14,6 +14,28 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // The previous PHP site is still indexed and serves stale contact details.
+  async redirects() {
+    return [
+      { source: "/contact.php", destination: "/our-offices", permanent: true },
+      { source: "/contact", destination: "/our-offices", permanent: true },
+      { source: "/index.php", destination: "/", permanent: true },
+      { source: "/home.php", destination: "/", permanent: true },
+      { source: "/about.php", destination: "/about", permanent: true },
+      { source: "/about-us", destination: "/about", permanent: true },
+      { source: "/services.php", destination: "/services", permanent: true },
+      { source: "/service.php", destination: "/services", permanent: true },
+      { source: "/career.php", destination: "/join-us", permanent: true },
+      { source: "/careers.php", destination: "/join-us", permanent: true },
+      { source: "/careers", destination: "/join-us", permanent: true },
+      { source: "/gallery.php", destination: "/gallery", permanent: true },
+      { source: "/team.php", destination: "/our-team", permanent: true },
+      { source: "/blog.php", destination: "/blog", permanent: true },
+      { source: "/insights", destination: "/blog", permanent: true },
+      { source: "/ceo", destination: "/ceo-words", permanent: true },
+      { source: "/leadership", destination: "/ceo-words", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

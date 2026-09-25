@@ -7,6 +7,8 @@ export type FallbackBlog = {
   image: string | null;
   tags: string;
   format: string;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   order: number;
   createdAt: string;
 };

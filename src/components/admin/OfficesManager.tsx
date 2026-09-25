@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Building2, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { Building2, Clock, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { adminFetch } from "@/lib/admin-token";
 import { officeHours } from "@/lib/fallback-offices";
 
@@ -217,7 +217,8 @@ export default function OfficesManager() {
             />
             <input
               type="text"
-              placeholder="Working hours"
+              placeholder="Working hours, e.g. Mon – Sat: 9:00 AM – 6:00 PM"
+              aria-label="Working hours"
               value={form.hours}
               onChange={(e) => setForm({ ...form, hours: e.target.value })}
               className="brand-input sm:col-span-2"
@@ -278,7 +279,7 @@ export default function OfficesManager() {
                 }
                 className="accent-orange"
               />
-              Head office (primary location & map)
+              Shamsabad office (primary location & map)
             </label>
           </div>
 
@@ -366,6 +367,11 @@ export default function OfficesManager() {
                 <p className="mb-3 flex items-start gap-2 text-sm text-muted">
                   <MapPin size={14} className="mt-0.5 shrink-0 text-orange" />
                   {office.address}
+                </p>
+
+                <p className="mb-3 flex items-start gap-2 text-sm text-muted">
+                  <Clock size={14} className="mt-0.5 shrink-0 text-orange" />
+                  {office.hours || "No working hours set"}
                 </p>
 
                 <div className="flex flex-wrap gap-3 text-xs text-muted">

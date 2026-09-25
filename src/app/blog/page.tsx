@@ -1,32 +1,30 @@
 import SitePage from "@/components/layout/SitePage";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
-import BlogPageHero from "@/components/blog/BlogPageHero";
-import CEOLeadershipShowcase from "@/components/blog/CEOLeadershipShowcase";
-import { companyContent } from "@/lib/content";
-import { pageMetadata } from "@/lib/seo";
-
-const { ceo } = companyContent;
+import BlogArticles from "@/components/blog/BlogArticles";
+import InsightsHero from "@/components/blog/InsightsHero";
+import { getPublicBlogs } from "@/lib/blogs";
+import { breadcrumbSchema, pageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 
 export const metadata = pageMetadata({
-  title: "Blog & Leadership Insights",
-  description: `Leadership insights and articles from ${ceo.name}, ${ceo.title} of ${ceo.company}. Read the latest from BALITECH on BPO, culture, and growth.`,
+  title: "Blogs",
+  description:
+    "Operations, culture, and growth articles from BALITECH — BPO delivery, team excellence, and life across our offices.",
   path: "/blog",
-  keywords: [
-    "Bali Tech blog",
-    "BPO insights",
-    "leadership Pakistan",
-    "Sheraz Bali blog",
-    "company culture",
-  ],
 });
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const blogs = await getPublicBlogs();
+
   return (
     <SitePage>
+      <JsonLd
+        data={breadcrumbSchema([{ name: "Blogs", path: "/blog" }])}
+      />
       <div className="blog-page section-with-net">
         <SectionAnimatedNet />
-        <BlogPageHero />
-        <CEOLeadershipShowcase variant="page" />
+        <InsightsHero />
+        <BlogArticles blogs={blogs} />
       </div>
     </SitePage>
   );

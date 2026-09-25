@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Headphones, MapPin } from "lucide-react";
 import { companyContent } from "@/lib/content";
 import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
@@ -35,9 +34,9 @@ export default function JoinUsOpenings() {
                   <li key={bullet}>{bullet}</li>
                 ))}
               </ul>
-              <Link href="#apply" className="join-us-opening-card__btn">
+              <a href="#apply" className="join-us-opening-card__btn">
                 Apply Now
-              </Link>
+              </a>
             </article>
           ))}
         </div>

@@ -1,41 +1,64 @@
 import SitePage from "@/components/layout/SitePage";
 import PageBanner from "@/components/layout/PageBanner";
-import ServiceCards from "@/components/landing/ServiceCards";
-import MissionServices from "@/components/landing/MissionServices";
-import CallCenterFeatures from "@/components/landing/CallCenterFeatures";
-import Campaigns from "@/components/landing/Campaigns";
+import SolutionsGrid from "@/components/landing/SolutionsGrid";
+import ServiceDelivery from "@/components/services/ServiceDelivery";
+import EngagementModels from "@/components/services/EngagementModels";
+import ServicesFaq from "@/components/services/ServicesFaq";
 import ContactForm from "@/components/landing/ContactForm";
-import { siteImages } from "@/lib/images";
-import { pageMetadata } from "@/lib/seo";
+import AnimateSection from "@/components/animations/AnimateSection";
+import JsonLd from "@/components/seo/JsonLd";
+import { companyContent } from "@/lib/content";
+import { servicesBannerImage } from "@/lib/page-imagery";
+import {
+  breadcrumbSchema,
+  faqSchema,
+  pageMetadata,
+  serviceSchema,
+} from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "BPO & Call Center Services",
   description:
-    "Professional call center, BPO, customer support, telemarketing, and lead generation services delivered by Bali Tech Pvt. Ltd across Pakistan.",
+    "Inbound and outbound call center, customer support, lead generation, sales verification and medical billing outsourcing from BALITECH in Pakistan.",
   path: "/services",
-  keywords: [
-    "BPO services",
-    "call center services",
-    "customer support outsourcing",
-    "telemarketing Pakistan",
-    "lead generation Pakistan",
-    "inbound call center",
-    "outbound call center",
-  ],
 });
 
+/**
+ * Services page = scope, delivery mechanics and commercial structure. No
+ * recruitment content, and no reuse of the home page positioning sections.
+ */
 export default function ServicesPage() {
   return (
     <SitePage>
+      <JsonLd
+        data={[
+          breadcrumbSchema([{ name: "Services", path: "/services" }]),
+          serviceSchema(
+            companyContent.solutions.items.map((item) => ({
+              title: item.title,
+              text: item.summary,
+            }))
+          ),
+          faqSchema(companyContent.servicesFaq.items),
+        ]}
+      />
       <PageBanner
         title="Our Services"
-        subtitle="Comprehensive outsourcing solutions tailored for your business growth."
-        image={siteImages.office}
+        subtitle="Dedicated outsourcing teams for inbound, outbound, support, and back-office operations — managed against your performance targets."
+        image={servicesBannerImage}
       />
-      <Campaigns />
-      <ServiceCards />
-      <MissionServices />
-      <CallCenterFeatures />
+      <AnimateSection>
+        <SolutionsGrid />
+      </AnimateSection>
+      <AnimateSection delay={0.05}>
+        <ServiceDelivery />
+      </AnimateSection>
+      <AnimateSection delay={0.05}>
+        <EngagementModels />
+      </AnimateSection>
+      <AnimateSection delay={0.05}>
+        <ServicesFaq />
+      </AnimateSection>
       <ContactForm />
     </SitePage>
   );

@@ -1,5 +1,6 @@
 import { companyContent } from "@/lib/content";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
+import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 
 const { joinUs } = companyContent;
 
@@ -13,11 +14,7 @@ export default function JoinUsHero() {
           {joinUs.hero.titleLine}{" "}
           <span className="join-us-hero__highlight">
             {joinUs.hero.titleHighlight}
-            <span className="join-us-hero__brush" aria-hidden>
-              <span />
-              <span />
-              <span />
-            </span>
+            <HeadingBrush />
           </span>
         </h1>
         <p className="join-us-hero__subtitle">{joinUs.hero.subtitle}</p>

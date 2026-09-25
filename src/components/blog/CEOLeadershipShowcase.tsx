@@ -2,13 +2,12 @@
 
 import Image from "next/image";
 import { useRef, type ReactNode } from "react";
-import { useGSAP } from "@gsap/react";
 import { Quote } from "lucide-react";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 import { companyContent } from "@/lib/content";
 import { cn } from "@/lib/cn";
-import { gsap, registerGsap } from "@/lib/gsap-register";
+import { useLazyGsap } from "@/lib/use-lazy-gsap";
 
 const { ceo } = companyContent;
 const [featuredGroup, ...otherGroups] = ceo.quoteGroups;
@@ -40,10 +39,8 @@ export default function CEOLeadershipShowcase({
   const isPage = variant === "page";
   const sectionRef = useRef<HTMLElement>(null);
 
-  useGSAP(
-    () => {
-      registerGsap();
-
+  useLazyGsap(
+    ({ gsap }) => {
       if (!isPage) {
         gsap.from(".ceo-leadership-showcase__title-line", {
           y: 48,
@@ -91,7 +88,8 @@ export default function CEOLeadershipShowcase({
         );
       }
     },
-    { scope: sectionRef, dependencies: [isPage] }
+    sectionRef,
+    [isPage]
   );
 
   return (
@@ -113,13 +111,10 @@ export default function CEOLeadershipShowcase({
         {!isPage && (
           <header className="ceo-leadership-showcase__header">
             <p className="ceo-leadership-showcase__eyebrow brand-label">{ceo.label}</p>
-            <span className="ceo-leadership-showcase__watermark" aria-hidden>
-              Leadership
-            </span>
             <h2 id={titleId} className="ceo-leadership-showcase__title">
               <span className="ceo-leadership-showcase__title-line">
                 Leadership That
-              </span>
+              </span>{" "}
               <span className="ceo-leadership-showcase__title-line">
                 Builds{" "}
                 <span className="ceo-leadership-showcase__title-highlight heading-last-word">
@@ -146,11 +141,6 @@ export default function CEOLeadershipShowcase({
               isPage && "ceo-leadership-showcase__hero--page glow-border"
             )}
           >
-            {isPage && (
-              <span className="ceo-leadership-showcase__card-index" aria-hidden>
-                01
-              </span>
-            )}
             {!isPage && (
               <div className="ceo-leadership-showcase__portrait">
                 <div className="ceo-leadership-showcase__portrait-frame">
@@ -216,11 +206,6 @@ export default function CEOLeadershipShowcase({
                   isPage && "ceo-leadership-showcase__card--page glow-border"
                 )}
               >
-                {isPage && (
-                  <span className="ceo-leadership-showcase__card-index" aria-hidden>
-                    {String(index + 2).padStart(2, "0")}
-                  </span>
-                )}
                 <Quote
                   className="ceo-leadership-showcase__quote-icon ceo-leadership-showcase__quote-icon--sm"
                   aria-hidden

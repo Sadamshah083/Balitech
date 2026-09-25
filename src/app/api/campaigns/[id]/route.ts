@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { refreshPublicPages } from "@/lib/refresh-public-pages";
+import {
+  toStoredCampaignLocations,
+  withCampaignBranchList,
+} from "@/lib/campaign-locations";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -22,12 +27,17 @@ export async function PATCH(request: Request, context: RouteContext) {
             : null,
         }),
         ...(body.icon !== undefined && { icon: String(body.icon).trim() }),
+        /* Both columns are written together or not at all, so `location` can
+           never drift from the first entry of `locations`. */
+        ...((body.locations !== undefined || body.location !== undefined) &&
+          toStoredCampaignLocations(body)),
         ...(body.order !== undefined && { order: Number(body.order) }),
         ...(body.isActive !== undefined && { isActive: Boolean(body.isActive) }),
       },
     });
 
-    return NextResponse.json({ campaign });
+    refreshPublicPages();
+    return NextResponse.json({ campaign: withCampaignBranchList(campaign) });
   } catch {
     return NextResponse.json(
       { error: "Failed to update campaign" },
@@ -43,6 +53,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     await prisma.campaign.delete({ where: { id } });
+    refreshPublicPages();
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(

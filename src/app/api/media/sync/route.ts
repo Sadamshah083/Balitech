@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth";
+import { refreshPublicPages } from "@/lib/refresh-public-pages";
 import { syncMediaCatalog } from "@/lib/media";
 
 export async function POST(request: Request) {
@@ -8,6 +9,7 @@ export async function POST(request: Request) {
 
   try {
     const created = await syncMediaCatalog();
+    refreshPublicPages();
     return NextResponse.json({ ok: true, created });
   } catch {
     return NextResponse.json(

@@ -1,71 +1,88 @@
-"use client";
-
 import Link from "next/link";
-import { ArrowRight, Clock, Headphones, Users } from "lucide-react";
-import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
-import { HeadingBrush } from "@/components/brand/HeadingLastWord";
+import {
+  ArrowRight,
+  Briefcase,
+  ClipboardList,
+  Headphones,
+  PhoneIncoming,
+  Shield,
+  Target,
+  type LucideIcon,
+} from "lucide-react";
+import IntentLink from "@/components/navigation/IntentLink";
 import { companyContent } from "@/lib/content";
 
 const { services } = companyContent;
-const serviceIcons = [Clock, Headphones, Users];
+
+const icons: Record<string, LucideIcon> = {
+  headphones: Headphones,
+  "phone-incoming": PhoneIncoming,
+  target: Target,
+  briefcase: Briefcase,
+  shield: Shield,
+  clipboard: ClipboardList,
+};
 
 export default function ServiceCards() {
   return (
     <section
       id="services"
-      className="services-showcase section-with-net"
-      aria-labelledby="services-showcase-title"
+      className="ent-section ent-section--lit"
+      aria-labelledby="home-services-title"
     >
-      <SectionAnimatedNet />
+      <div className="ent-shell">
+        <div className="ent-head-split">
+          <header className="ent-head">
+            <p className="ent-eyebrow">{services.label}</p>
+            <h2 id="home-services-title" className="ent-title">
+              {services.title} <em>{services.highlight}</em>
+            </h2>
+            <p className="ent-lede">{services.subtitle}</p>
+          </header>
 
-      <div className="services-showcase__inner">
-        <header className="services-showcase__header">
-          <p className="services-showcase__eyebrow brand-label">
-            {services.label}
-          </p>
-          <span className="services-showcase__watermark" aria-hidden>
-            Services
-          </span>
-          <h2 id="services-showcase-title" className="services-showcase__title">
-            {services.title.replace(" Solutions", "")}{" "}
-            <span className="services-showcase__highlight heading-last-word">
-              Solutions
-              <HeadingBrush />
-            </span>
-          </h2>
-        </header>
+          <IntentLink
+            href="/services"
+            className="ent-btn ent-btn--ghost shrink-0"
+          >
+            View All Solutions
+            <ArrowRight size={16} strokeWidth={2.25} aria-hidden />
+          </IntentLink>
+        </div>
 
-        <div className="services-showcase__cards">
-          {services.cards.map((service, index) => {
-            const Icon = serviceIcons[index];
+        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {services.cards.map((card, index) => {
+            const Icon = icons[card.icon] ?? Headphones;
 
             return (
-              <article key={service.title} className="services-showcase__card">
-                <div className="services-showcase__card-top">
-                  <span className="services-showcase__card-num">
-                    {String(index + 1).padStart(2, "0")}
+              <article key={card.id} className="ent-card">
+                <div className="flex items-start justify-between">
+                  <span className="ent-card__icon" aria-hidden>
+                    <Icon size={26} strokeWidth={1.6} />
                   </span>
-                  <span className="services-showcase__card-icon" aria-hidden>
-                    <Icon size={20} strokeWidth={1.65} />
+                  <span className="ent-card__index">
+                    {String(index + 1).padStart(2, "0")}
                   </span>
                 </div>
 
-                <div className="services-showcase__card-divider" aria-hidden />
+                <h3 className="ent-card__title">{card.title}</h3>
+                <p className="ent-card__text">{card.description}</p>
 
-                <h3 className="services-showcase__card-title">
-                  {service.title}
-                </h3>
-                <p className="services-showcase__card-text">
-                  {service.description}
-                </p>
-
-                <div className="services-showcase__card-footer">
+                <div className="mt-auto pt-8">
+                  {/* Six cards, one destination between them. Left to itself
+                      Next prefetches /services once per card as the grid
+                      scrolls past — the same route fetched six times while the
+                      visitor is moving. The heading's button above warms it on
+                      hover for anyone heading that way. */}
                   <Link
-                    href="/services"
-                    className="services-showcase__card-link"
+                    href={`/services#${card.id}`}
+                    prefetch={false}
+                    className="ent-card__cta"
+                    aria-label={`${card.title} — see how it works`}
                   >
-                    Read More
-                    <ArrowRight size={15} strokeWidth={2.25} aria-hidden />
+                    See how it works
+                    <span className="ent-card__cta-arrow" aria-hidden>
+                      <ArrowRight size={14} strokeWidth={2.4} />
+                    </span>
                   </Link>
                 </div>
               </article>

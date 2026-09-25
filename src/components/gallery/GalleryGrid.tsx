@@ -34,7 +34,9 @@ export default function GalleryGrid({ items }: GalleryGridProps) {
               onClick={() => setActive(cat)}
               className={`rounded-full px-5 py-2 text-sm font-bold transition ${
                 active === cat
-                  ? "bg-orange text-white"
+                  ? // Same navy the primary button uses on orange. White only
+                    // reached 2.42:1 against it.
+                    "bg-orange text-[#10192e]"
                   : "border border-foreground/15 text-muted hover:border-orange hover:text-orange"
               }`}
             >

@@ -2,23 +2,17 @@
 
 
 
-import Link from "next/link";
-
 import { usePathname } from "next/navigation";
 
-import { useEffect, useRef, useState } from "react";
-
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 import { Menu, X } from "lucide-react";
 
-import { useWindowScroll } from "react-use";
-
 import BrandLogo from "@/components/brand/BrandLogo";
 
-import { applyNowLabel, joinUsHref, navLinks } from "@/lib/navigation";
+import IntentLink from "@/components/navigation/IntentLink";
 
-import { gsap, registerGsap } from "@/lib/gsap-register";
+import { applyNowLabel, joinUsHref, navLinks } from "@/lib/navigation";
 
 import { cn } from "@/lib/cn";
 
@@ -46,25 +40,9 @@ export default function SiteHeader() {
 
   const isHome = pathname === "/";
 
-  const headerRef = useRef<HTMLElement>(null);
-
-  const lastScrollY = useRef(0);
-
-  const { y: scrollY } = useWindowScroll();
-
-
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isPageLoading, setIsPageLoading] = useState(isHome);
-
-  useEffect(() => {
-    if (!isHome) return;
-    const loaderTimer = setTimeout(() => {
-      setIsPageLoading(false);
-    }, 3300);
-    return () => clearTimeout(loaderTimer);
-  }, [isHome]);
 
 
 
@@ -91,58 +69,48 @@ export default function SiteHeader() {
 
 
 
+  /* The bar stays put at every scroll position — navigation is always one
+     click away rather than something you have to scroll up to summon. All that
+     tracks the scroll is how solid it looks: transparent over the hero,
+     frosted once there is content behind it.
+     
+     A listener rather than a scroll-position hook: this only needs to know
+     whether the page has passed 24px, so it writes state on the two frames
+     where that flips instead of re-rendering the header on every scroll
+     event — which matters on the home page, where the light path is already
+     doing work on scroll. */
   useEffect(() => {
+    let frame = 0;
 
-    registerGsap();
+    const read = () => {
+      frame = 0;
+      setScrolled(window.scrollY > 24);
+    };
 
-    const header = headerRef.current;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(read);
+    };
 
-    if (!header) return;
+    /* Covers a restored scroll position on load or back-navigation. */
+    frame = requestAnimationFrame(read);
+    window.addEventListener("scroll", onScroll, { passive: true });
 
-
-
-    const currentY = scrollY ?? 0;
-
-    setScrolled(currentY > 24);
-
-
-
-    if (currentY <= 0) {
-
-      gsap.to(header, { y: 0, opacity: 1, duration: 0.2 });
-
-      header.classList.remove("site-header-hidden");
-
-    } else if (currentY > lastScrollY.current) {
-
-      gsap.to(header, { y: -100, opacity: 0, duration: 0.2 });
-
-      header.classList.add("site-header-hidden");
-
-    } else {
-
-      gsap.to(header, { y: 0, opacity: 1, duration: 0.2 });
-
-      header.classList.remove("site-header-hidden");
-
-    }
-
-
-
-    lastScrollY.current = currentY;
-
-  }, [scrollY]);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
 
 
   return (
 
     <header
-      ref={headerRef}
       className={cn(
         "site-navbar site-navbar-pro fixed left-0 right-0 top-0 z-50 transition-[background,backdrop-filter,box-shadow,border-color,transform,opacity] duration-700 ease-out",
         scrolled || mobileOpen ? "site-navbar-scrolled" : "",
-        isPageLoading ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+          isHome ? "site-navbar--intro" : ""
       )}
     >
 
@@ -175,7 +143,7 @@ export default function SiteHeader() {
 
             return (
 
-              <Link
+              <IntentLink
                 key={link.href}
                 href={link.href}
                 className={cn(
@@ -196,7 +164,7 @@ export default function SiteHeader() {
                     )}
                   />
                 )}
-              </Link>
+              </IntentLink>
 
             );
 
@@ -207,7 +175,7 @@ export default function SiteHeader() {
 
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <Link
+          <IntentLink
 
             href={joinUsHref}
 
@@ -217,7 +185,7 @@ export default function SiteHeader() {
 
             {applyNowLabel}
 
-          </Link>
+          </IntentLink>
 
 
 
@@ -247,51 +215,25 @@ export default function SiteHeader() {
 
 
 
-      <AnimatePresence>
+      {/* Kept mounted and driven by CSS: framer-motion was loading on every
+          page just to fade this panel in and out. `inert` keeps the closed
+          menu out of the tab order and the accessibility tree. */}
+      <button
+        type="button"
+        aria-label="Close navigation menu"
+        data-open={mobileOpen}
+        inert={!mobileOpen}
+        className="mobile-nav-scrim fixed inset-0 top-[var(--site-navbar-height)] z-40 bg-black/50 backdrop-blur-[2px] lg:hidden"
+        onClick={() => setMobileOpen(false)}
+      />
 
-        {mobileOpen && (
-
-          <>
-
-            <motion.button
-
-              type="button"
-
-              aria-label="Close navigation menu"
-
-              initial={{ opacity: 0 }}
-
-              animate={{ opacity: 1 }}
-
-              exit={{ opacity: 0 }}
-
-              transition={{ duration: 0.2 }}
-
-              className="fixed inset-0 top-[var(--site-navbar-height)] z-40 bg-black/50 backdrop-blur-[2px] lg:hidden"
-
-              onClick={() => setMobileOpen(false)}
-
-            />
-
-
-
-            <motion.nav
-
-              id="mobile-navbar"
-
-              initial={{ opacity: 0, y: -12 }}
-
-              animate={{ opacity: 1, y: 0 }}
-
-              exit={{ opacity: 0, y: -12 }}
-
-              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-
-              className="mobile-navbar absolute left-0 right-0 top-full z-50 border-b border-orange/25 bg-background/98 shadow-[0_16px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg lg:hidden"
-
-              aria-label="Mobile navigation"
-
-            >
+      <nav
+        id="mobile-navbar"
+        data-open={mobileOpen}
+        inert={!mobileOpen}
+        className="mobile-navbar absolute left-0 right-0 top-full z-50 border-b border-orange/25 bg-background/98 shadow-[0_16px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg lg:hidden"
+        aria-label="Mobile navigation"
+      >
 
               <ul className="mx-auto max-w-[1600px] px-4 py-4 sm:px-8">
 
@@ -307,7 +249,7 @@ export default function SiteHeader() {
 
                     <li key={link.href}>
 
-                      <Link
+                      <IntentLink
 
                         href={link.href}
 
@@ -333,7 +275,7 @@ export default function SiteHeader() {
 
                         {link.label}
 
-                      </Link>
+                      </IntentLink>
 
                     </li>
 
@@ -343,13 +285,7 @@ export default function SiteHeader() {
 
               </ul>
 
-            </motion.nav>
-
-          </>
-
-        )}
-
-      </AnimatePresence>
+      </nav>
 
     </header>
 

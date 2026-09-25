@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { fallbackOffices } from "../src/lib/fallback-offices";
 import { fallbackMediaItems } from "../src/lib/fallback-media";
+import { initialCampaignLocations } from "../src/lib/campaign-locations";
 
 const programDescriptions: Record<string, string> = {
   "ACA Campaign": "Affordable Care Act enrollment and support campaigns.",
@@ -120,14 +121,19 @@ async function main() {
   const campaignCount = await prisma.campaign.count();
   if (campaignCount === 0) {
     await prisma.campaign.createMany({
-      data: defaultCampaigns.map((c) => ({
-        title: c.title,
-        icon: c.icon,
-        order: c.order,
-        description:
-          programDescriptions[c.title] ??
-          `Professional ${c.title} solutions.`,
-      })),
+      data: defaultCampaigns.map((c) => {
+        const locations = initialCampaignLocations(c.title);
+        return {
+          title: c.title,
+          icon: c.icon,
+          order: c.order,
+          location: locations[0],
+          locations: JSON.stringify(locations),
+          description:
+            programDescriptions[c.title] ??
+            `Professional ${c.title} solutions.`,
+        };
+      }),
     });
     console.log("Default campaigns seeded.");
   }

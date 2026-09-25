@@ -2,20 +2,17 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
 import { HeadingBrush } from "@/components/brand/HeadingLastWord";
 import { companyContent } from "@/lib/content";
-import { gsap, registerGsap } from "@/lib/gsap-register";
+import { useLazyGsap } from "@/lib/use-lazy-gsap";
 
 const { ceo } = companyContent;
 
 export default function BlogPageHero() {
   const heroRef = useRef<HTMLElement>(null);
 
-  useGSAP(
-    () => {
-      registerGsap();
-
+  useLazyGsap(
+    ({ gsap }) => {
       gsap.from(".blog-page-hero__glow", {
         scale: 0.6,
         opacity: 0,
@@ -42,7 +39,7 @@ export default function BlogPageHero() {
         delay: 0.25,
       });
     },
-    { scope: heroRef }
+    heroRef
   );
 
   return (
@@ -55,7 +52,7 @@ export default function BlogPageHero() {
           <p className="blog-page-hero__eyebrow brand-label">{ceo.label}</p>
 
           <h1 id="blog-page-hero-title" className="blog-page-hero__title">
-            <span className="blog-page-hero__title-line">Leadership That</span>
+            <span className="blog-page-hero__title-line">Leadership That</span>{" "}
             <span className="blog-page-hero__title-line">
               Builds{" "}
               <span className="blog-page-hero__title-highlight heading-last-word">

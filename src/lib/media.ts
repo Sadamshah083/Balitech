@@ -4,18 +4,30 @@ import { fallbackMediaItems, type PublicMediaItem } from "@/lib/fallback-media";
 export type { PublicMediaItem };
 
 export const mediaSectionOptions = [
-  { value: "about-collage", label: "About Collage (Homepage)" },
-  { value: "hero", label: "Hero Slides" },
-  { value: "awards", label: "Award Distribution (Homepage)" },
-  { value: "bonus-achievers", label: "Med Alert Bonus Achievers" },
-  { value: "aca-self-verifiers", label: "ACA Self Verifiers Best Performers" },
-  { value: "promotions", label: "Team Promotions (Homepage)" },
-  { value: "workspace", label: "Office Workspace Section" },
-  { value: "portrait-video", label: "Portrait Videos Row" },
-  { value: "featured-video", label: "Featured Full-Width Video" },
-  { value: "events", label: "Events Gallery (Homepage)" },
-  { value: "banner", label: "Page Banner" },
+  { value: "gallery", label: "Gallery Page — Photo Grid", page: "/gallery" },
+  { value: "workspace", label: "Gallery Page — Office Workspace", page: "/gallery" },
+  { value: "portrait-video", label: "Gallery Page — Portrait Videos", page: "/gallery" },
+  { value: "featured-video", label: "Gallery Page — Featured Video", page: "/gallery" },
+  { value: "awards", label: "Gallery Page — Awards", page: "/gallery" },
+  { value: "events", label: "Join Us — Events Gallery", page: "/join-us" },
+  { value: "about-collage", label: "Gallery Page — Culture Day Collage", page: "/gallery" },
+  { value: "hero", label: "Homepage — Hero Slides", page: "/" },
+  { value: "bonus-achievers", label: "Homepage — Med Alert Bonus Achievers", page: "/" },
+  { value: "aca-self-verifiers", label: "Homepage — ACA Self Verifiers", page: "/" },
+  { value: "promotions", label: "Homepage — Team Promotions", page: "/" },
+  { value: "banner", label: "Page Banner", page: null },
 ] as const;
+
+export function mediaSectionLabel(value: string) {
+  return mediaSectionOptions.find((o) => o.value === value)?.label ?? value;
+}
+
+/** Where visitors see this item — shown in admin so edits match the live page. */
+export function mediaPublicPlacement(value: string) {
+  const option = mediaSectionOptions.find((o) => o.value === value);
+  if (!option) return value;
+  return option.page ? `${option.label} (${option.page})` : option.label;
+}
 
 export const mediaCategoryOptions = [
   "Events",

@@ -1,37 +1,42 @@
-"use client";
-
 import Image from "next/image";
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 
-const topPerformanceImage = (filename: string) =>
-  `/awards/Top performance/${filename}`;
-
+/**
+ * Each award graphic already carries the employee name, campaign and payout, so
+ * the cards render the artwork alone — a text caption underneath would repeat
+ * the name and expose the filename suffix on the two same-named performers.
+ */
 const topPerformers = [
+  "Bryan Jhonson",
   "Max Marshall",
   "Steve Henely",
   "Mark Edward",
   "James Wilson",
   "Bryan Morries",
+  "Bryan Morries 1",
   "Kevin Brown",
   "Sarah Smith",
   "John Harris",
   "Michael Davis",
   "David Brown",
   "Anna Methew",
-  "Bryan Morries 1",
   "Kevin Smith",
 ] as const;
 
-const performers = topPerformers.map((name) => ({
-  id: name,
-  name,
-  image: topPerformanceImage(`${name}.webp`),
+const performers = topPerformers.map((filename) => ({
+  id: filename,
+  /* Trailing "-1" style suffixes distinguish files, never people */
+  name: filename.replace(/\s\d+$/, ""),
+  image: `/awards/Top performance/${filename}.webp`,
 }));
 
 export default function TopPerformers() {
   return (
-    <section id="team" className="top-performers-growth section-gradient section-with-net py-20">
+    <section
+      id="team"
+      className="top-performers-growth section-gradient section-with-net py-20"
+    >
       <SectionAnimatedNet />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 text-center">
@@ -41,23 +46,20 @@ export default function TopPerformers() {
           </AnimatedTitle>
         </div>
 
-        <div className="top-performers-growth__grid">
+        <ul className="top-performers-growth__grid">
           {performers.map((performer) => (
-            <article key={performer.id} className="top-performer-card">
-              <div className="top-performer-card__image-wrap">
-                <Image
-                  src={performer.image}
-                  alt={performer.name}
-                  width={1440}
-                  height={1800}
-                  className="top-performer-card__image"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                />
-              </div>
-              <p className="top-performer-card__name">{performer.name}</p>
-            </article>
+            <li key={performer.id} className="top-performer-card">
+              <Image
+                src={performer.image}
+                alt={`${performer.name} — BALITECH best performer, ACA AEP 2025`}
+                width={1440}
+                height={1800}
+                className="top-performer-card__image"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

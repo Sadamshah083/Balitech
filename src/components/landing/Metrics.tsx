@@ -1,14 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useGSAP } from "@gsap/react";
+import {
+  Clock,
+  Globe2,
+  TrendingUp,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { companyContent } from "@/lib/content";
-import { gsap, registerGsap } from "@/lib/gsap-register";
-import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
-import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
-import { cn } from "@/lib/cn";
 
 const { achievements } = companyContent;
+
+/** Matches the previous GSAP tween duration. */
+const COUNT_UP_MS = 1800;
+
+/** One icon per stat, in the order the stats are declared. */
+const statIcons: LucideIcon[] = [Users, Clock, TrendingUp, Globe2];
 
 type ParsedMetric = {
   isNumeric: boolean;
@@ -38,37 +46,33 @@ function parseMetricValue(value: string): ParsedMetric {
     };
   }
 
-  return {
-    isNumeric: false,
-    target: 0,
-    suffix: "",
-    text: value,
-  };
-}
-
-function initialDisplay(parsed: ParsedMetric) {
-  if (!parsed.isNumeric) return parsed.text;
-  return `0${parsed.suffix}`;
+  return { isNumeric: false, target: 0, suffix: "", text: value };
 }
 
 function MetricValue({ value }: { value: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const hasAnimated = useRef(false);
+  const frame = useRef(0);
   const parsed = useMemo(() => parseMetricValue(value), [value]);
-  const [display, setDisplay] = useState(() => initialDisplay(parsed));
+  // Starts at the real figure so server-rendered HTML (and crawlers) read
+  // "750+" rather than "0+". The count-up resets it once JS takes over.
+  const [display, setDisplay] = useState(parsed.text);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
+    // A hand-rolled tween: this used to pull the whole of GSAP onto the
+    // critical path of the home page purely to count four numbers upward.
     const runAnimation = () => {
       if (hasAnimated.current) return;
       hasAnimated.current = true;
 
-      registerGsap();
-
       if (!parsed.isNumeric) {
-        gsap.fromTo(el, { opacity: 0.35 }, { opacity: 1, duration: 0.6, ease: "power2.out" });
+        el.animate(
+          [{ opacity: 0.35 }, { opacity: 1 }],
+          { duration: 600, easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)" }
+        );
         return;
       }
 
@@ -77,17 +81,17 @@ function MetricValue({ value }: { value: string }) {
         return;
       }
 
-      setDisplay(initialDisplay(parsed));
+      setDisplay(`0${parsed.suffix}`);
 
-      const counter = { val: 0 };
-      gsap.to(counter, {
-        val: parsed.target,
-        duration: 2.1,
-        ease: "power2.out",
-        onUpdate: () => {
-          setDisplay(`${Math.round(counter.val)}${parsed.suffix}`);
-        },
-      });
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / COUNT_UP_MS);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setDisplay(`${Math.round(parsed.target * eased)}${parsed.suffix}`);
+        if (t < 1) frame.current = requestAnimationFrame(step);
+      };
+
+      frame.current = requestAnimationFrame(step);
     };
 
     const observer = new IntersectionObserver(
@@ -101,90 +105,46 @@ function MetricValue({ value }: { value: string }) {
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (frame.current) cancelAnimationFrame(frame.current);
+    };
   }, [parsed]);
 
   return (
-    <span ref={ref} className="metrics-showcase__card-value">
+    <span ref={ref} className="trust-strip__value">
       {display}
     </span>
   );
 }
 
+/**
+ * Home page only: the proof bar directly under the hero. Deliberately quiet —
+ * it is a credibility check on the way to the solutions grid, not a feature.
+ */
 export default function Metrics() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useGSAP(
-    () => {
-      registerGsap();
-      gsap.from(".metrics-showcase__card", {
-        y: 20,
-        opacity: 0,
-        duration: 0.55,
-        stagger: 0.1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 82%",
-          toggleActions: "play none none reverse",
-        },
-      });
-
-      gsap.from(".metrics-showcase__underline span", {
-        scaleX: 0,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.12,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".metrics-showcase__track-wrap",
-          start: "top 88%",
-          toggleActions: "play none none reverse",
-        },
-      });
-    },
-    { scope: sectionRef }
-  );
-
   return (
-    <section
-      ref={sectionRef}
-      className="metrics-showcase section-with-net"
-      aria-labelledby="metrics-showcase-title"
-    >
-      <SectionAnimatedNet />
+    <section className="trust-strip" aria-label={achievements.label}>
+      <div className="ent-shell">
+        <ul className="trust-strip__row">
+          {achievements.stats.map((stat, index) => {
+            const Icon = statIcons[index] ?? Users;
 
-      <div className="metrics-showcase__inner">
-        <header className="metrics-showcase__header">
-          <span className="metrics-showcase__watermark" aria-hidden>
-            {achievements.watermark}
-          </span>
-          <h2 id="metrics-showcase-title" className="metrics-showcase__title">
-            <HeadingLastWord text={achievements.title} />
-          </h2>
-        </header>
-
-        <div className="metrics-showcase__track-wrap">
-          <div className="metrics-showcase__track">
-            {achievements.stats.map((stat, index) => (
-              <article
-                key={stat.label}
-                className={cn(
-                  "metrics-showcase__card",
-                  `metrics-showcase__card--step-${index}`
-                )}
-              >
-                <span className="metrics-showcase__card-label">{stat.label}</span>
-                <MetricValue value={stat.value} />
-              </article>
-            ))}
-          </div>
-          <div className="metrics-showcase__underlines metrics-showcase__underline" aria-hidden>
-            <span />
-            <span />
-            <span />
-          </div>
-        </div>
+            return (
+              <li key={stat.label} className="trust-strip__item">
+                <span className="trust-strip__icon" aria-hidden>
+                  <Icon size={19} strokeWidth={1.7} />
+                </span>
+                <div className="trust-strip__text">
+                  <p className="trust-strip__value-wrap">
+                    <MetricValue value={stat.value} />
+                  </p>
+                  <p className="trust-strip__label">{stat.label}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );

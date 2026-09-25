@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { resolveLeadPosition } from "@/lib/lead-position";
+import { FLAG_LABELS, parseFlags, queueLabel } from "@/lib/careers/review";
 import { NextResponse } from "next/server";
 
 function csvEscape(value: string | number | null | undefined): string {
@@ -33,9 +35,14 @@ export async function GET(request: Request) {
     "Email",
     "Phone",
     "Company",
+    "Job Applied",
     "Message",
+    "CV File",
     "Status",
     "Submitted At",
+    "Application ID",
+    "Review Queue",
+    "Flags",
   ];
 
   const rows = leads.map((lead, index) => [
@@ -44,9 +51,16 @@ export async function GET(request: Request) {
     lead.email,
     lead.phone ?? "",
     lead.company ?? "",
+    resolveLeadPosition(lead) ?? "",
     lead.message ?? "",
+    lead.cvFileName ?? "",
     lead.status,
     formatDate(lead.createdAt),
+    lead.referenceId ?? "",
+    queueLabel(lead.queue) ?? "",
+    parseFlags(lead.flags)
+      .map((flag) => FLAG_LABELS[flag] ?? flag)
+      .join("; "),
   ]);
 
   const csv =

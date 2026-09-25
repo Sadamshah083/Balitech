@@ -21,11 +21,17 @@ export default function JoinUsContact({ headOffice }: JoinUsContactProps) {
   const phoneHref = phone
     ? `tel:${phone.replace(/\s/g, "")}`
     : joinUs.contact.phoneHref;
-  const email = headOffice?.email ?? joinUs.contact.email;
-  const hours = headOffice?.hours ?? joinUs.contact.hours;
+  // Candidates need the HR address and the shift they would work, not the
+  // office reception details — those stay on the offices page.
+  const email = joinUs.contact.email;
+  const hours = joinUs.contact.hours;
 
   return (
-    <section className="join-us-contact section-with-net" aria-labelledby="join-us-appointment-title">
+    <section
+      id="contact"
+      className="join-us-contact section-with-net"
+      aria-labelledby="join-us-appointment-title"
+    >
       <SectionAnimatedNet />
       <div className="join-us-contact__inner">
         <div className="join-us-contact__map-wrap">

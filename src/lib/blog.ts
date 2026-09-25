@@ -54,3 +54,48 @@ export function formatBlogDate(date: Date | string) {
     day: "numeric",
   });
 }
+
+export function looksLikeHtml(content: string) {
+  return /<[a-z][\s\S]*>/i.test(content.trim());
+}
+
+function escapeHtml(text: string) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Strip scripts and event handlers while keeping common article markup. */
+export function sanitizeBlogHtml(html: string) {
+  return html
+    .replace(/<\s*(script|iframe|object|embed|form|link|meta|style)[\s\S]*?>[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+    .replace(/<\s*(script|iframe|object|embed|form|link|meta|style)[^>]*\/?\s*>/gi, "")
+    .replace(/\son[a-z]+\s*=\s*(['"])[\s\S]*?\1/gi, "")
+    .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, "")
+    .replace(/javascript\s*:/gi, "")
+    .replace(/<\s*a\b([^>]*)>/gi, (_match, attrs: string) => {
+      const href = attrs.match(/\bhref\s*=\s*(['"])(.*?)\1/i)?.[2] ?? "";
+      const safe =
+        href.startsWith("/") ||
+        href.startsWith("#") ||
+        /^https?:\/\//i.test(href) ||
+        href.startsWith("mailto:");
+      const target = /\btarget\s*=/i.test(attrs) ? ' target="_blank" rel="noopener noreferrer"' : "";
+      return safe ? `<a href="${escapeHtml(href)}"${target}>` : "<a>";
+    });
+}
+
+/** Plain text becomes paragraphs; HTML is sanitized for safe rendering. */
+export function blogContentToHtml(content: string) {
+  const trimmed = content.trim();
+  if (!trimmed) return "";
+  if (looksLikeHtml(trimmed)) return sanitizeBlogHtml(trimmed);
+  return trimmed
+    .split(/\n\n+/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`)
+    .join("\n");
+}

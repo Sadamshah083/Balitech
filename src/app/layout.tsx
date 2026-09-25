@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Great_Vibes } from "next/font/google";
+import { Manrope, Sora } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
+import ScrollToTopOnNavigate from "@/components/ScrollToTopOnNavigate";
 import { companyContent } from "@/lib/content";
 import { fallbackOffices } from "@/lib/fallback-offices";
 import {
-  DEFAULT_KEYWORDS,
   DEFAULT_OG_IMAGE,
+  SITE_DESCRIPTION,
   SITE_LEGAL_NAME,
   SITE_LOCALE,
   SITE_NAME,
@@ -13,18 +16,45 @@ import {
 } from "@/lib/seo";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/* Manrope for body copy, Sora for headings and numerals. Both are variable
+   fonts, so one Latin file each covers every weight the stylesheet uses, and
+   the loader's metric-matched fallbacks keep lines from reflowing on swap.
+   Not preloaded: on a slow connection their 57 KB queued ahead of the intro
+   script face below, which is the home page's LCP resource. */
+const bodyFont = Manrope({
   subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+  preload: false,
 });
 
-const greatVibes = Great_Vibes({
+const displayFont = Sora({
+  subsets: ["latin"],
+  variable: "--font-sora",
+  display: "swap",
+  preload: false,
+});
+
+/* Script face, used only for the intro animation — which happens to be the
+   largest thing the home page ever paints, so this face is the page's
+   largest-contentful-paint resource. Preloaded for exactly that reason: left to
+   be discovered from the stylesheet it arrived a round trip later, and since
+   `swap` paints the words in the fallback first, LCP landed on the repaint
+   rather than on the first paint.
+
+   Served from `public/fonts` rather than through the Google loader because it
+   is subset to the twenty characters of HERO_INTRO_WORDMARK — 3.7 KB against
+   28.9 KB for the full Latin range. `npm run optimize:media` cuts it; the
+   master is in `media-src`. `adjustFontFallback` regenerates the Arial metric
+   overrides the Google loader used to emit, which is what keeps the fallback
+   from shifting the line as the real face swaps in. */
+const scriptFont = localFont({
+  src: "../../public/fonts/great-vibes-intro.woff2",
   weight: "400",
-  variable: "--font-great-vibes",
-  subsets: ["latin"],
+  variable: "--font-script",
+  display: "swap",
+  adjustFontFallback: "Arial",
 });
-
-const SITE_DESCRIPTION = `${SITE_NAME} — ${companyContent.workforce.count} ${companyContent.workforce.label.toLowerCase()} nationwide. A rapidly growing BPO organization delivering high-quality client services, operational excellence, and career growth opportunities across Rawalpindi and Islamabad.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -34,7 +64,6 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: DEFAULT_KEYWORDS,
   authors: [{ name: SITE_LEGAL_NAME, url: SITE_URL }],
   creator: SITE_LEGAL_NAME,
   publisher: SITE_LEGAL_NAME,
@@ -75,8 +104,9 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
   },
+  /* `src/app/favicon.ico` and `src/app/icon.png` emit their own links;
+     declaring /favicon.ico here as well made browsers fetch it twice. */
   icons: {
-    icon: "/favicon.ico",
     apple: "/bali-tech-logo.png",
   },
 };
@@ -151,7 +181,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${greatVibes.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} h-full antialiased`}
       data-theme="dark"
       suppressHydrationWarning
     >
@@ -166,6 +196,8 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(entry) }}
           />
         ))}
+        <GoogleAnalytics />
+        <ScrollToTopOnNavigate />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

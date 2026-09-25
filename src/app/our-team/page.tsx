@@ -1,38 +1,41 @@
 import SitePage from "@/components/layout/SitePage";
 import PageBanner from "@/components/layout/PageBanner";
-import TopPerformers from "@/components/landing/TopPerformers";
-import About from "@/components/landing/About";
 import CompanyHistory from "@/components/landing/CompanyHistory";
-import Metrics from "@/components/landing/Metrics";
+import TopPerformers from "@/components/landing/TopPerformers";
+import CallCenterFeatures from "@/components/landing/CallCenterFeatures";
+import AnimateSection from "@/components/animations/AnimateSection";
 import { siteImages } from "@/lib/images";
-import { pageMetadata } from "@/lib/seo";
+import { breadcrumbSchema, pageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
+import { companyContent } from "@/lib/content";
 
 export const metadata = pageMetadata({
   title: "Our Growth & Top Performers",
-  description:
-    "From 7 people to 500+ professionals — meet the team, top performers, and leadership behind Bali Tech Pvt. Ltd's rapid growth across Pakistan.",
+  description: `From 7 people to ${companyContent.workforce.count} professionals — meet the team, top performers, and leadership behind Bali Tech Pvt. Ltd's rapid growth across Pakistan.`,
   path: "/our-team",
-  keywords: [
-    "Bali Tech team",
-    "top performers",
-    "BALITECH growth",
-    "BPO leadership Pakistan",
-    "Sheraz Bali",
-  ],
 });
 
+/**
+ * Our Growth page = the people and expansion story: history, recognition,
+ * and the organizational strengths behind the growth. Culture-day photography
+ * lives on /gallery so event media stays in one place.
+ */
 export default function OurTeamPage() {
   return (
     <SitePage>
+      <JsonLd
+        data={breadcrumbSchema([{ name: "Our Growth", path: "/our-team" }])}
+      />
       <PageBanner
         title="Our Growth"
         subtitle="Dedicated professionals committed to delivering excellence every day."
         image={siteImages.career}
       />
       <CompanyHistory />
-      <About />
       <TopPerformers />
-      <Metrics />
+      <AnimateSection delay={0.05}>
+        <CallCenterFeatures />
+      </AnimateSection>
     </SitePage>
   );
 }

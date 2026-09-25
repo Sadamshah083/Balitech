@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { refreshPublicPages } from "@/lib/refresh-public-pages";
 import { slugify } from "@/lib/blog";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -31,6 +32,14 @@ export async function PATCH(request: Request, context: RouteContext) {
         }),
         ...(body.tags !== undefined && { tags: String(body.tags) }),
         ...(body.format !== undefined && { format: String(body.format) }),
+        ...(body.metaTitle !== undefined && {
+          metaTitle: body.metaTitle ? String(body.metaTitle).trim().slice(0, 120) : null,
+        }),
+        ...(body.metaDescription !== undefined && {
+          metaDescription: body.metaDescription
+            ? String(body.metaDescription).trim().slice(0, 320)
+            : null,
+        }),
         ...(body.order !== undefined && { order: Number(body.order) }),
         ...(body.isPublished !== undefined && {
           isPublished: Boolean(body.isPublished),
@@ -38,6 +47,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       },
     });
 
+    refreshPublicPages();
     return NextResponse.json({ blog });
   } catch {
     return NextResponse.json(
@@ -54,6 +64,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     await prisma.blog.delete({ where: { id } });
+    refreshPublicPages();
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(

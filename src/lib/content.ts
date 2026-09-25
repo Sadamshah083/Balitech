@@ -1,4 +1,11 @@
-const EMPLOYEE_COUNT = "500+";
+/* Single source for the headcount figure. It appears in the hero stats, the
+   metrics counter, the site meta description, and a dozen sentences of prose,
+   so it is written once here — the count-up in Metrics.tsx parses the digits
+   off it rather than hardcoding a target. */
+const EMPLOYEE_COUNT = "750+";
+
+/** The same figure without the "+", for prose like "a 750-person team". */
+const EMPLOYEE_COUNT_PLAIN = EMPLOYEE_COUNT.replace("+", "");
 
 export const companyContent = {
   name: "BALITECH",
@@ -87,6 +94,30 @@ export const companyContent = {
       {
         title: "Scalable Operations",
         text: `From a 7-person founding team to ${EMPLOYEE_COUNT} professionals nationwide — built on consistency, compliance, and operational discipline.`,
+      },
+    ],
+    /* Milestones drawn from the company history above. Confirm exact dates
+       with management before adding more granular year-by-year claims. */
+    timeline: [
+      {
+        period: "2022",
+        title: "BALITECH is founded",
+        text: "Established in April 2022 by a team of 7, operating a single setup of 40 agents.",
+      },
+      {
+        period: "2023–2024",
+        title: "Structure and leadership",
+        text: "Focus shifts to building strong teams, developing leadership, and putting a professional organizational structure in place.",
+      },
+      {
+        period: "2025",
+        title: "International campaigns",
+        text: "Operations expand across multiple international campaigns with dedicated management and quality assurance.",
+      },
+      {
+        period: "2026",
+        title: `${EMPLOYEE_COUNT} professionals`,
+        text: "A recognized, fast-growing BPO organization running 24/5 operations from four offices in Rawalpindi and Islamabad.",
       },
     ],
   },
@@ -195,23 +226,353 @@ export const companyContent = {
   },
 
   services: {
-    label: "Our Services",
-    title: "Professional Outsourcing Solutions",
+    label: "Business Solutions",
+    title: "Outsourcing Services That Carry Real",
+    highlight: "Operational Weight",
+    subtitle:
+      "Six delivery lines, each staffed by a dedicated team with its own supervisor, quality assurance, and reporting cadence.",
     cards: [
       {
-        title: "Inbound & Outbound",
-        description:
-          "Expert inbound call services and proactive outbound campaigns tailored to your business goals.",
-      },
-      {
-        title: "Lead Generation",
-        description:
-          "Targeted B2B and sales campaigns that drive qualified leads and measurable conversions.",
-      },
-      {
+        id: "customer-support",
+        icon: "headphones",
         title: "Customer Support",
         description:
-          "Dedicated customer support services with 24/5 operational coverage and trained professionals.",
+          "A dedicated support desk running on your hours, your process, and your response standards.",
+      },
+      {
+        id: "inbound",
+        icon: "phone-incoming",
+        title: "Inbound & Outbound",
+        description:
+          "Trained agents answering your customers and dialer-driven teams reaching new ones.",
+      },
+      {
+        id: "lead-generation",
+        icon: "target",
+        title: "Lead Generation",
+        description:
+          "Qualified pipeline built against your criteria so your closers stop prospecting.",
+      },
+      {
+        id: "b2b-outreach",
+        icon: "briefcase",
+        title: "B2B Outreach",
+        description:
+          "Multi-touch outreach into named account lists with decision-maker identification.",
+      },
+      {
+        id: "sales-verification",
+        icon: "shield",
+        title: "Sales & Verification",
+        description:
+          "Compliance-led verification calling with documented scripts and a full audit trail.",
+      },
+      {
+        id: "medical-billing",
+        icon: "clipboard",
+        title: "Business Process Support",
+        description:
+          "Back-office capacity for medical billing, claims follow-up, and records accuracy.",
+      },
+    ],
+  },
+
+  /* ── Services page only: how delivery actually works ── */
+  serviceDelivery: {
+    label: "Delivery Model",
+    title: "The Operating Layer Behind Every",
+    highlight: "Campaign",
+    subtitle:
+      "What sits around your agents — the supervision, tooling, and reporting that keeps a campaign predictable.",
+    pillars: [
+      {
+        icon: "shield",
+        title: "Quality Assurance",
+        text: "Call monitoring against a defined scorecard, with coaching sessions tied to the findings rather than to a calendar.",
+        points: ["Sampled call reviews", "Scorecard-based feedback", "Escalation thresholds"],
+      },
+      {
+        icon: "server",
+        title: "Technology & Infrastructure",
+        text: "Dialer, CRM, and telephony configured per campaign, with redundant connectivity and backup power across offices.",
+        points: ["Dialer & CRM setup", "Redundant connectivity", "Backup power"],
+      },
+      {
+        icon: "chart",
+        title: "Reporting & Visibility",
+        text: "Agreed metrics reported on an agreed cadence, so performance conversations start from shared numbers.",
+        points: ["Daily volume reporting", "Performance dashboards", "Review cadence"],
+      },
+      {
+        icon: "lock",
+        title: "Security & Compliance",
+        text: "Access controls, script adherence, and documented processes for campaigns operating under regulation.",
+        points: ["Controlled floor access", "Script compliance", "Documented audit trail"],
+      },
+    ],
+  },
+
+  engagementModels: {
+    label: "Engagement",
+    title: "Three Ways To Structure The",
+    highlight: "Team",
+    subtitle:
+      "Most clients start with one model and move between them as volume settles.",
+    models: [
+      {
+        name: "Dedicated Team",
+        summary: "Agents assigned only to your campaign.",
+        bestFor: "Steady, ongoing volume that justifies a fixed team.",
+        includes: [
+          "Named agents and supervisor",
+          "Campaign-specific training",
+          "Full reporting cadence",
+        ],
+      },
+      {
+        name: "Campaign-Based",
+        summary: "A team built for a defined push, then wound down.",
+        bestFor: "Seasonal drives, product launches, and testing new markets.",
+        includes: [
+          "Scoped duration and targets",
+          "Rapid ramp-up",
+          "Post-campaign reporting",
+        ],
+        featured: true,
+      },
+      {
+        name: "Overflow Support",
+        summary: "Capacity that absorbs the volume you cannot.",
+        bestFor: "In-house teams hitting their ceiling at peak times.",
+        includes: [
+          "Shared or flexed headcount",
+          "Escalation to your team",
+          "Coverage outside your hours",
+        ],
+      },
+    ],
+  },
+
+  servicesFaq: {
+    label: "Common Questions",
+    title: "What Clients Ask Before They",
+    highlight: "Start",
+    items: [
+      {
+        q: "How quickly can a team go live?",
+        a: "It depends on team size and how much campaign-specific training is needed. Discovery and process definition happen first, then agents complete onboarding before handling live volume — we will give you a dated plan during discovery rather than a generic estimate.",
+      },
+      {
+        q: "What is the minimum team size?",
+        a: "We structure around your campaign rather than a fixed package, so this is part of the discovery conversation. Smaller pilots are workable when the intent is to test a market before scaling.",
+      },
+      {
+        q: "Who manages the agents day to day?",
+        a: "BALITECH does. Every campaign has a named supervisor responsible for performance, attendance, and escalation, so you are not absorbing line-management overhead.",
+      },
+      {
+        q: "What hours can you cover?",
+        a: "Operations run 24/5 across our offices, which lets us align teams to US business hours and after-hours coverage. Weekend coverage is arranged where a campaign requires it.",
+      },
+      {
+        q: "How is performance measured?",
+        a: "Against metrics agreed with you at the start — typically volume, conversion or resolution rates, and quality scores. Those same metrics drive the reporting you receive.",
+      },
+      {
+        q: "Can we speak to the team before committing?",
+        a: "Yes. Client visits and calls with the proposed supervisor are normal parts of onboarding, and we would rather you meet the people who will run your campaign.",
+      },
+    ],
+  },
+
+  /* ── About page only ── */
+  values: {
+    label: "How We Operate",
+    title: "The Standards We Hold",
+    highlight: "Ourselves To",
+    subtitle:
+      "Six principles that decide how we hire, how we manage campaigns, and what we will not promise.",
+    items: [
+      {
+        icon: "award",
+        title: "Performance Over Promises",
+        text: "Progression, bonuses, and campaign ownership are earned against measured results rather than tenure.",
+      },
+      {
+        icon: "users",
+        title: "People Are The Product",
+        text: "In outsourcing the service is the person on the call, so training and retention are operational priorities, not perks.",
+      },
+      {
+        icon: "shield",
+        title: "Compliance Is Not Optional",
+        text: "Regulated campaigns run to script and leave an audit trail. We decline work we cannot deliver compliantly.",
+      },
+      {
+        icon: "eye",
+        title: "Visible Operations",
+        text: "Clients see the numbers we see. Reporting is designed to surface problems early rather than to look reassuring.",
+      },
+      {
+        icon: "trending",
+        title: "Build To Scale",
+        text: `Structure, hierarchy, and process come before headcount, which is how a 7-person team became ${EMPLOYEE_COUNT} without losing control.`,
+      },
+      {
+        icon: "handshake",
+        title: "Honest Positioning",
+        text: "We publish what we can substantiate. No invented client logos, no borrowed case studies, no inflated numbers.",
+      },
+    ],
+  },
+
+  /* ── Home page only: compact culture teaser ── */
+  insideCompany: {
+    label: "Inside BALITECH",
+    title: "The Team Behind The",
+    highlight: "Operation",
+    subtitle: `${EMPLOYEE_COUNT} people across four offices, with a recognition culture that keeps experienced agents on the floor.`,
+    highlights: [
+      {
+        value: EMPLOYEE_COUNT,
+        label: "Professionals across Rawalpindi and Islamabad",
+      },
+      {
+        value: "24/5",
+        label: "Operational coverage aligned to US business hours",
+      },
+      {
+        value: "2022",
+        label: "Established, and profitable enough to keep expanding",
+      },
+    ],
+    cta: { label: "Explore Life At BALITECH", href: "/join-us" },
+  },
+
+  homeContact: {
+    label: "Business Inquiry",
+    title: "Ready To Build Your Outsourcing",
+    highlight: "Team",
+    subtitle:
+      "Tell us what you need to run and we will come back with a team structure, a timeline, and what it takes to launch.",
+    assurances: [
+      "A named operations contact, not a call queue",
+      "A structure proposal before any commitment",
+      "Direct answers on what we can and cannot deliver",
+    ],
+  },
+
+  solutions: {
+    label: "Our Solutions",
+    title: "Outsourcing Services Built Around Your",
+    highlight: "Operation",
+    subtitle:
+      "Each service runs as a dedicated team with its own management, quality assurance, and reporting.",
+    items: [
+      {
+        id: "inbound",
+        icon: "headphones",
+        title: "Inbound Call Center Services",
+        summary:
+          "Trained agents answering your customers, following your process, on your brand.",
+        forWho:
+          "Businesses with steady inbound volume that needs consistent handling and coverage.",
+        capabilities: [
+          "Customer enquiry handling",
+          "Order and account support",
+          "Escalation routing to your team",
+          "Call quality monitoring",
+        ],
+      },
+      {
+        id: "outbound",
+        icon: "phone",
+        title: "Outbound Call Center Services",
+        summary:
+          "Dialer-driven outbound teams for sales, follow-up, and campaign outreach.",
+        forWho:
+          "Companies running acquisition or retention campaigns that need consistent contact volume.",
+        capabilities: [
+          "Sales and acquisition calling",
+          "Appointment setting",
+          "Follow-up and retention calls",
+          "Script testing and refinement",
+        ],
+      },
+      {
+        id: "customer-support",
+        icon: "clock",
+        title: "Customer Support Outsourcing",
+        summary:
+          "A dedicated support desk operating on your hours with defined response standards.",
+        forWho:
+          "Businesses that need reliable support coverage without building an in-house desk.",
+        capabilities: [
+          "24/5 operational coverage",
+          "Multi-channel handling",
+          "Process and knowledge base adherence",
+          "Performance reporting",
+        ],
+      },
+      {
+        id: "lead-generation",
+        icon: "target",
+        title: "Lead Generation Services",
+        summary:
+          "Qualified pipeline built by agents trained on your qualification criteria.",
+        forWho:
+          "Sales teams that want to spend their time closing rather than prospecting.",
+        capabilities: [
+          "Prospect research and list building",
+          "Qualification against your criteria",
+          "Warm transfer or scheduled handover",
+          "Conversion tracking",
+        ],
+      },
+      {
+        id: "sales-verification",
+        icon: "shield",
+        title: "Sales & Verification",
+        summary:
+          "Verification and compliance calling for regulated sales processes.",
+        forWho:
+          "Insurance and regulated industries requiring documented verification steps.",
+        capabilities: [
+          "Sales verification calling",
+          "Compliance script adherence",
+          "Documentation and audit trail",
+          "Quality review process",
+        ],
+      },
+      {
+        id: "medical-billing",
+        icon: "clipboard",
+        title: "Medical Billing Support",
+        summary:
+          "Back-office billing support handled by teams trained on healthcare workflows.",
+        forWho:
+          "US healthcare providers and billing companies needing added processing capacity.",
+        capabilities: [
+          "Claims processing support",
+          "Eligibility and benefits verification",
+          "Follow-up on outstanding claims",
+          "Records accuracy checks",
+        ],
+      },
+      {
+        id: "b2b-outreach",
+        icon: "briefcase",
+        title: "B2B Outreach Services",
+        summary:
+          "Business-to-business outreach teams working named account lists.",
+        forWho:
+          "B2B companies selling into defined industries or account lists.",
+        capabilities: [
+          "Decision-maker identification",
+          "Multi-touch outreach sequences",
+          "Meeting booking",
+          "Pipeline reporting",
+        ],
       },
     ],
   },
@@ -372,6 +733,10 @@ export const companyContent = {
     ],
     contact: {
       email: "hr@balitech.org",
+      emails: [
+        { label: "Business inquiries", address: "info@balitech.org" },
+        { label: "Careers", address: "hr@balitech.org" },
+      ],
     },
     phones: [
       { label: "0370 0585660", href: "tel:+923700585660" },
@@ -385,7 +750,7 @@ export const companyContent = {
       },
       {
         name: "Islamabad Office",
-        address: "Plot No.349-352 street No 5 industrial Area 1-9/3, Islamabad",
+        address: "Plot No.349-352 street No 1 industrial Area 1-9/3, Islamabad",
       },
       {
         name: "Commercial Office",
@@ -401,12 +766,201 @@ export const companyContent = {
   },
 
   hero: {
-    label: "BALITECH",
-    titleLine1: "Empowering Your Vision,",
-    titleLine2: "Shaping Tomorrow",
+    titleLine1: "Outsourcing Built To",
+    titleLine2: "Scale Your Business",
     subtitle:
-      "At BALITECH, we are committed to helping clients shape their future through innovative solutions, exceptional services, and operational excellence. Our mission is to create a professional and growth-oriented environment where businesses and employees can succeed together and achieve long-term success.",
+      "BALITECH provides professional inbound, outbound, lead generation, customer support, and business process outsourcing solutions through trained teams and performance-driven operations.",
     tagline: "Together We Build Success.",
+    trustLine: [
+      `${EMPLOYEE_COUNT} Professionals`,
+      "24/5 Operations",
+      "Established 2022",
+    ],
+    primaryCta: { label: "Talk To Our Team", href: "/#contact" },
+    secondaryCta: { label: "Explore Our Services", href: "/services" },
+    careerLink: {
+      label: "Looking for a career at BALITECH?",
+      href: "/join-us",
+    },
+    /* Cards floating over the hero footage. `metric` renders the value large,
+       `feature` keeps it at heading size so longer labels still fit. */
+    highlights: [
+      {
+        type: "metric",
+        value: EMPLOYEE_COUNT,
+        label: "Active professionals",
+      },
+      { type: "metric", value: "24/5", label: "Operations coverage" },
+      {
+        type: "feature",
+        value: "Quality Assurance",
+        label: "Call monitoring and reviews",
+      },
+      {
+        type: "feature",
+        value: "Scalable Teams",
+        label: "Headcount grows with volume",
+      },
+    ] as ReadonlyArray<{
+      type: "metric" | "feature";
+      value: string;
+      label: string;
+    }>,
+  },
+
+  /* Two clear entry points so client prospects and job seekers stop competing
+     for the same space on the home page. */
+  audiencePaths: {
+    label: "Where Would You Like To Start",
+    title: "Two Ways To Work With BALITECH",
+    paths: [
+      {
+        id: "business",
+        eyebrow: "For Businesses",
+        title: "Scale With BALITECH",
+        description:
+          "Outsourcing, customer support, lead generation, and full BPO teams managed against your performance targets.",
+        bullets: [
+          "Inbound & outbound call operations",
+          "Dedicated teams with QA and reporting",
+          "Scale headcount as campaigns grow",
+        ],
+        cta: { label: "Explore Solutions", href: "/services" },
+      },
+      {
+        id: "careers",
+        eyebrow: "For Professionals",
+        title: "Build Your Career At BALITECH",
+        description: `Explore open positions, training pathways, employee benefits, and the culture behind a ${EMPLOYEE_COUNT_PLAIN}-person team.`,
+        bullets: [
+          "Freshers and experienced agents welcome",
+          "Performance-based promotion structure",
+          "Offices in Rawalpindi and Islamabad",
+        ],
+        cta: { label: "Explore Careers", href: "/join-us" },
+      },
+    ],
+  },
+
+  whyUs: {
+    label: "Why BALITECH",
+    title: "Why Companies Choose",
+    highlight: "BALITECH",
+    subtitle:
+      "Operational capability, not promises. Here is what a client actually gets when they hand a campaign to our teams.",
+    items: [
+      {
+        num: "01",
+        icon: "users",
+        title: "Trained Teams",
+        description:
+          "Structured onboarding, campaign-specific coaching, and continuous performance development for every agent.",
+      },
+      {
+        num: "02",
+        icon: "target",
+        title: "Dedicated Management",
+        description:
+          "Clear operational ownership with named team leads and defined escalation channels for your campaign.",
+      },
+      {
+        num: "03",
+        icon: "shield",
+        title: "Quality Assurance",
+        description:
+          "Defined QA processes, call monitoring, and regular performance reviews against agreed standards.",
+      },
+      {
+        num: "04",
+        icon: "trending",
+        title: "Scalable Operations",
+        description:
+          "Add trained headcount as campaign requirements increase, drawing on a nationwide recruitment pipeline.",
+      },
+      {
+        num: "05",
+        icon: "chart",
+        title: "Reporting & Visibility",
+        description:
+          "Operational performance reporting so you always know how the team is tracking against targets.",
+      },
+      {
+        num: "06",
+        icon: "settings",
+        title: "Flexible Engagement",
+        description:
+          "Engagement models structured around your campaign requirements rather than a fixed package.",
+      },
+    ],
+  },
+
+  howWeWork: {
+    label: "How We Work",
+    title: "From First Call To A Running",
+    highlight: "Team",
+    subtitle:
+      "A predictable onboarding path so you know exactly what happens between signing and going live.",
+    steps: [
+      {
+        num: "01",
+        title: "Discover",
+        description:
+          "We map your campaign goals, target audience, compliance requirements, and success metrics.",
+      },
+      {
+        num: "02",
+        title: "Build",
+        description:
+          "We assemble the right team structure, define scripts and processes, and set up reporting.",
+      },
+      {
+        num: "03",
+        title: "Train",
+        description:
+          "Agents complete campaign-specific onboarding and product training before handling live volume.",
+      },
+      {
+        num: "04",
+        title: "Launch",
+        description:
+          "The team goes live with supervisor oversight and daily monitoring through the ramp-up period.",
+      },
+      {
+        num: "05",
+        title: "Optimize",
+        description:
+          "QA reviews, coaching, and reporting cycles refine performance as the campaign matures.",
+      },
+    ],
+  },
+
+  /* Client proof. Keep these arrays empty until BALITECH has written client
+     approval — the sections skip rendering rather than show invented numbers. */
+  proof: {
+    caseStudies: {
+      label: "Results",
+      title: "Work We Have Delivered",
+      subtitle:
+        "Documented campaign outcomes from BALITECH operations teams.",
+      items: [] as ReadonlyArray<{
+        client: string;
+        industry: string;
+        challenge: string;
+        solution: string;
+        results: ReadonlyArray<{ value: string; label: string }>;
+      }>,
+    },
+    testimonials: {
+      label: "Client Feedback",
+      title: "Trusted By Businesses That Demand",
+      highlight: "Performance",
+      items: [] as ReadonlyArray<{
+        quote: string;
+        name: string;
+        position: string;
+        company: string;
+      }>,
+    },
   },
 
   career: {
@@ -438,8 +992,22 @@ export const companyContent = {
       ],
       branches: [
         { value: "", label: "Select a branch" },
-        { value: "rawalpindi", label: "Rawalpindi Branch" },
-        { value: "islamabad", label: "Islamabad Branch" },
+        {
+          value: "shamsabad-office",
+          label: "Shamsabad Office",
+        },
+        {
+          value: "islamabad-office",
+          label: "Islamabad Office",
+        },
+        {
+          value: "commercial-office",
+          label: "Commercial Office",
+        },
+        {
+          value: "iran-road-office",
+          label: "Iran Road Office",
+        },
       ],
       positions: [
         { value: "", label: "Position you're applying for" },
@@ -488,10 +1056,10 @@ export const companyContent = {
       mapTitle: "Maryam Business Centre location map",
     },
     contact: {
-      hoursLabel: "Days Open",
-      hours: "Mon - Fri from 6 Pm to 4 oclock",
-      emailLabel: "Email",
-      email: "info@balitech.com",
+      hoursLabel: "Shift Hours",
+      hours: "Monday–Friday · 6:00 PM – 4:00 AM",
+      emailLabel: "HR Email",
+      email: "hr@balitech.org",
       phoneLabel: "Phone",
       phone: "0370 0585660",
       phoneHref: "tel:+923700585660",

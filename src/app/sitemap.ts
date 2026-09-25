@@ -1,16 +1,20 @@
 import type { MetadataRoute } from "next";
-import { prisma } from "@/lib/prisma";
-
-const BASE_URL = "https://balitech.org";
+import { getPublicBlogs } from "@/lib/blogs";
+import { SITE_URL as BASE_URL } from "@/lib/seo";
+import { serviceHref, servicePages } from "@/lib/service-pages";
 
 const staticRoutes = [
   { path: "", changeFrequency: "weekly" as const, priority: 1 },
   { path: "/services", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/about", changeFrequency: "monthly" as const, priority: 0.9 },
   { path: "/our-team", changeFrequency: "monthly" as const, priority: 0.8 },
   { path: "/gallery", changeFrequency: "weekly" as const, priority: 0.8 },
   { path: "/blog", changeFrequency: "weekly" as const, priority: 0.9 },
+  { path: "/ceo-words", changeFrequency: "monthly" as const, priority: 0.8 },
   { path: "/our-offices", changeFrequency: "monthly" as const, priority: 0.8 },
   { path: "/join-us", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/privacy-policy", changeFrequency: "yearly" as const, priority: 0.3 },
+  { path: "/recruitment-privacy-notice", changeFrequency: "yearly" as const, priority: 0.3 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -23,24 +27,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route.priority,
   }));
 
-  let blogEntries: MetadataRoute.Sitemap = [];
+  const serviceEntries: MetadataRoute.Sitemap = servicePages.map((page) => ({
+    url: `${BASE_URL}${serviceHref(page.slug)}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.85,
+  }));
 
-  try {
-    const blogs = await prisma.blog.findMany({
-      where: { isPublished: true },
-      select: { slug: true, updatedAt: true },
-      orderBy: { updatedAt: "desc" },
-    });
+  /* Same source the article pages are prerendered from, so this cannot
+     advertise a URL that has not been built. */
+  const blogs = await getPublicBlogs();
+  const blogEntries: MetadataRoute.Sitemap = blogs.map((blog) => ({
+    url: `${BASE_URL}/blog/${blog.slug}`,
+    lastModified: blog.updatedAt,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
 
-    blogEntries = blogs.map((blog) => ({
-      url: `${BASE_URL}/blog/${blog.slug}`,
-      lastModified: blog.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
-  } catch {
-    /* DB may be unavailable at build time */
-  }
-
-  return [...staticEntries, ...blogEntries];
+  return [...staticEntries, ...serviceEntries, ...blogEntries];
 }

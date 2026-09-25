@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { refreshPublicPages } from "@/lib/refresh-public-pages";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -52,6 +53,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       },
     });
 
+    refreshPublicPages();
     return NextResponse.json({ item });
   } catch {
     return NextResponse.json(
@@ -68,6 +70,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     await prisma.mediaItem.delete({ where: { id } });
+    refreshPublicPages();
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(

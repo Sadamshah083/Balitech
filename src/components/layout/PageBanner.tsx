@@ -6,9 +6,11 @@ type PageBannerProps = {
   title: string;
   subtitle?: string;
   image?: string;
+  /** For long, keyword-led headings that would overflow at display size. */
+  compact?: boolean;
 };
 
-export default function PageBanner({ title, subtitle, image }: PageBannerProps) {
+export default function PageBanner({ title, subtitle, image, compact = false }: PageBannerProps) {
   const words = title.split(" ");
   const firstWord = words[0];
   const rest = words.slice(1).join(" ");
@@ -34,7 +36,13 @@ export default function PageBanner({ title, subtitle, image }: PageBannerProps) 
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
         <p className="brand-label mb-3">Bali Tech Pvt. Ltd</p>
-        <h1 className="brand-heading text-5xl uppercase tracking-wide sm:text-6xl md:text-7xl">
+        <h1
+          className={
+            compact
+              ? "brand-heading text-3xl uppercase tracking-wide sm:text-4xl md:text-5xl"
+              : "brand-heading text-5xl uppercase tracking-wide sm:text-6xl md:text-7xl"
+          }
+        >
           {rest ? (
             <>
               <span className="orange-gradient-text">{firstWord}</span>{" "}

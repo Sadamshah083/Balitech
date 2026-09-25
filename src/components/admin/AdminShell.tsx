@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen,
+  Briefcase,
   Building2,
   ImageIcon,
   LayoutDashboard,
@@ -20,6 +21,7 @@ import { useEffect, useState } from "react";
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/leads", label: "Leads", icon: Users },
+  { href: "/admin/vacancies", label: "Vacancies", icon: Briefcase },
   { href: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
   { href: "/admin/offices", label: "Offices", icon: Building2 },
   { href: "/admin/media", label: "Gallery & Media", icon: ImageIcon },
@@ -30,6 +32,7 @@ const navItems = [
 const pageTitles: Record<string, string> = {
   "/admin/dashboard": "Dashboard",
   "/admin/leads": "Leads",
+  "/admin/vacancies": "Vacancies",
   "/admin/campaigns": "Campaigns",
   "/admin/offices": "Offices",
   "/admin/media": "Gallery & Media",
@@ -63,7 +66,7 @@ export default function AdminShell({
     if (href === "/admin/dashboard") return true;
     if (isAdmin) return true;
     if (isManager) {
-      return href === "/admin/leads" || href === "/admin/blogs";
+      return href === "/admin/leads" || href === "/admin/vacancies" || href === "/admin/blogs";
     }
     if (isAgent) {
       return href === "/admin/leads";

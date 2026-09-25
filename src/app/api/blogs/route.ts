@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { refreshPublicPages } from "@/lib/refresh-public-pages";
 import { slugify } from "@/lib/blog";
 import { fallbackBlogs } from "@/lib/fallback-blogs";
 
@@ -24,6 +25,8 @@ export async function GET(request: Request) {
           image: true,
           tags: true,
           format: true,
+          metaTitle: true,
+          metaDescription: true,
           order: true,
           createdAt: true,
         },
@@ -60,6 +63,8 @@ export async function POST(request: Request) {
       image,
       tags,
       format,
+      metaTitle,
+      metaDescription,
       order,
       isPublished,
     } = body;
@@ -82,11 +87,16 @@ export async function POST(request: Request) {
         image: image ? String(image).trim() : null,
         tags: tags ? String(tags) : "[]",
         format: format ? String(format) : "standard",
+        metaTitle: metaTitle ? String(metaTitle).trim().slice(0, 120) : null,
+        metaDescription: metaDescription
+          ? String(metaDescription).trim().slice(0, 320)
+          : null,
         order: typeof order === "number" ? order : 0,
         isPublished: isPublished !== false,
       },
     });
 
+    refreshPublicPages();
     return NextResponse.json({ blog }, { status: 201 });
   } catch {
     return NextResponse.json(
