@@ -1027,6 +1027,9 @@ input:disabled,
 .hero-section .hero-copy > .hero-pitch__reveal:nth-child(5) {
   animation-delay: 1.41s;
 }
+.hero-section .hero-copy > .hero-pitch__reveal:nth-child(6) {
+  animation-delay: 1.5s;
+}
 
 .hero-section .hero-media__frame {
   animation: hero-media-rise 1s cubic-bezier(0.23, 1, 0.32, 1) 1.2s both;
@@ -2993,26 +2996,6 @@ select.brand-input {
   color: var(--orange);
 }
 
-.blog-articles__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.blog-articles__tags li {
-  border: 1px solid color-mix(in srgb, var(--orange) 35%, transparent);
-  background: color-mix(in srgb, var(--orange) 10%, transparent);
-  color: var(--orange);
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.28rem 0.55rem;
-}
-
 .blog-articles__grid {
   display: grid;
   gap: 1.75rem;
@@ -3135,7 +3118,7 @@ select.brand-input {
 .prose-blog {
   color: var(--muted);
   font-size: clamp(1rem, 1.15vw, 1.125rem);
-  line-height: 1.75;
+  line-height: 1.7;
 }
 
 .prose-blog > *:first-child {
@@ -3150,13 +3133,13 @@ select.brand-input {
 .prose-blog ul,
 .prose-blog ol,
 .prose-blog blockquote {
-  margin: 0 0 1.15rem;
+  margin: 0 0 0.95rem;
 }
 
 .prose-blog h2,
 .prose-blog h3,
 .prose-blog h4 {
-  margin: 1.75rem 0 0.75rem;
+  margin: 1.4rem 0 0.6rem;
   color: var(--foreground);
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -3565,27 +3548,20 @@ select.brand-input {
 /* ── Hero: copy on the left, office footage framed on the right ── */
 /* Fills the first screen. `svh` rather than `vh` so mobile browser chrome
    collapsing does not leave a gap, and `min-height` rather than `height` so the
-   content can still push the section taller if it needs to. */
+   content can still push the section taller if it needs to.
+
+   A column, not a row: the grid and the services strip below it are stacked in
+   one `.hero-container`, so the strip can never end up beside the footage. */
 .hero-section {
   position: relative;
   isolation: isolate;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   min-height: 100svh;
   overflow: hidden;
-  padding: clamp(6.5rem, 13vh, 9rem) 0 clamp(3.5rem, 7vh, 5.5rem);
+  padding: clamp(5.75rem, 12vh, 7.5rem) 0 clamp(1.75rem, 4vh, 3rem);
   background: var(--band-base);
-}
-
-/* A 768px-tall laptop is the tightest common case: the fixed padding above only
-   has to clear a 3.75rem navbar, but it was reserving 6.5rem, which pushed the
-   hero 12px past the fold. Relaxing it there costs nothing on taller screens,
-   which never reach these values. */
-@media (min-width: 1024px) and (max-height: 840px) {
-  .hero-section {
-    padding-top: clamp(5rem, 11vh, 6.5rem);
-    padding-bottom: clamp(2.25rem, 5vh, 3.5rem);
-  }
 }
 
 .hero-section__aura {
@@ -3608,62 +3584,38 @@ select.brand-input {
   pointer-events: none;
 }
 
-.hero-shell {
-  display: grid;
-  align-items: center;
-  gap: clamp(2.5rem, 5vw, 4rem);
+/* Same width and gutter as the navbar's inner row, so the headline lines up
+   under the logo. */
+.hero-container {
   width: 100%;
-  max-width: 82rem;
+  max-width: 1600px;
   margin-inline: auto;
-  padding-inline: clamp(1rem, 3vw, 2rem);
+  padding-inline: clamp(16px, 2.8vw, 48px);
 }
 
-@media (min-width: 1024px) {
-  .hero-shell {
-    /* Weighted toward the footage. On a laptop the shell has already hit its
-       max width, so the only way to widen the media panel there is to take the
-       space from a copy column that had more than its longest line needed. */
-    grid-template-columns: 0.8fr 1.2fr;
-    /* Both columns share the row height so the media panel can match the
-       headline block rather than being vertically centred against it. */
-    align-items: stretch;
-  }
+.hero-shell {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
 }
 
 /* ── Left column ── */
-.hero-copy__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0.42rem 0.9rem 0.42rem 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--orange) 32%, transparent);
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--orange) 10%, transparent);
-  font-size: clamp(0.64rem, 0.8vw, 0.72rem);
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--orange-light);
-}
-
-.hero-copy__eyebrow::before {
-  content: "";
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 999px;
-  background: var(--orange);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--orange) 22%, transparent);
+.hero-copy {
+  min-width: 0;
 }
 
 .hero-copy__title {
   margin: 0;
-  font-size: clamp(2.8rem, 5.6vw, 5.15rem);
+  font-size: clamp(2.5rem, 9.4vw, 3.4rem);
   font-weight: 700;
   line-height: 0.98;
-  letter-spacing: -0.042em;
+  letter-spacing: -0.04em;
   color: var(--foreground);
-  text-wrap: balance;
+}
+
+/* One phrase per line at every width, so the headline never breaks between
+   single words. The spaces between the spans keep it reading as one sentence. */
+.hero-copy__title-line {
+  display: block;
 }
 
 .hero-copy__title-accent {
@@ -3675,30 +3627,22 @@ select.brand-input {
 }
 
 .hero-copy__subtitle {
-  margin: clamp(1.1rem, 2vh, 1.5rem) 0 0;
-  max-width: 34rem;
-  font-size: clamp(0.94rem, 1.1vw, 1.06rem);
-  line-height: 1.72;
+  margin: clamp(1rem, 2vh, 1.4rem) 0 0;
+  max-width: 33rem;
+  font-size: clamp(0.94rem, 0.9vw + 0.3rem, 1.06rem);
+  line-height: 1.68;
   color: var(--muted);
 }
 
-.hero-copy__actions {
+.hero-copy__career {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: clamp(1.6rem, 3vh, 2.2rem);
-}
-
-.hero-copy__career {
-  display: inline-flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.55rem;
-  margin-top: clamp(1.5rem, 3vh, 2.1rem);
-  padding-top: clamp(1.4rem, 2.8vh, 1.9rem);
+  gap: 0.35rem 0.55rem;
+  margin-top: clamp(1.25rem, 2.6vh, 1.75rem);
+  padding-top: clamp(1rem, 2.2vh, 1.4rem);
   border-top: 1px solid var(--glass-border);
-  width: 100%;
-  max-width: 30rem;
+  max-width: 34rem;
   font-size: 0.86rem;
   color: var(--muted);
   transition: color 0.25s ease;
@@ -3721,20 +3665,23 @@ select.brand-input {
   gap: 0.6rem;
 }
 
-
-/* ── Right column: framed footage with stat cards over its edge ── */
+/* ── Right column: landscape footage with the stat cards over its edge ── */
 .hero-media {
   position: relative;
+  isolation: isolate;
+  min-width: 0;
 }
 
 .hero-media__frame {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 16 / 11;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
+  aspect-ratio: 16 / 10;
+  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  border-radius: clamp(14px, 1.4vw, 22px);
   background: var(--background-dark);
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    0 30px 70px -30px rgba(0, 0, 0, 0.75),
+    0 0 90px -24px color-mix(in srgb, var(--blue-light) 55%, transparent);
 }
 
 .hero-media__frame .hero-bg-slider,
@@ -3752,210 +3699,490 @@ select.brand-input {
   object-fit: cover;
 }
 
-/* Darkens the lower half so the stat cards keep their contrast */
+/* Settles the bright parts of the footage into the navy page: a little darker
+   toward the left and the bottom, where the badge and tag sit, and clear in the
+   middle so the office itself stays plainly visible. */
 .hero-media__scrim {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(
-      200deg,
-      transparent 30%,
-      color-mix(in srgb, var(--background-dark) 78%, transparent) 100%
+      90deg,
+      color-mix(in srgb, var(--background-dark) 42%, transparent) 0%,
+      transparent 42%
+    ),
+    linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--background-dark) 62%, transparent) 0%,
+      transparent 38%
     );
   pointer-events: none;
 }
 
-.hero-media__tag {
+.hero-media__badge {
   position: absolute;
-  left: clamp(1rem, 2vw, 1.5rem);
-  bottom: clamp(0.9rem, 1.8vw, 1.3rem);
-  font-family: var(--font-display), sans-serif;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--foreground) 72%, transparent);
+  top: clamp(0.75rem, 1.4vw, 1.1rem);
+  left: clamp(0.75rem, 1.4vw, 1.1rem);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem 0.5rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--background-dark) 72%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.hero-media__badge-dot {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--orange) 25%, transparent);
+}
+
+.hero-media__badge-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.66rem;
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+.hero-media__badge-text strong {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+/* The thin orange arc swinging round behind the footage. Decoration only, so
+   it is the one piece placed absolutely, and it is hidden until there is room
+   beside the frame for it to show. */
+.hero-media__orbit {
+  display: none;
 }
 
 .hero-media__stats {
   display: grid;
-  gap: 0.6rem;
-  margin: 0.9rem 0 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.65rem;
+  margin: 1rem 0 0;
   padding: 0;
   list-style: none;
 }
 
 .hero-stat {
   display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--blue-light) 55%, var(--glass-border));
+  border-radius: 13px;
+  /* Sits over the footage, so the fill is denser than the standard panel
+     recipe — the copy has to stay legible whatever frame is behind it. */
+  background-color: color-mix(in srgb, var(--blue-dark) 84%, transparent);
+  background-image: var(--glass-fill-strong);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--glass-inner), 0 14px 32px -16px rgba(0, 0, 0, 0.7);
+}
+
+.hero-stat__icon {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--orange);
+  stroke-width: 1.9;
+}
+
+.hero-stat__text {
+  display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  /* Sits over rotating photography, so the fill is denser than the standard
-     panel recipe — the copy has to stay legible whatever frame is behind it. */
-  background-color: color-mix(in srgb, var(--blue-dark) 78%, transparent);
-  background-image: var(--glass-fill-strong);
-  backdrop-filter: var(--glass-filter);
-  -webkit-backdrop-filter: var(--glass-filter);
-  box-shadow: var(--glass-inner), var(--shadow-md);
+  min-width: 0;
 }
 
 .hero-stat__value {
   font-family: var(--font-display), sans-serif;
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   color: var(--foreground);
 }
 
 .hero-stat--metric .hero-stat__value {
-  font-size: 1.5rem;
-  color: var(--orange);
+  font-size: 1.15rem;
 }
 
 .hero-stat--feature .hero-stat__value {
-  font-size: 0.98rem;
+  font-size: 0.95rem;
 }
 
 .hero-stat__label {
-  font-size: 0.73rem;
-  line-height: 1.4;
+  font-size: 0.74rem;
+  line-height: 1.35;
   color: var(--muted);
 }
 
-/* From two columns up, the cards float over the frame's right edge */
-@media (min-width: 640px) {
+/* Two across once there is room; on a phone the icon moves above the text so
+   "Quality Assurance" still fits on one line. */
+@media (min-width: 370px) {
   .hero-media__stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem;
   }
 }
 
-/* The frame runs past the shell toward the viewport edge so the footage reads
-   at full size, with the stat cards tucked over its right edge. */
+@media (min-width: 370px) and (max-width: 639px) {
+  .hero-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.8rem 0.85rem;
+  }
+
+  .hero-stat--feature .hero-stat__value {
+    font-size: 0.9rem;
+  }
+}
+
+/* ── Two columns ── */
+/* The copy is centred against the media column, which is the footage with the
+   four cards in one row underneath it. The type scale is set so the two
+   columns come out about the same height. */
 @media (min-width: 1024px) {
-  .hero-media {
-    /* The rail width is declared once and the frame's right margin is derived
-       from it. These used to be two independent vw curves tuned against each
-       other, and they disagreed: the margin kept growing with the viewport
-       while the column stopped at the shell's max width, so the footage got
-       *narrower* on wider screens — 590px at 1440 down to 577px at 1920. */
-    /* The floor is set by the longest card label rather than by taste: below
-       10rem "Operations coverage" and "Quality Assurance" break across two
-       lines and the four cards stop matching each other in height. */
-    --hero-rail: clamp(10rem, 10.5vw, 12rem);
-    --hero-rail-overlap: clamp(2.5rem, 3.2vw, 3.25rem);
+  .hero-shell {
+    grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.6fr);
+    align-items: center;
+    gap: clamp(2rem, 3.6vw, 3.5rem);
+  }
 
-    position: relative;
-    /* Fills the row rather than sitting centred in it, so the footage is the
-       same height as the headline column beside it instead of a short panel
-       floating in the middle. */
-    height: 100%;
-    /* Spends the page's right-hand margin on the footage once the shell has
-       stopped growing. Below that width the expression clamps to zero, so the
-       rail is never pushed flush against the viewport edge.
+  .hero-copy__title {
+    /* ~47px at 1024, ~62px at 1366, 80px from ~1790 up. */
+    font-size: clamp(2.9rem, 4.3vw + 0.2rem, 5rem);
+  }
 
-       Subtracting 2rem before the cap keeps this clear of the scrollbar: 100vw
-       counts it but the shell is centred in the narrower client width, so the
-       two differ by half a scrollbar — far less than the margin left spare. */
-    margin-right: calc(-1 * clamp(0px, (100vw - 82rem) / 2 - 2rem, 11rem));
+  .hero-copy__subtitle {
+    margin-top: clamp(1.1rem, 2.4vh, 1.6rem);
+    font-size: clamp(0.98rem, 0.45vw + 0.6rem, 1.12rem);
+  }
+
+  .hero-copy__career {
+    margin-top: clamp(1.5rem, 3.4vh, 2.25rem);
   }
 
   .hero-media__frame {
-    /* Height comes from the copy column; the ratio is only a floor for short
-       viewports where the copy wraps to fewer lines. */
-    aspect-ratio: auto;
-    height: 100%;
-    min-height: min(30rem, 52vh);
-    margin-right: calc(var(--hero-rail) - var(--hero-rail-overlap));
+    /* Full column width even when a short viewport caps its height; the
+       footage is cropped rather than the frame narrowing. */
+    width: 100%;
+    aspect-ratio: 16 / 9;
   }
 
+  /* One row, one height: a card whose label runs to a second line sets the
+     height for all four. */
   .hero-media__stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.5rem, 0.8vw, 0.85rem);
+    margin-top: clamp(0.75rem, 1.1vw, 1rem);
+  }
+
+  /* Icon above the text, so each card gives its title the full width and
+     "Quality Assurance" stays on one line. */
+  .hero-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: clamp(0.7rem, 0.9vw, 0.95rem) clamp(0.75rem, 0.9vw, 1rem);
+    gap: clamp(0.4rem, 0.55vw, 0.6rem);
+  }
+
+  .hero-stat__value {
+    white-space: nowrap;
+  }
+
+  .hero-stat__icon {
+    width: clamp(1.35rem, 1.7vw, 1.8rem);
+    height: clamp(1.35rem, 1.7vw, 1.8rem);
+  }
+
+  .hero-stat--metric .hero-stat__value {
+    font-size: clamp(1rem, 0.6vw + 0.5rem, 1.2rem);
+  }
+
+  .hero-stat--feature .hero-stat__value {
+    font-size: clamp(0.82rem, 0.4vw + 0.5rem, 0.95rem);
+  }
+
+  .hero-stat__label {
+    font-size: clamp(0.68rem, 0.3vw + 0.45rem, 0.76rem);
+  }
+
+  .hero-media__orbit {
     position: absolute;
-    right: 0;
-    top: 50%;
-    grid-template-columns: minmax(0, 1fr);
-    /* One height for all four, so a label that needs a second line does not
-       leave the stack looking ragged. */
-    grid-auto-rows: 1fr;
-    width: var(--hero-rail);
-    margin: 0;
-    transform: translateY(-50%);
+    z-index: -1;
+    display: block;
+    top: -10%;
+    bottom: 6%;
+    left: -8%;
+    right: -4%;
+    border: 1.5px solid color-mix(in srgb, var(--orange) 60%, transparent);
+    border-radius: 50%;
+    transform: rotate(-12deg);
+    /* Only the upper-right and lower-left sweeps show; the rest fades out. */
+    mask-image: linear-gradient(
+      135deg,
+      transparent 8%,
+      #000 30%,
+      transparent 50%,
+      #000 72%,
+      transparent 94%
+    );
+    -webkit-mask-image: linear-gradient(
+      135deg,
+      transparent 8%,
+      #000 30%,
+      transparent 50%,
+      #000 72%,
+      transparent 94%
+    );
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--orange) 45%, transparent));
+    opacity: 0.7;
+    pointer-events: none;
+  }
+}
+
+/* Below ~1200px a row of four is too narrow for the card labels, so the
+   cards go two by two. */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .hero-media__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Services strip: below the grid, in normal flow ── */
+.hero-services {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: clamp(1.75rem, 4vh, 2.5rem);
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 11%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--background-dark) 70%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 20px 50px -30px rgba(0, 0, 0, 0.7);
+  animation: hero-pitch-rise 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 1.6s both;
+}
+
+.hero-services__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* An odd fifth item takes the full row rather than sitting alone in a half. */
+.hero-services__list > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.hero-services__item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  height: 100%;
+  min-height: 3.25rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--foreground);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.hero-services__item:hover {
+  background: color-mix(in srgb, var(--orange) 12%, transparent);
+}
+
+.hero-services__icon {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--foreground);
+  stroke-width: 1.7;
+  transition: color 0.25s ease;
+}
+
+.hero-services__item:hover .hero-services__icon {
+  color: var(--orange);
+}
+
+.hero-services__cta {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 12px;
+  color: var(--foreground);
+}
+
+.hero-services__cta-arrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background-image: var(--grad-accent);
+  color: #10192e;
+  box-shadow: 0 8px 22px -8px color-mix(in srgb, var(--orange) 70%, transparent);
+  transition: transform 0.28s ease;
+}
+
+.hero-services__cta:hover .hero-services__cta-arrow {
+  transform: translateX(3px);
+}
+
+.hero-services__cta-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.84rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.hero-services__cta-text strong {
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-services {
+    animation: none;
+  }
+}
+
+/* Tablet: all five services side by side, icon above label. */
+@media (min-width: 700px) {
+  .hero-services__list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .hero-services__list > li:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+
+  .hero-services__item {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .hero-services__cta {
+    justify-content: center;
+  }
+}
+
+/* Desktop: one rounded row, services divided by hairlines, CTA on the right. */
+@media (min-width: 1100px) {
+  .hero-services {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(1rem, 2vw, 2rem);
+    padding: clamp(0.7rem, 1vw, 0.95rem) clamp(1rem, 2vw, 2rem);
+    border-radius: 999px;
+  }
+
+  .hero-services__list {
+    flex: 1;
+    gap: 0;
+  }
+
+  .hero-services__list > li + li {
+    border-left: 1px solid var(--glass-border);
+  }
+
+  .hero-services__item {
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    text-align: left;
+  }
+
+  .hero-services__item > span {
+    /* Two tidy lines for every label ("Back Office / Operations"). */
+    max-width: 11.5ch;
+    font-size: clamp(0.82rem, 0.3vw + 0.55rem, 0.92rem);
+  }
+
+  .hero-services__icon {
+    width: clamp(1.5rem, 1.8vw, 1.9rem);
+    height: clamp(1.5rem, 1.8vw, 1.9rem);
+  }
+
+  .hero-services__cta {
+    flex: none;
+    padding: 0.25rem 0.25rem 0.25rem clamp(1rem, 2vw, 2rem);
+    border-left: 1px solid var(--glass-border);
+    border-radius: 0;
   }
 }
 
 /* Short-and-wide viewports.
-   A maximised browser on a 1366x768 laptop leaves about 620px of viewport once
-   the taskbar, title bar, tab strip and omnibox are gone, and Windows' default
-   125% scaling takes more. The hero's type scale is driven by width (5.6vw), so
-   such a window still got a 76px headline and the block came out ~620px tall —
-   taller than the viewport, which pushed the careers link out of sight.
-
-   This has to come after the hero-media rules above, not next to the hero-copy
-   ones: the card font sizes it overrides are declared later in the file at the
-   same specificity, so placed earlier it would silently lose.
-
-   Everything here only retunes the vertical rhythm. No copy changes, and
-   viewports tall enough for the full scale never match. */
-@media (min-width: 1024px) and (max-height: 720px) {
+   A maximised browser on a 1366x768 laptop leaves well under 768px of viewport
+   once the OS and browser chrome are gone, so the vertical rhythm tightens
+   there. Horizontal sizes are left alone; viewports tall enough for the full
+   scale never match. */
+@media (min-width: 1024px) and (max-height: 820px) {
   .hero-section {
-    /* Still has to clear the overlaying navbar, which is 3.5rem tall. */
-    padding-top: clamp(4.5rem, 9vh, 6rem);
-    padding-bottom: clamp(1.5rem, 3vh, 2.5rem);
+    /* Still has to clear the overlaying navbar. */
+    padding-top: clamp(5.5rem, 12vh, 6.25rem);
+    padding-bottom: clamp(1.25rem, 3vh, 2rem);
   }
 
   .hero-copy__title {
-    margin-top: clamp(0.6rem, 1.4vh, 1rem);
-    /* The cap is what matters; the vw term keeps it fluid below it. */
-    font-size: clamp(2.1rem, 4.4vw, 3.5rem);
-    line-height: 1.02;
+    font-size: clamp(2.75rem, 3.9vw + 0.2rem, 4rem);
   }
 
   .hero-copy__subtitle {
-    margin-top: clamp(0.65rem, 1.4vh, 1rem);
-    font-size: clamp(0.88rem, 1vw, 0.98rem);
-    line-height: 1.55;
-  }
-
-  .hero-copy__actions {
-    margin-top: clamp(0.95rem, 2vh, 1.4rem);
+    margin-top: 0.9rem;
+    font-size: clamp(0.88rem, 0.5vw + 0.5rem, 0.98rem);
+    line-height: 1.6;
   }
 
   .hero-copy__career {
-    margin-top: clamp(0.85rem, 1.8vh, 1.2rem);
-    padding-top: clamp(0.85rem, 1.8vh, 1.2rem);
+    margin-top: 1.4rem;
+    padding-top: 1rem;
   }
 
   .hero-media__frame {
-    /* The floor was written for tall viewports; at these heights it would force
-       the row taller than the copy needs and undo the savings above. */
-    min-height: 0;
-  }
-
-  .hero-media__stats {
-    gap: 0.45rem;
+    max-height: min(29rem, 50vh);
   }
 
   .hero-stat {
-    padding: 0.55rem 0.75rem;
-    gap: 0.1rem;
+    padding-block: 0.6rem;
+    gap: 0.3rem;
   }
 
-  /* Dropping a step lets "Quality Assurance" sit on one line, which takes a row
-     out of the tallest card. Since all four match that height, the rail as a
-     whole then stays inside the shorter frame instead of hanging below it. */
-  .hero-stat--feature .hero-stat__value {
-    font-size: 0.82rem;
+  .hero-stat__icon {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
-  .hero-stat--metric .hero-stat__value {
-    font-size: 1.2rem;
-  }
-
-  .hero-stat__label {
-    font-size: 0.68rem;
-    line-height: 1.3;
+  .hero-services {
+    margin-top: 1.25rem;
   }
 }
 

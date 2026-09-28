@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { MAX_CV_BYTES, resolveCvAbsolutePath, saveLeadCv } from "@/lib/cv-upload";
-import { buildPositionWhere, extractPositionFromMessage } from "@/lib/lead-position";
+import { buildLeadWhere } from "@/lib/lead-filters";
+import { extractPositionFromMessage } from "@/lib/lead-position";
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 50;
 
 export async function GET(request: Request) {
@@ -19,15 +20,9 @@ export async function GET(request: Request) {
     Math.max(1, Number(url.searchParams.get("limit")) || DEFAULT_PAGE_SIZE)
   );
   const skip = (page - 1) * limit;
-  const queue = url.searchParams.get("queue");
-  const where = {
-    AND: [
-      buildPositionWhere(url.searchParams.get("position")),
-      ...(queue ? [{ queue }] : []),
-    ],
-  };
+  const where = buildLeadWhere(url.searchParams);
 
-  const [leads, total] = await Promise.all([
+  const [leads, total, cvCount] = await Promise.all([
     prisma.lead.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -51,6 +46,9 @@ export async function GET(request: Request) {
       },
     }),
     prisma.lead.count({ where }),
+    /* CVs among the filtered leads, so the admin CV download can say how many
+       files its ZIP will hold for exactly this selection. */
+    prisma.lead.count({ where: { AND: [where, { NOT: { cvPath: null } }] } }),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -63,6 +61,7 @@ export async function GET(request: Request) {
       total,
       totalPages,
     },
+    cvCount,
   });
 }
 

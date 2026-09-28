@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
-import { slugify } from "@/lib/blog";
+import { blogFieldError, uniqueBlogSlug } from "@/lib/blog-server";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -14,13 +14,28 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const body = await request.json();
 
+    if (body.title !== undefined && !String(body.title).trim()) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    }
+    if (body.content !== undefined && !String(body.content).trim()) {
+      return NextResponse.json({ error: "Content is required" }, { status: 400 });
+    }
+
+    const fieldError = blogFieldError(body);
+    if (fieldError) {
+      return NextResponse.json({ error: fieldError }, { status: 400 });
+    }
+
+    const slug =
+      body.slug !== undefined
+        ? await uniqueBlogSlug(String(body.slug ?? ""), String(body.title ?? ""), id)
+        : undefined;
+
     const blog = await prisma.blog.update({
       where: { id },
       data: {
         ...(body.title !== undefined && { title: String(body.title).trim() }),
-        ...(body.slug !== undefined && {
-          slug: String(body.slug).trim() || slugify(String(body.title ?? "")),
-        }),
+        ...(slug !== undefined && { slug }),
         ...(body.excerpt !== undefined && {
           excerpt: body.excerpt ? String(body.excerpt).trim() : null,
         }),
@@ -49,9 +64,10 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     refreshPublicPages();
     return NextResponse.json({ blog });
-  } catch {
+  } catch (error) {
+    console.error("[blogs] update failed:", error);
     return NextResponse.json(
-      { error: "Failed to update blog" },
+      { error: "The blog could not be saved. Please try again." },
       { status: 500 }
     );
   }

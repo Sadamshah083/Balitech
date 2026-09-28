@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Mail, Phone } from "lucide-react";
 import { companyContent } from "@/lib/content";
+import { thankYouHref } from "@/lib/thank-you";
 
 const { homeContact, footer } = companyContent;
 
@@ -25,6 +27,7 @@ const businessEmail =
  * form (with CV upload) is separate and lives on the careers page.
  */
 export default function BusinessInquiry() {
+  const router = useRouter();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -64,6 +67,7 @@ export default function BusinessInquiry() {
       if (!res.ok) throw new Error("Request failed");
 
       setStatus("success");
+      router.push(thankYouHref("inquiry"));
       setForm({
         name: "",
         email: "",

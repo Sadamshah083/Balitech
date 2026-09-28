@@ -147,7 +147,7 @@ export default function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "nav-link rounded-full px-3 py-1.5 text-sm font-bold uppercase tracking-[0.08em] transition-all duration-300 xl:px-4 xl:text-base relative group",
+                  "nav-link whitespace-nowrap rounded-full px-2.5 py-1.5 text-sm font-bold uppercase tracking-[0.08em] transition-all duration-300 xl:px-4 xl:text-base relative group",
                   isJoin
                     ? "btn-primary px-4 py-2 shadow-[0_0_16px_color-mix(in_srgb,var(--orange)_35%,transparent)]"
                     : active

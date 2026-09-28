@@ -6,14 +6,44 @@ export const blogFormatOptions: { value: BlogFormat; label: string }[] = [
   { value: "compact", label: "Compact List" },
 ];
 
+/** Longest slug we generate; the column holds 191, leaving room for "-2". */
+const SLUG_MAX = 120;
+
+/**
+ * URL slug from a title. Only ASCII letters and digits survive, so a title in
+ * Urdu or made of emoji can come out empty; the API gives those a fallback
+ * slug instead of saving "" or "-", which every later such post collided with.
+ */
 export function slugify(text: string) {
-  return text
+  const slug = text
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, "")
+    .replace(/[^a-z0-9\s_-]/g, "")
     .replace(/[\s_]+/g, "-")
-    .replace(/-+/g, "-");
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  if (slug.length <= SLUG_MAX) return slug;
+  const cut = slug.slice(0, SLUG_MAX);
+  return cut.slice(0, cut.lastIndexOf("-") > 40 ? cut.lastIndexOf("-") : SLUG_MAX);
 }
+
+/**
+ * MySQL column sizes for the Blog table. Prisma's String is VARCHAR(191) and
+ * @db.Text is TEXT, which holds 65,535 bytes, not characters. A strict-mode
+ * server rejects anything longer, so the API checks first and says which field
+ * is too long instead of failing the whole save.
+ */
+export const BLOG_LIMITS = {
+  title: 191,
+  image: 191,
+  tags: 191,
+  metaTitle: 120,
+  metaDescription: 320,
+  contentBytes: 65_535,
+  excerptBytes: 65_535,
+} as const;
 
 export function parseTags(raw: string): string[] {
   try {

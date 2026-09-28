@@ -2,9 +2,9 @@
    metrics counter, the site meta description, and a dozen sentences of prose,
    so it is written once here — the count-up in Metrics.tsx parses the digits
    off it rather than hardcoding a target. */
-const EMPLOYEE_COUNT = "750+";
+const EMPLOYEE_COUNT = "800+";
 
-/** The same figure without the "+", for prose like "a 750-person team". */
+/** The same figure without the "+", for prose like "an 800-person team". */
 const EMPLOYEE_COUNT_PLAIN = EMPLOYEE_COUNT.replace("+", "");
 
 export const companyContent = {
@@ -782,6 +782,14 @@ export const companyContent = {
       label: "Looking for a career at BALITECH?",
       href: "/join-us",
     },
+    /* The strip under the hero. Back office has no page of its own yet. */
+    services: [
+      { label: "Inbound Support", href: "/services/inbound" },
+      { label: "Outbound Campaigns", href: "/services/outbound" },
+      { label: "Lead Generation", href: "/services/lead-generation" },
+      { label: "Customer Support", href: "/services/customer-support" },
+      { label: "Back Office Operations", href: "/services" },
+    ],
     /* Cards floating over the hero footage. `metric` renders the value large,
        `feature` keeps it at heading size so longer labels still fit. */
     highlights: [
@@ -831,7 +839,7 @@ export const companyContent = {
         id: "careers",
         eyebrow: "For Professionals",
         title: "Build Your Career At BALITECH",
-        description: `Explore open positions, training pathways, employee benefits, and the culture behind a ${EMPLOYEE_COUNT_PLAIN}-person team.`,
+        description: `Explore open positions, training pathways, employee benefits, and the culture behind our ${EMPLOYEE_COUNT_PLAIN}-person team.`,
         bullets: [
           "Freshers and experienced agents welcome",
           "Performance-based promotion structure",

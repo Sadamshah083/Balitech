@@ -6,7 +6,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { resolveCvAbsolutePath } from "@/lib/cv-upload";
-import { buildPositionWhere, resolveLeadPosition } from "@/lib/lead-position";
+import { resolveLeadBranch } from "@/lib/lead-branch";
+import { buildLeadWhere, hasLeadFilters } from "@/lib/lead-filters";
+import { resolveLeadPosition } from "@/lib/lead-position";
 
 function slugify(value: string) {
   return (
@@ -25,17 +27,20 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const position = url.searchParams.get("position")?.trim() || null;
+  const branch = url.searchParams.get("branch")?.trim() || null;
+  const filtered = hasLeadFilters(url.searchParams);
 
   const leads = await prisma.lead.findMany({
     where: {
-      ...buildPositionWhere(position),
-      NOT: { cvPath: null },
+      AND: [buildLeadWhere(url.searchParams), { NOT: { cvPath: null } }],
     },
     orderBy: { createdAt: "desc" },
     select: {
       name: true,
       position: true,
       message: true,
+      company: true,
+      referenceId: true,
       cvFileName: true,
       cvPath: true,
     },
@@ -51,8 +56,8 @@ export async function GET(request: Request) {
   if (files.length === 0) {
     return NextResponse.json(
       {
-        error: position
-          ? `No CVs available for "${position}"`
+        error: filtered
+          ? "No CVs available for this selection"
           : "No CVs available to download",
       },
       { status: 404 }
@@ -68,9 +73,12 @@ export async function GET(request: Request) {
     const jobLabel = position
       ? ""
       : `-${slugify(resolveLeadPosition(file.lead) || "unassigned")}`;
-    const entryName = `${String(index + 1).padStart(2, "0")}-${slugify(
+    const branchLabel = branch
+      ? ""
+      : `-${slugify(resolveLeadBranch(file.lead) || "no-branch")}`;
+    const entryName = `${String(index + 1).padStart(3, "0")}-${slugify(
       file.name
-    )}${jobLabel}${file.ext}`;
+    )}${jobLabel}${branchLabel}${file.ext}`;
     archive.file(file.absolutePath, { name: entryName });
   });
 
@@ -78,9 +86,12 @@ export async function GET(request: Request) {
   archive.finalize().catch(() => passthrough.destroy());
 
   const stamp = new Date().toISOString().slice(0, 10);
-  const zipName = `balitech-cvs-${
-    position ? slugify(position).toLowerCase() : "all-jobs"
-  }-${stamp}.zip`;
+  const scope =
+    [position, branch]
+      .filter(Boolean)
+      .map((part) => slugify(part as string).toLowerCase())
+      .join("-") || (filtered ? "filtered" : "all-jobs");
+  const zipName = `balitech-cvs-${scope}-${stamp}.zip`;
 
   return new NextResponse(Readable.toWeb(passthrough) as ReadableStream, {
     status: 200,

@@ -52,7 +52,7 @@ export const fallbackOffices: PublicOffice[] = [
     name: "Islamabad Office",
     slug: "islamabad-office",
     address: "Plot No.349-352 street No 1 industrial Area 1-9/3, Islamabad",
-    phone: officePhoneDisplay,
+    phone: "03700039073",
     email: officeEmail,
     hours: officeHours,
     city: "Islamabad",
@@ -68,7 +68,7 @@ export const fallbackOffices: PublicOffice[] = [
     slug: "commercial-office",
     address:
       "Office No 1, 3rd Floor, Satellite Town B Block, Ideas Building Plaza Rwp",
-    phone: officePhoneDisplay,
+    phone: "03700039070 / 0300039071",
     email: officeEmail,
     hours: officeHours,
     city: "Rawalpindi",

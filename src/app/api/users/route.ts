@@ -26,8 +26,9 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ users });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to fetch users" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to fetch users";
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
 
@@ -75,8 +76,9 @@ export async function POST(request: Request) {
         plainPassword: user.plainPassword,
       },
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to create user" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to create user";
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
 
@@ -106,7 +108,7 @@ export async function PATCH(request: Request) {
       }
     }
 
-    const data: any = {};
+    const data: { name?: string; email?: string; role?: string; password?: string; plainPassword?: string } = {};
     if (name !== undefined) data.name = name.trim();
     if (cleanEmail !== undefined) data.email = cleanEmail;
     if (role !== undefined) data.role = role.trim();
@@ -130,8 +132,9 @@ export async function PATCH(request: Request) {
         plainPassword: user.plainPassword,
       },
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update user" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to update user";
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
 
@@ -157,7 +160,8 @@ export async function DELETE(request: Request) {
 
     await prisma.admin.delete({ where: { id } });
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to delete user" }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to delete user";
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }

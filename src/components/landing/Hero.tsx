@@ -1,13 +1,35 @@
 "use client";
 
 import IntentLink from "@/components/navigation/IntentLink";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  Clock,
+  FileText,
+  Headphones,
+  PhoneOutgoing,
+  Settings,
+  ShieldCheck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import HeroBackgroundSlider from "@/components/landing/HeroBackgroundSlider";
 import { companyContent } from "@/lib/content";
 import { HERO_INTRO_WORDMARK } from "@/lib/hero-loader";
 
 const INTRO_HEIGHT = "100dvh";
 const { hero } = companyContent;
+
+/* Paired with `hero.highlights` by position: headcount, coverage, QA, scaling. */
+const HIGHLIGHT_ICONS: LucideIcon[] = [Users, Clock, ShieldCheck, BarChart3];
+
+const SERVICE_ICONS: LucideIcon[] = [
+  Headphones,
+  PhoneOutgoing,
+  Users,
+  Settings,
+  FileText,
+];
 
 const handleImageReady = () => {};
 
@@ -50,60 +72,97 @@ export default function Hero() {
 
       <div className="hero-section__aura" aria-hidden />
 
-      <div className="hero-shell">
-        <div className="hero-copy">
-          <h1 className="hero-copy__title hero-pitch__reveal">
-            {hero.titleLine1}{" "}
-            <span className="hero-copy__title-accent">{hero.titleLine2}</span>
-          </h1>
+      {/* The two-column grid and the services strip share one container and
+          stack in normal flow, so the strip always sits under the grid. */}
+      <div className="hero-container">
+        <div className="hero-shell">
+          <div className="hero-copy">
+            <h1 className="hero-copy__title hero-pitch__reveal">
+              <span className="hero-copy__title-line">Outsourcing</span>{" "}
+              <span className="hero-copy__title-line">Built To</span>{" "}
+              <span className="hero-copy__title-accent">
+                <span className="hero-copy__title-line">Scale Your</span>{" "}
+                <span className="hero-copy__title-line">Business</span>
+              </span>
+            </h1>
 
-          <p className="hero-copy__subtitle hero-pitch__reveal">
-            {hero.subtitle}
-          </p>
+            <p className="hero-copy__subtitle hero-pitch__reveal">
+              {hero.subtitle}
+            </p>
 
-          <div className="hero-copy__actions hero-pitch__reveal">
-            <IntentLink href={hero.primaryCta.href} className="ent-btn ent-btn--lg">
-              {hero.primaryCta.label}
-              <ArrowRight size={17} aria-hidden />
-            </IntentLink>
             <IntentLink
-              href={hero.secondaryCta.href}
-              className="ent-btn ent-btn--lg ent-btn--ghost"
+              href={hero.careerLink.href}
+              className="hero-copy__career hero-pitch__reveal"
             >
-              {hero.secondaryCta.label}
+              {hero.careerLink.label}
+              <span className="hero-copy__career-cta">
+                Explore Careers
+                <ArrowRight size={14} aria-hidden />
+              </span>
             </IntentLink>
           </div>
 
-          <IntentLink
-            href={hero.careerLink.href}
-            className="hero-copy__career hero-pitch__reveal"
-          >
-            {hero.careerLink.label}
-            <span className="hero-copy__career-cta">
-              Explore Careers
-              <ArrowRight size={14} aria-hidden />
+          <div className="hero-media">
+            <span className="hero-media__orbit" aria-hidden />
+
+            <div className="hero-media__frame">
+              <HeroBackgroundSlider onFirstImageReady={handleImageReady} />
+              <span className="hero-media__scrim" aria-hidden />
+
+              <div className="hero-media__badge" aria-hidden>
+                <span className="hero-media__badge-dot" />
+                <span className="hero-media__badge-text">
+                  <strong>Life at {companyContent.name}</strong>
+                  <span>Explore our work culture</span>
+                </span>
+              </div>
+            </div>
+
+            <ul className="hero-media__stats">
+              {hero.highlights.map((item, index) => {
+                const Icon = HIGHLIGHT_ICONS[index] ?? ShieldCheck;
+                return (
+                  <li
+                    key={item.value}
+                    className={`hero-stat hero-stat--${item.type}`}
+                  >
+                    <Icon className="hero-stat__icon" aria-hidden />
+                    <span className="hero-stat__text">
+                      <span className="hero-stat__value">{item.value}</span>
+                      <span className="hero-stat__label">{item.label}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+
+        <nav className="hero-services" aria-label="Our services">
+          <ul className="hero-services__list">
+            {hero.services.map((service, index) => {
+              const Icon = SERVICE_ICONS[index] ?? Headphones;
+              return (
+                <li key={service.label}>
+                  <IntentLink href={service.href} className="hero-services__item">
+                    <Icon className="hero-services__icon" aria-hidden />
+                    <span>{service.label}</span>
+                  </IntentLink>
+                </li>
+              );
+            })}
+          </ul>
+
+          <IntentLink href="/services" className="hero-services__cta">
+            <span className="hero-services__cta-arrow" aria-hidden>
+              <ArrowRight size={18} />
+            </span>
+            <span className="hero-services__cta-text">
+              <span>Discover How</span>
+              <strong>We Help Businesses Grow</strong>
             </span>
           </IntentLink>
-        </div>
-
-        <div className="hero-media">
-          <div className="hero-media__frame">
-            <HeroBackgroundSlider onFirstImageReady={handleImageReady} />
-            <span className="hero-media__scrim" aria-hidden />
-            <span className="hero-media__tag" aria-hidden>
-              {companyContent.name}
-            </span>
-          </div>
-
-          <ul className="hero-media__stats">
-            {hero.highlights.map((item) => (
-              <li key={item.value} className={`hero-stat hero-stat--${item.type}`}>
-                <span className="hero-stat__value">{item.value}</span>
-                <span className="hero-stat__label">{item.label}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        </nav>
       </div>
     </section>
   );

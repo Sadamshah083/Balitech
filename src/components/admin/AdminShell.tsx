@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
   BookOpen,
   Briefcase,
@@ -16,7 +18,6 @@ import {
   X,
 } from "lucide-react";
 import { adminFetch, clearAdminToken } from "@/lib/admin-token";
-import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -62,27 +63,32 @@ export default function AdminShell({
   const isManager = adminRole === "manager";
   const isAdmin = adminRole === "admin";
 
-  const hasAccess = (href: string) => {
-    if (href === "/admin/dashboard") return true;
-    if (isAdmin) return true;
-    if (isManager) {
-      return href === "/admin/leads" || href === "/admin/vacancies" || href === "/admin/blogs";
-    }
-    if (isAgent) {
-      return href === "/admin/leads";
-    }
-    return false;
-  };
+  const hasAccess = useCallback(
+    (href: string) => {
+      if (href === "/admin/dashboard") return true;
+      if (isAdmin) return true;
+      if (isManager) {
+        return href === "/admin/leads" || href === "/admin/vacancies" || href === "/admin/blogs";
+      }
+      if (isAgent) {
+        return href === "/admin/leads";
+      }
+      return false;
+    },
+    [isAdmin, isManager, isAgent]
+  );
 
   useEffect(() => {
     if (!hasAccess(pathname)) {
       router.push("/admin/dashboard");
     }
-  }, [pathname, adminRole]);
+  }, [pathname, hasAccess, router]);
 
-  useEffect(() => {
+  const [currentPath, setCurrentPath] = useState(pathname);
+  if (currentPath !== pathname) {
+    setCurrentPath(pathname);
     setMobileOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -107,9 +113,11 @@ export default function AdminShell({
     <>
       <div className="admin-sidebar__brand border-b border-orange/20 p-5">
         <Link href="/admin/dashboard" className="inline-block">
-          <img
+          <Image
             src="/bali-tech-logo.png"
             alt="BaliTech Pvt. Ltd"
+            width={160}
+            height={40}
             className="mx-auto h-10 w-auto object-contain"
           />
         </Link>

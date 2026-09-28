@@ -3,6 +3,10 @@ import { Manrope, Sora } from "next/font/google";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
+import GoogleTagManager, {
+  GoogleTagManagerNoScript,
+} from "@/components/seo/GoogleTagManager";
+import { GOOGLE_SITE_VERIFICATION } from "@/lib/analytics";
 import ScrollToTopOnNavigate from "@/components/ScrollToTopOnNavigate";
 import { companyContent } from "@/lib/content";
 import { fallbackOffices } from "@/lib/fallback-offices";
@@ -70,6 +74,9 @@ export const metadata: Metadata = {
   category: "Business",
   alternates: {
     canonical: SITE_URL,
+  },
+  verification: {
+    google: GOOGLE_SITE_VERIFICATION,
   },
   robots: {
     index: true,
@@ -189,6 +196,7 @@ export default function RootLayout({
         className="min-h-full bg-background text-foreground transition-colors duration-300"
         suppressHydrationWarning
       >
+        <GoogleTagManagerNoScript />
         {jsonLd.map((entry, index) => (
           <script
             key={`ld-${index}`}
@@ -196,6 +204,7 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(entry) }}
           />
         ))}
+        <GoogleTagManager />
         <GoogleAnalytics />
         <ScrollToTopOnNavigate />
         <ThemeProvider>{children}</ThemeProvider>

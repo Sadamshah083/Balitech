@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatBlogDate, parseTags } from "@/lib/blog";
+import { formatBlogDate } from "@/lib/blog";
 import type { PublicBlog } from "@/lib/blogs";
 
 type Props = {
@@ -54,7 +54,6 @@ export default function BlogArticles({ blogs }: Props) {
             <p className="blog-articles__date">{formatBlogDate(featured.createdAt)}</p>
             <h3 className="blog-articles__featured-title">{featured.title}</h3>
             {featured.excerpt && <p className="blog-articles__excerpt">{featured.excerpt}</p>}
-            <TagRow tags={parseTags(featured.tags)} />
             <span className="blog-articles__read">Read article</span>
           </div>
         </Link>
@@ -62,7 +61,6 @@ export default function BlogArticles({ blogs }: Props) {
         {rest.length > 0 && (
           <ul className="blog-articles__grid">
             {rest.map((blog) => {
-              const tags = parseTags(blog.tags);
               return (
                 <li key={blog.id}>
                   <Link href={`/blog/${blog.slug}`} className="blog-articles__item">
@@ -88,7 +86,6 @@ export default function BlogArticles({ blogs }: Props) {
                           {blog.excerpt}
                         </p>
                       )}
-                      <TagRow tags={tags} />
                     </div>
                   </Link>
                 </li>
@@ -98,16 +95,5 @@ export default function BlogArticles({ blogs }: Props) {
         )}
       </div>
     </section>
-  );
-}
-
-function TagRow({ tags }: { tags: string[] }) {
-  if (tags.length === 0) return null;
-  return (
-    <ul className="blog-articles__tags">
-      {tags.map((tag) => (
-        <li key={tag}>{tag}</li>
-      ))}
-    </ul>
   );
 }

@@ -50,6 +50,7 @@ export default function BlogsManager() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [saveError, setSaveError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function fetchBlogs() {
@@ -72,6 +73,7 @@ export default function BlogsManager() {
     setEditingId(null);
     setForm({ ...emptyForm, order: blogs.length + 1 });
     setUploadError("");
+    setSaveError("");
     setShowForm(true);
   }
 
@@ -91,6 +93,7 @@ export default function BlogsManager() {
       isPublished: blog.isPublished,
     });
     setUploadError("");
+    setSaveError("");
     setShowForm(true);
   }
 
@@ -119,6 +122,7 @@ export default function BlogsManager() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaveError("");
 
     const payload = {
       title: form.title,
@@ -134,25 +138,39 @@ export default function BlogsManager() {
       isPublished: form.isPublished,
     };
 
-    const res = editingId
-      ? await adminFetch(`/api/blogs/${editingId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-      : await adminFetch("/api/blogs", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+    try {
+      const res = editingId
+        ? await adminFetch(`/api/blogs/${editingId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await adminFetch("/api/blogs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
-    if (res.ok) {
-      setShowForm(false);
-      setForm(emptyForm);
-      await fetchBlogs();
+      if (res.ok) {
+        setShowForm(false);
+        setForm(emptyForm);
+        await fetchBlogs();
+      } else {
+        /* The API names the field that is wrong; show it rather than leaving
+           the form sitting there as if nothing happened. */
+        const data = await res.json().catch(() => ({}));
+        setSaveError(
+          data.error ||
+            (res.status === 401
+              ? "Your session has expired. Log in again and retry."
+              : "The blog could not be saved. Please try again.")
+        );
+      }
+    } catch {
+      setSaveError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
-
-    setSaving(false);
   }
 
   async function handleDelete(id: string) {
@@ -386,6 +404,11 @@ export default function BlogsManager() {
               Cancel
             </button>
           </div>
+          {saveError && (
+            <p role="alert" className="text-sm text-red-400">
+              {saveError}
+            </p>
+          )}
         </form>
       )}
 

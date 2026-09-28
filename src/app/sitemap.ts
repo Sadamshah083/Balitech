@@ -3,6 +3,11 @@ import { getPublicBlogs } from "@/lib/blogs";
 import { SITE_URL as BASE_URL } from "@/lib/seo";
 import { serviceHref, servicePages } from "@/lib/service-pages";
 
+/* Admin writes refresh the sitemap at once (see refresh-public-pages.ts). This
+   is the safety net: it also rebuilds from the database at most hourly, so a
+   post can never be missing from it for longer than that. */
+export const revalidate = 3600;
+
 const staticRoutes = [
   { path: "", changeFrequency: "weekly" as const, priority: 1 },
   { path: "/services", changeFrequency: "monthly" as const, priority: 0.9 },

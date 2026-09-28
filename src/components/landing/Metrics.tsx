@@ -55,7 +55,7 @@ function MetricValue({ value }: { value: string }) {
   const frame = useRef(0);
   const parsed = useMemo(() => parseMetricValue(value), [value]);
   // Starts at the real figure so server-rendered HTML (and crawlers) read
-  // "750+" rather than "0+". The count-up resets it once JS takes over.
+  // "800+" rather than "0+". The count-up resets it once JS takes over.
   const [display, setDisplay] = useState(parsed.text);
 
   useEffect(() => {

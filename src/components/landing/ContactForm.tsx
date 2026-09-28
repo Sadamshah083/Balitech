@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AnimatedTitle from "@/components/animations/AnimatedTitle";
 import BentoTilt from "@/components/animations/BentoTilt";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { getCampaignFromSearch } from "@/lib/apply";
+import { thankYouHref } from "@/lib/thank-you";
 
 export default function ContactForm() {
+  const router = useRouter();
   const [campaign, setCampaign] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
@@ -67,7 +70,7 @@ export default function ContactForm() {
       setStatus("success");
       setForm({ name: "", email: "", phone: "", company: "", message: "" });
       setCampaign(null);
-      window.history.replaceState(null, "", window.location.pathname);
+      router.push(thankYouHref("contact"));
     } catch {
       setStatus("error");
     }

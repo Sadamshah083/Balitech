@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { resolveLeadBranch } from "@/lib/lead-branch";
+import { buildLeadWhere } from "@/lib/lead-filters";
 import { resolveLeadPosition } from "@/lib/lead-position";
 import { FLAG_LABELS, parseFlags, queueLabel } from "@/lib/careers/review";
 import { NextResponse } from "next/server";
@@ -25,7 +27,9 @@ export async function GET(request: Request) {
   const auth = await requireApiAuth(request);
   if (auth.response) return auth.response;
 
+  /* Follows the filters on the Leads page; with none set it is every lead. */
   const leads = await prisma.lead.findMany({
+    where: buildLeadWhere(new URL(request.url).searchParams),
     orderBy: { createdAt: "desc" },
   });
 
@@ -35,6 +39,7 @@ export async function GET(request: Request) {
     "Email",
     "Phone",
     "Company",
+    "Branch",
     "Job Applied",
     "Message",
     "CV File",
@@ -51,6 +56,7 @@ export async function GET(request: Request) {
     lead.email,
     lead.phone ?? "",
     lead.company ?? "",
+    resolveLeadBranch(lead) ?? "",
     resolveLeadPosition(lead) ?? "",
     lead.message ?? "",
     lead.cvFileName ?? "",

@@ -104,6 +104,28 @@ export async function getPublicOffices(): Promise<PublicOffice[]> {
     .map(normalizeOfficeContact);
 }
 
+/**
+ * An office's phone field as separate dialable numbers. Admins enter several
+ * in one field ("0370 0585660 / 0327 1233435"), so it is split on "/", "," or
+ * ";" and each local 0-prefixed number gets its +92 form for the tel: link.
+ */
+export function officePhoneLinks(phone: string | null | undefined) {
+  if (!phone) return [];
+  return phone
+    .split(/[/,;]/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((label) => {
+      const digits = label.replace(/[^\d+]/g, "");
+      const international = digits.startsWith("+")
+        ? digits
+        : digits.startsWith("0")
+          ? `+92${digits.slice(1)}`
+          : digits;
+      return { label, href: `tel:${international}` };
+    });
+}
+
 export async function getHeadOffice(): Promise<PublicOffice | null> {
   const offices = await getPublicOffices();
   return offices.find((o) => o.isHeadOffice) ?? offices[0] ?? null;

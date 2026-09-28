@@ -5,6 +5,7 @@ import SocialPlatformIcon from "@/components/brand/SocialPlatformIcon";
 import FooterWebsiteQr from "@/components/landing/FooterWebsiteQr";
 import { companyContent } from "@/lib/content";
 import { applyNowLabel, joinUsHref, navLinks } from "@/lib/navigation";
+import { getPublicOffices, officePhoneLinks } from "@/lib/offices";
 import { serviceHref } from "@/lib/service-pages";
 
 const { footer, tagline } = companyContent;
@@ -66,7 +67,14 @@ function getBranch(title: string) {
   return branch;
 }
 
-export default function Footer() {
+export default async function Footer() {
+  /* Each office's own numbers, from the Offices admin (fallback list when the
+     database is unavailable). Editing an office there updates the footer on
+     the next visit, since admin writes refresh every public page. */
+  const offices = (await getPublicOffices())
+    .map((office) => ({ name: office.name, phones: officePhoneLinks(office.phone) }))
+    .filter((office) => office.phones.length > 0);
+
   return (
     <footer className="site-footer">
       <div className="site-footer__grid">
@@ -123,12 +131,31 @@ export default function Footer() {
         <div>
           <h2 className="mb-4 font-bold text-foreground">Contact Us</h2>
           <ul className="space-y-3 text-sm text-muted">
-            {footer.phones.map((phone) => (
-              <li key={phone.href} className="flex items-center gap-2">
-                <Phone size={16} className="shrink-0 text-orange" aria-hidden />
-                <a href={phone.href} className="font-semibold text-foreground hover:text-orange">
-                  {phone.label}
-                </a>
+            {offices.map((office) => (
+              <li key={office.name} className="flex items-start gap-2">
+                <Phone size={16} className="mt-0.5 shrink-0 text-orange" aria-hidden />
+                <span>
+                  <span className="block text-xs uppercase tracking-wider text-muted/70">
+                    {office.name}
+                  </span>
+                  <span className="flex flex-wrap gap-x-2">
+                    {office.phones.map((phone, index) => (
+                      <span key={phone.href} className="whitespace-nowrap">
+                        {index > 0 && (
+                          <span className="mr-2 text-muted/50" aria-hidden>
+                            /
+                          </span>
+                        )}
+                        <a
+                          href={phone.href}
+                          className="font-semibold text-foreground hover:text-orange"
+                        >
+                          {phone.label}
+                        </a>
+                      </span>
+                    ))}
+                  </span>
+                </span>
               </li>
             ))}
             {footer.contact.emails.map((entry) => (

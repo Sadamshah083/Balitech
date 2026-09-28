@@ -281,7 +281,9 @@ export function branchChoices(
   if (!general && vacancy?.remoteAllowed) {
     options.push({ value: REMOTE_BRANCH, label: REMOTE_BRANCH_LABEL });
   }
-  options.push({ value: ANY_BRANCH, label: ANY_BRANCH_LABEL });
+  /* Applicants must pick a real office; "Any suitable branch" is no longer
+     offered. ANY_BRANCH is still recognised below so older applications that
+     chose it keep their label. */
   return options;
 }
 

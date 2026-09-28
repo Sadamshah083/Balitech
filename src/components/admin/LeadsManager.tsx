@@ -44,17 +44,22 @@ type PositionOption = {
   group?: "campaign" | "position";
 };
 
-const POSITION_GROUPS = [
-  { group: "campaign", label: "Campaigns" },
-  { group: "position", label: "Positions" },
-] as const;
-
 function positionOptionLabel(p: PositionOption) {
   return `${p.value} (${p.leads} lead${p.leads === 1 ? "" : "s"} · ${p.cvs} CV${p.cvs === 1 ? "" : "s"})`;
 }
 
+type BranchOption = {
+  value: string;
+  leads: number;
+  cvs: number;
+};
+
+function branchOptionLabel(b: BranchOption) {
+  return `${b.value} (${b.leads} lead${b.leads === 1 ? "" : "s"})`;
+}
+
 const statusOptions = ["new", "contacted", "converted", "closed"];
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const emptyForm = {
   name: "",
@@ -93,51 +98,111 @@ export default function LeadsManager() {
   const [exporting, setExporting] = useState(false);
   const [positionFilter, setPositionFilter] = useState("");
   const [queueFilter, setQueueFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState("");
   const [positions, setPositions] = useState<PositionOption[]>([]);
+  const [branches, setBranches] = useState<BranchOption[]>([]);
   const [totalLeads, setTotalLeads] = useState(0);
   const [totalCvs, setTotalCvs] = useState(0);
+  /* CVs among the leads matching the current filters, from the list endpoint. */
+  const [filteredCvs, setFilteredCvs] = useState(0);
   const [downloadingCvs, setDownloadingCvs] = useState(false);
   const [initialized, setInitialized] = useState(false);
+
+  /** The active filters as query params, shared by the list, CV and Excel requests. */
+  const filterQuery = useCallback(() => {
+    const query = new URLSearchParams();
+    if (positionFilter) query.set("position", positionFilter);
+    if (queueFilter) query.set("queue", queueFilter);
+    if (branchFilter) query.set("branch", branchFilter);
+    return query;
+  }, [positionFilter, queueFilter, branchFilter]);
+
+  const hasFilters = Boolean(positionFilter || queueFilter || branchFilter);
 
   const fetchLeads = useCallback(
     async (page = 1) => {
       setLoading(true);
-      const query = new URLSearchParams({
-        page: String(page),
-        limit: String(PAGE_SIZE),
-      });
-      if (positionFilter) query.set("position", positionFilter);
-      if (queueFilter) query.set("queue", queueFilter);
+      const query = filterQuery();
+      query.set("page", String(page));
+      query.set("limit", String(PAGE_SIZE));
 
       const res = await adminFetch(`/api/leads?${query.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setLeads(data.leads);
         setPagination(data.pagination);
+        setFilteredCvs(data.cvCount ?? 0);
       }
       setLoading(false);
       setInitialized(true);
     },
-    [positionFilter, queueFilter]
+    [filterQuery]
   );
 
   const fetchPositions = useCallback(async () => {
-    const res = await adminFetch("/api/leads/positions");
+    const [res, branchRes] = await Promise.all([
+      adminFetch("/api/leads/positions"),
+      adminFetch("/api/leads/branches"),
+    ]);
     if (res.ok) {
       const data = await res.json();
       setPositions(data.positions ?? []);
       setTotalLeads(data.totals?.leads ?? 0);
       setTotalCvs(data.totals?.cvs ?? 0);
     }
+    if (branchRes.ok) {
+      const data = await branchRes.json();
+      setBranches(data.branches ?? []);
+    }
   }, []);
 
   useEffect(() => {
-    fetchLeads(1);
-  }, [fetchLeads]);
+    let active = true;
+    (async () => {
+      setLoading(true);
+      const query = filterQuery();
+      query.set("page", "1");
+      query.set("limit", String(PAGE_SIZE));
+
+      const res = await adminFetch(`/api/leads?${query.toString()}`);
+      if (res.ok && active) {
+        const data = await res.json();
+        setLeads(data.leads);
+        setPagination(data.pagination);
+        setFilteredCvs(data.cvCount ?? 0);
+      }
+      if (active) {
+        setLoading(false);
+        setInitialized(true);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [filterQuery]);
 
   useEffect(() => {
-    fetchPositions();
-  }, [fetchPositions]);
+    let active = true;
+    (async () => {
+      const [res, branchRes] = await Promise.all([
+        adminFetch("/api/leads/positions"),
+        adminFetch("/api/leads/branches"),
+      ]);
+      if (res.ok && active) {
+        const data = await res.json();
+        setPositions(data.positions ?? []);
+        setTotalLeads(data.totals?.leads ?? 0);
+        setTotalCvs(data.totals?.cvs ?? 0);
+      }
+      if (branchRes.ok && active) {
+        const data = await branchRes.json();
+        setBranches(data.branches ?? []);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function updateStatus(id: string, status: string) {
     const res = await adminFetch("/api/leads", {
@@ -207,7 +272,8 @@ export default function LeadsManager() {
   async function handleExport() {
     setExporting(true);
     try {
-      const res = await adminFetch("/api/leads/export");
+      const query = filterQuery().toString();
+      const res = await adminFetch(`/api/leads/export${query ? `?${query}` : ""}`);
       if (!res.ok) {
         alert("Failed to export leads. Please try again.");
         return;
@@ -217,7 +283,7 @@ export default function LeadsManager() {
       const link = document.createElement("a");
       const stamp = new Date().toISOString().slice(0, 10);
       link.href = url;
-      link.download = `balitech-leads-${stamp}.csv`;
+      link.download = `balitech-leads${hasFilters ? "-filtered" : ""}-${stamp}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -230,10 +296,8 @@ export default function LeadsManager() {
   async function handleDownloadCvs() {
     setDownloadingCvs(true);
     try {
-      const query = positionFilter
-        ? `?position=${encodeURIComponent(positionFilter)}`
-        : "";
-      const res = await adminFetch(`/api/leads/cvs${query}`);
+      const query = filterQuery().toString();
+      const res = await adminFetch(`/api/leads/cvs${query ? `?${query}` : ""}`);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(data.error || "Failed to download CVs. Please try again.");
@@ -243,9 +307,11 @@ export default function LeadsManager() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       const stamp = new Date().toISOString().slice(0, 10);
-      const slug = positionFilter
-        ? positionFilter.replace(/[^\w]+/g, "-").toLowerCase()
-        : "all-jobs";
+      const slug =
+        [positionFilter, branchFilter]
+          .filter(Boolean)
+          .map((part) => part.replace(/[^\w]+/g, "-").toLowerCase())
+          .join("-") || (hasFilters ? "filtered" : "all-jobs");
       link.href = url;
       link.download = `balitech-cvs-${slug}-${stamp}.zip`;
       document.body.appendChild(link);
@@ -271,10 +337,11 @@ export default function LeadsManager() {
     pagination.total
   );
 
-  const selectedPosition = positions.find((p) => p.value === positionFilter);
-  const selectedCvCount = positionFilter
-    ? (selectedPosition?.cvs ?? 0)
-    : totalCvs;
+  const selectedCvCount = hasFilters ? filteredCvs : totalCvs;
+  const selectionLabel =
+    [positionFilter, branchFilter, queueFilter ? queueLabel(queueFilter) : ""]
+      .filter(Boolean)
+      .join(" · ") || "all jobs";
 
   if (!initialized) {
     return <p className="text-muted">Loading leads...</p>;
@@ -286,25 +353,31 @@ export default function LeadsManager() {
         <div>
           <h2 className="text-2xl font-bold text-foreground">Leads</h2>
           <p className="text-sm text-muted">
-            {positionFilter
-              ? `${pagination.total} of ${totalLeads} inquiries match this job`
+            {hasFilters
+              ? `${pagination.total} of ${totalLeads} inquiries match these filters`
               : `${pagination.total} total inquiries from the website`}
           </p>
         </div>
         <button
           type="button"
           onClick={handleExport}
-          disabled={exporting || totalLeads === 0}
+          disabled={exporting || pagination.total === 0}
           className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
         >
           <Download size={16} />
-          {exporting ? "Preparing..." : "Download Excel"}
+          {exporting
+            ? "Preparing..."
+            : hasFilters
+              ? `Download Excel (${pagination.total})`
+              : "Download Excel"}
         </button>
       </div>
 
       <div className="admin-card glow-border mb-6 rounded-lg bg-card p-4 sm:p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="w-full lg:max-w-sm">
+        {/* One row on desktop: the three filters share the width and the
+            actions sit at the end, aligned to the bottom of the selects. */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto] xl:items-end">
+          <div className="min-w-0">
             <label
               htmlFor="lead-position-filter"
               className="brand-label mb-2 block"
@@ -320,23 +393,34 @@ export default function LeadsManager() {
               <option value="">
                 All jobs ({totalLeads} lead{totalLeads === 1 ? "" : "s"})
               </option>
-              {POSITION_GROUPS.map(({ group, label }) => {
-                const items = positions.filter((p) => (p.group ?? "position") === group);
-                if (items.length === 0) return null;
-                return (
-                  <optgroup key={group} label={label}>
-                    {items.map((p) => (
-                      <option key={p.value} value={p.value}>
-                        {positionOptionLabel(p)}
-                      </option>
-                    ))}
-                  </optgroup>
-                );
-              })}
+              {positions.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {positionOptionLabel(p)}
+                </option>
+              ))}
             </select>
           </div>
 
-          <div className="w-full lg:max-w-xs">
+          <div className="min-w-0">
+            <label htmlFor="lead-branch-filter" className="brand-label mb-2 block">
+              Branch applied
+            </label>
+            <select
+              id="lead-branch-filter"
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+              className="brand-input w-full"
+            >
+              <option value="">All branches</option>
+              {branches.map((b) => (
+                <option key={b.value} value={b.value}>
+                  {branchOptionLabel(b)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="min-w-0">
             <label htmlFor="lead-queue-filter" className="brand-label mb-2 block">
               Review queue
             </label>
@@ -355,29 +439,26 @@ export default function LeadsManager() {
             </select>
           </div>
 
-          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-            {(positionFilter || queueFilter) && (
+          <div className="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-1 xl:flex-nowrap">
+            {hasFilters && (
               <button
                 type="button"
                 onClick={() => {
                   setPositionFilter("");
                   setQueueFilter("");
+                  setBranchFilter("");
                 }}
-                className="rounded-lg border border-foreground/15 px-4 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
+                className="whitespace-nowrap rounded-lg border border-foreground/15 px-4 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
               >
-                Clear filter
+                Clear filters
               </button>
             )}
             <button
               type="button"
               onClick={handleDownloadCvs}
               disabled={downloadingCvs || selectedCvCount === 0}
-              className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
-              title={
-                positionFilter
-                  ? `Download CVs for ${positionFilter}`
-                  : "Download CVs for all jobs"
-              }
+              className="btn-primary inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              title={`Download CVs for ${selectionLabel}`}
             >
               <FileArchive size={16} />
               {downloadingCvs
@@ -391,9 +472,7 @@ export default function LeadsManager() {
             ? "No uploaded CVs available for this selection."
             : `Downloads a ZIP with ${selectedCvCount} CV file${
                 selectedCvCount === 1 ? "" : "s"
-              } only — ${
-                positionFilter ? positionFilter : "all jobs"
-              }. Lead data stays in the Excel export.`}
+              } only — ${selectionLabel}. Lead data stays in the Excel export.`}
         </p>
       </div>
 
@@ -507,8 +586,8 @@ export default function LeadsManager() {
       {pagination.total === 0 ? (
         <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
           <p className="text-muted">
-            {positionFilter
-              ? `No leads found for "${positionFilter}". Try a different job or clear the filter.`
+            {hasFilters
+              ? `No leads match ${selectionLabel}. Try different filters or clear them.`
               : "No leads yet. They will appear here when visitors submit the contact form."}
           </p>
         </div>
@@ -547,7 +626,7 @@ export default function LeadsManager() {
                     <th className="px-3 py-3 font-medium">Name</th>
                     <th className="px-3 py-3 font-medium">Email</th>
                     <th className="px-3 py-3 font-medium">Phone</th>
-                    <th className="px-3 py-3 font-medium">Company</th>
+                    <th className="px-3 py-3 font-medium">Company / Branch</th>
                     <th className="px-3 py-3 font-medium">Job Applied</th>
                     <th className="px-3 py-3 font-medium">Message / Review</th>
                     <th className="px-3 py-3 font-medium">Status</th>
