@@ -12,7 +12,7 @@ This file is the single place for facts about the website: business details, arc
 | Domain | https://balitech.org (`NEXT_PUBLIC_APP_URL` overrides) | `src/lib/seo.ts` |
 | Business | BPO / call center: inbound, outbound, lead gen, customer support | `SITE_DESCRIPTION` in `src/lib/seo.ts` |
 | Founded | April 2022, 7 people, first setup of 40 agents | `src/lib/content.ts` |
-| Headcount | `800+`, written **once** as `EMPLOYEE_COUNT` and reused everywhere | `src/lib/content.ts` |
+| Headcount | `900+`, written **once** as `EMPLOYEE_COUNT` and reused everywhere | `src/lib/content.ts` |
 | Tagline | "Together We Build Success." | `companyContent.tagline` |
 | CEO | Sheraz Bali (`/ceo-muhammad-shiraz-bali.png`) | `companyContent.ceo` |
 | Hours | Monday–Friday · 6:00 PM – 4:00 AM (US-shift operations, "24/5") | `src/lib/fallback-offices.ts` |
@@ -63,6 +63,8 @@ Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): d
 - **API auth:** every mutating/admin API route calls `requireApiAuth(request)` from `src/lib/auth.ts`. It accepts the cookie `balitech_admin_token`, a Bearer JWT, or the static `CRM_API_TOKEN` (32+ chars, for CRM integration). Server pages use `requireAdmin()` from `src/lib/admin.ts`. Client admin code uses `adminFetch` (`src/lib/admin-token.ts`).
 - **After any admin write**, call `refreshPublicPages()` (`src/lib/refresh-public-pages.ts`). Public pages are prerendered and otherwise stay stale until the next deploy. It also refreshes `/sitemap.xml` and `/llms.txt` (route handlers are not covered by the layout refresh), so a newly published blog is in the sitemap at once; the sitemap additionally rebuilds hourly.
 - **Prisma:** import `prisma` from `src/lib/prisma.ts`. With `PRISMA_READONLY=1` (set by `build:live`), every write throws, so build-time code must be read-only.
+- **CV downloads:** the admin "Download New CVs" ZIP includes only leads with `cvDownloadedAt = null` and stamps them once the ZIP has been fully sent, so each download holds only CVs that arrived since the last one. A lead's own page can always fetch its single CV again. The Excel export works the same way with `Lead.exportedAt` ("Download New Leads"), plus a "Download all again" link (`?all=1`) that re-exports everything without marking. Lead status is no longer shown on the Leads list; its column shows each lead's Lead/CV download state instead.
+- **Schema changes need the live DB first.** `deploy:live` never touches the database, so a new column must be added on the live DB *before* deploying code that uses it, or every query on that model fails (this took down lead listing and job applications once).
 - **Careers:** fixed choices (role groups, departments, positions) live in `src/lib/careers/catalog.ts`, shared by the public form, API and admin editor. An application becomes a `Lead` with `referenceId`, an idempotent `submissionKey`, `queue`, and duplicate/employee `flags`.
 - **Media:** large videos are git-ignored (100MB GitHub limit) and hosted separately. Uploaded blog covers go in `public/blogs/`, media in `public/media/`, and CVs in `/uploads/`. All three are git-ignored. Keep masters in `media-src/`.
 

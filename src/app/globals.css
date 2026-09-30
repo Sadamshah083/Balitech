@@ -1734,27 +1734,12 @@ select.brand-input {
 }
 
 .footer-social-board {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1.35rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  column-gap: 2.25rem;
+  row-gap: 1.15rem;
   width: 100%;
-}
-
-.footer-social-board__col {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  flex: 1;
-  min-width: 9.75rem;
-}
-
-.footer-social-board__col--active {
-  align-items: flex-start;
-}
-
-.footer-social-board__col--inactive {
-  align-items: flex-start;
 }
 
 .footer-social-branch {
@@ -1762,10 +1747,15 @@ select.brand-input {
   flex-direction: column;
   gap: 0.6rem;
   width: 100%;
+  min-width: 0;
+  height: 100%;
 }
 
 .footer-social-branch__title {
   margin: 0;
+  /* Two-line slot so every branch title takes the same height, and the icon
+     rows stay level across each grid row (Shamsabad wraps; I-9/3 does not). */
+  min-height: calc(1.35em * 2);
   font-size: 0.68rem;
   font-weight: 700;
   line-height: 1.35;
@@ -1780,6 +1770,7 @@ select.brand-input {
   flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
+  margin-top: auto;
 }
 
 .footer-social-icon {
@@ -1812,7 +1803,7 @@ select.brand-input {
 
 @media (max-width: 639px) {
   .footer-social-board {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 1.25rem;
   }
 }
@@ -1985,6 +1976,46 @@ select.brand-input {
 .admin-shell .admin-surface {
   overflow: hidden;
   border-radius: 0.5rem;
+}
+
+/* Leads table: both scrollbars sit inside the bordered panel, not over rows. */
+.admin-leads-table-scroll {
+  max-height: 70vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--foreground) 35%, transparent)
+    color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.admin-leads-table-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.admin-leads-table-scroll::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.admin-leads-table-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--foreground) 32%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.admin-leads-table-scroll::-webkit-scrollbar-corner {
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.admin-leads-table-scroll table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-leads-table-scroll thead th {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--foreground) 10%, transparent);
 }
 
 .admin-shell .admin-card {
@@ -2659,10 +2690,18 @@ select.brand-input {
 /* ── Blog page hero ── */
 .blog-page {
   --blog-page-max: 76rem;
-  --blog-page-gutter: clamp(1rem, 2.5vw, 2rem);
+  --blog-page-gutter: clamp(0.75rem, 1.5vw, 1.25rem);
   position: relative;
   overflow-x: hidden;
   background: transparent;
+}
+
+/* Open blog post: wider column, tighter side gutters (matches listing feel) */
+.blog-post__container {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: clamp(0.75rem, 1.5vw, 1.25rem);
 }
 
 .blog-page.section-with-net > *:not(.section-animated-net) {

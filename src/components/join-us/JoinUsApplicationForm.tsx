@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { CalendarClock, CheckCircle2, MapPin, Pencil } from "lucide-react";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
@@ -9,7 +8,6 @@ import { getCampaignFromSearch } from "@/lib/apply";
 import { parseCampaignLocations } from "@/lib/campaign-locations";
 import { fetchPublicCampaigns } from "@/lib/campaigns-client";
 import { fallbackOffices } from "@/lib/fallback-offices";
-import { thankYouHref } from "@/lib/thank-you";
 import {
   CAMPAIGN_VACANCIES_LABEL,
   DEPARTMENTS,
@@ -118,7 +116,6 @@ function todayIso() {
 }
 
 export default function JoinUsApplicationForm() {
-  const router = useRouter();
   const uid = useId();
   const fid = (field: string) => `${uid}-${field}`;
   const sectionRef = useRef<HTMLElement>(null);
@@ -390,7 +387,7 @@ export default function JoinUsApplicationForm() {
         setReferenceId(data.referenceId);
         setStatus("success");
         submissionKey.current = newSubmissionKey();
-        router.push(thankYouHref("application", data.referenceId));
+        scrollToTop();
         return;
       }
 

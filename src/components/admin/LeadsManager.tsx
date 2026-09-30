@@ -14,6 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { FLAG_LABELS, QUEUES, parseFlags, queueLabel } from "@/lib/careers/review";
+import { EXPERIENCE_OPTIONS, optionLabel } from "@/lib/careers/catalog";
 
 type Lead = {
   id: string;
@@ -28,6 +29,10 @@ type Lead = {
   referenceId?: string | null;
   queue?: string | null;
   flags?: string | null;
+  details?: string | null;
+  cvPath?: string | null;
+  exportedAt?: string | null;
+  cvDownloadedAt?: string | null;
 };
 
 type Pagination = {
@@ -41,12 +46,10 @@ type PositionOption = {
   value: string;
   leads: number;
   cvs: number;
+  newLeads?: number;
+  newCvs?: number;
   group?: "campaign" | "position";
 };
-
-function positionOptionLabel(p: PositionOption) {
-  return `${p.value} (${p.leads} lead${p.leads === 1 ? "" : "s"} · ${p.cvs} CV${p.cvs === 1 ? "" : "s"})`;
-}
 
 type BranchOption = {
   value: string;
@@ -54,12 +57,17 @@ type BranchOption = {
   cvs: number;
 };
 
-function branchOptionLabel(b: BranchOption) {
-  return `${b.value} (${b.leads} lead${b.leads === 1 ? "" : "s"})`;
+const POSITION_GROUPS = [
+  { group: "campaign", label: "Campaigns" },
+  { group: "position", label: "Positions" },
+] as const;
+
+function positionOptionLabel(p: PositionOption) {
+  return `${p.value} (${p.leads} lead${p.leads === 1 ? "" : "s"} · ${p.cvs} CV${p.cvs === 1 ? "" : "s"})`;
 }
 
 const statusOptions = ["new", "contacted", "converted", "closed"];
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 25;
 
 const emptyForm = {
   name: "",
@@ -81,6 +89,36 @@ function leadPosition(lead: Lead) {
   return lead.position?.trim() || extractPositionFromMessage(lead.message);
 }
 
+function formatDownloadDate(value: string) {
+  return new Date(value).toLocaleDateString();
+}
+
+function leadExperience(lead: Lead) {
+  if (!lead.details) return null;
+  try {
+    const parsed = JSON.parse(lead.details) as {
+      answers?: { experience?: string };
+    };
+    const value = parsed.answers?.experience?.trim();
+    if (!value) return null;
+    return optionLabel(EXPERIENCE_OPTIONS, value) || value;
+  } catch {
+    return null;
+  }
+}
+
+function reviewCellTitle(lead: Lead) {
+  if (!lead.referenceId) return lead.message ?? undefined;
+  const parts = [
+    leadExperience(lead),
+    queueLabel(lead.queue),
+    parseFlags(lead.flags)
+      .map((flag) => FLAG_LABELS[flag] ?? flag)
+      .join(", "),
+  ].filter(Boolean);
+  return parts.join(" · ") || undefined;
+}
+
 export default function LeadsManager() {
   const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -97,125 +135,73 @@ export default function LeadsManager() {
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [positionFilter, setPositionFilter] = useState("");
-  const [queueFilter, setQueueFilter] = useState("");
   const [branchFilter, setBranchFilter] = useState("");
+  const [queueFilter, setQueueFilter] = useState("");
   const [positions, setPositions] = useState<PositionOption[]>([]);
   const [branches, setBranches] = useState<BranchOption[]>([]);
   const [totalLeads, setTotalLeads] = useState(0);
-  const [totalCvs, setTotalCvs] = useState(0);
-  /* CVs among the leads matching the current filters, from the list endpoint. */
-  const [filteredCvs, setFilteredCvs] = useState(0);
+  const [newLeads, setNewLeads] = useState(0);
+  const [newCvs, setNewCvs] = useState(0);
   const [downloadingCvs, setDownloadingCvs] = useState(false);
   const [initialized, setInitialized] = useState(false);
-
-  /** The active filters as query params, shared by the list, CV and Excel requests. */
-  const filterQuery = useCallback(() => {
-    const query = new URLSearchParams();
-    if (positionFilter) query.set("position", positionFilter);
-    if (queueFilter) query.set("queue", queueFilter);
-    if (branchFilter) query.set("branch", branchFilter);
-    return query;
-  }, [positionFilter, queueFilter, branchFilter]);
-
-  const hasFilters = Boolean(positionFilter || queueFilter || branchFilter);
 
   const fetchLeads = useCallback(
     async (page = 1) => {
       setLoading(true);
-      const query = filterQuery();
-      query.set("page", String(page));
-      query.set("limit", String(PAGE_SIZE));
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(PAGE_SIZE),
+      });
+      if (positionFilter) query.set("position", positionFilter);
+      if (branchFilter) query.set("branch", branchFilter);
+      if (queueFilter) query.set("queue", queueFilter);
 
       const res = await adminFetch(`/api/leads?${query.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setLeads(data.leads);
         setPagination(data.pagination);
-        setFilteredCvs(data.cvCount ?? 0);
       }
       setLoading(false);
       setInitialized(true);
     },
-    [filterQuery]
+    [positionFilter, branchFilter, queueFilter]
   );
 
   const fetchPositions = useCallback(async () => {
-    const [res, branchRes] = await Promise.all([
-      adminFetch("/api/leads/positions"),
-      adminFetch("/api/leads/branches"),
-    ]);
+    const query = new URLSearchParams();
+    if (branchFilter) query.set("branch", branchFilter);
+    if (queueFilter) query.set("queue", queueFilter);
+    const qs = query.toString();
+    const res = await adminFetch(`/api/leads/positions${qs ? `?${qs}` : ""}`);
     if (res.ok) {
       const data = await res.json();
       setPositions(data.positions ?? []);
       setTotalLeads(data.totals?.leads ?? 0);
-      setTotalCvs(data.totals?.cvs ?? 0);
+      setNewLeads(data.totals?.newLeads ?? 0);
+      setNewCvs(data.totals?.newCvs ?? 0);
     }
-    if (branchRes.ok) {
-      const data = await branchRes.json();
+  }, [branchFilter, queueFilter]);
+
+  const fetchBranches = useCallback(async () => {
+    const res = await adminFetch("/api/leads/branches");
+    if (res.ok) {
+      const data = await res.json();
       setBranches(data.branches ?? []);
     }
   }, []);
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      setLoading(true);
-      const query = filterQuery();
-      query.set("page", "1");
-      query.set("limit", String(PAGE_SIZE));
-
-      const res = await adminFetch(`/api/leads?${query.toString()}`);
-      if (res.ok && active) {
-        const data = await res.json();
-        setLeads(data.leads);
-        setPagination(data.pagination);
-        setFilteredCvs(data.cvCount ?? 0);
-      }
-      if (active) {
-        setLoading(false);
-        setInitialized(true);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [filterQuery]);
+    fetchLeads(1);
+  }, [fetchLeads]);
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      const [res, branchRes] = await Promise.all([
-        adminFetch("/api/leads/positions"),
-        adminFetch("/api/leads/branches"),
-      ]);
-      if (res.ok && active) {
-        const data = await res.json();
-        setPositions(data.positions ?? []);
-        setTotalLeads(data.totals?.leads ?? 0);
-        setTotalCvs(data.totals?.cvs ?? 0);
-      }
-      if (branchRes.ok && active) {
-        const data = await branchRes.json();
-        setBranches(data.branches ?? []);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
+    fetchPositions();
+  }, [fetchPositions]);
 
-  async function updateStatus(id: string, status: string) {
-    const res = await adminFetch("/api/leads", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    });
-    if (res.ok) {
-      setLeads((prev) =>
-        prev.map((l) => (l.id === id ? { ...l, status } : l))
-      );
-    }
-  }
+  useEffect(() => {
+    fetchBranches();
+  }, [fetchBranches]);
 
   function openEdit(lead: Lead) {
     setEditingLeadId(lead.id);
@@ -269,13 +255,19 @@ export default function LeadsManager() {
     }
   }
 
-  async function handleExport() {
+  async function handleExport(all = false) {
     setExporting(true);
     try {
-      const query = filterQuery().toString();
-      const res = await adminFetch(`/api/leads/export${query ? `?${query}` : ""}`);
+      const query = new URLSearchParams();
+      if (all) query.set("all", "1");
+      if (positionFilter) query.set("position", positionFilter);
+      if (branchFilter) query.set("branch", branchFilter);
+      if (queueFilter) query.set("queue", queueFilter);
+      const qs = query.toString();
+      const res = await adminFetch(`/api/leads/export${qs ? `?${qs}` : ""}`);
       if (!res.ok) {
-        alert("Failed to export leads. Please try again.");
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "Failed to export leads. Please try again.");
         return;
       }
       const blob = await res.blob();
@@ -283,11 +275,12 @@ export default function LeadsManager() {
       const link = document.createElement("a");
       const stamp = new Date().toISOString().slice(0, 10);
       link.href = url;
-      link.download = `balitech-leads${hasFilters ? "-filtered" : ""}-${stamp}.csv`;
+      link.download = `balitech-leads-${all ? "all" : "new"}-${stamp}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      await Promise.all([fetchLeads(pagination.page), fetchPositions()]);
     } finally {
       setExporting(false);
     }
@@ -296,8 +289,12 @@ export default function LeadsManager() {
   async function handleDownloadCvs() {
     setDownloadingCvs(true);
     try {
-      const query = filterQuery().toString();
-      const res = await adminFetch(`/api/leads/cvs${query ? `?${query}` : ""}`);
+      const query = new URLSearchParams();
+      if (positionFilter) query.set("position", positionFilter);
+      if (branchFilter) query.set("branch", branchFilter);
+      if (queueFilter) query.set("queue", queueFilter);
+      const qs = query.toString();
+      const res = await adminFetch(`/api/leads/cvs${qs ? `?${qs}` : ""}`);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(data.error || "Failed to download CVs. Please try again.");
@@ -307,17 +304,16 @@ export default function LeadsManager() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       const stamp = new Date().toISOString().slice(0, 10);
-      const slug =
-        [positionFilter, branchFilter]
-          .filter(Boolean)
-          .map((part) => part.replace(/[^\w]+/g, "-").toLowerCase())
-          .join("-") || (hasFilters ? "filtered" : "all-jobs");
+      const slug = positionFilter
+        ? positionFilter.replace(/[^\w]+/g, "-").toLowerCase()
+        : "all-jobs";
       link.href = url;
-      link.download = `balitech-cvs-${slug}-${stamp}.zip`;
+      link.download = `balitech-cvs-new-${slug}-${stamp}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      await Promise.all([fetchLeads(pagination.page), fetchPositions(), fetchBranches()]);
     } finally {
       setDownloadingCvs(false);
     }
@@ -337,11 +333,13 @@ export default function LeadsManager() {
     pagination.total
   );
 
-  const selectedCvCount = hasFilters ? filteredCvs : totalCvs;
-  const selectionLabel =
-    [positionFilter, branchFilter, queueFilter ? queueLabel(queueFilter) : ""]
-      .filter(Boolean)
-      .join(" · ") || "all jobs";
+  const selectedPosition = positions.find((p) => p.value === positionFilter);
+  const selectedNewCvs = positionFilter
+    ? (selectedPosition?.newCvs ?? 0)
+    : newCvs;
+  const selectedNewLeads = positionFilter
+    ? (selectedPosition?.newLeads ?? 0)
+    : newLeads;
 
   if (!initialized) {
     return <p className="text-muted">Loading leads...</p>;
@@ -349,35 +347,41 @@ export default function LeadsManager() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Leads</h2>
           <p className="text-sm text-muted">
-            {hasFilters
+            {positionFilter || branchFilter || queueFilter
               ? `${pagination.total} of ${totalLeads} inquiries match these filters`
               : `${pagination.total} total inquiries from the website`}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={exporting || pagination.total === 0}
-          className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
-        >
-          <Download size={16} />
-          {exporting
-            ? "Preparing..."
-            : hasFilters
-              ? `Download Excel (${pagination.total})`
-              : "Download Excel"}
-        </button>
+        <div className="flex flex-col items-end gap-1">
+          <button
+            type="button"
+            onClick={() => handleExport(false)}
+            disabled={exporting || selectedNewLeads === 0}
+            className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
+          >
+            <Download size={16} />
+            {exporting
+              ? "Preparing..."
+              : `Download New Leads (${selectedNewLeads})`}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleExport(true)}
+            disabled={exporting || totalLeads === 0}
+            className="text-sm text-sky-400 transition hover:text-sky-300 disabled:opacity-40"
+          >
+            Download all again
+          </button>
+        </div>
       </div>
 
       <div className="admin-card glow-border mb-6 rounded-lg bg-card p-4 sm:p-5">
-        {/* One row on desktop: the three filters share the width and the
-            actions sit at the end, aligned to the bottom of the selects. */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto] xl:items-end">
-          <div className="min-w-0">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="w-full lg:max-w-sm">
             <label
               htmlFor="lead-position-filter"
               className="brand-label mb-2 block"
@@ -393,15 +397,23 @@ export default function LeadsManager() {
               <option value="">
                 All jobs ({totalLeads} lead{totalLeads === 1 ? "" : "s"})
               </option>
-              {positions.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {positionOptionLabel(p)}
-                </option>
-              ))}
+              {POSITION_GROUPS.map(({ group, label }) => {
+                const items = positions.filter((p) => (p.group ?? "position") === group);
+                if (items.length === 0) return null;
+                return (
+                  <optgroup key={group} label={label}>
+                    {items.map((p) => (
+                      <option key={p.value} value={p.value}>
+                        {positionOptionLabel(p)}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
             </select>
           </div>
 
-          <div className="min-w-0">
+          <div className="w-full lg:max-w-xs">
             <label htmlFor="lead-branch-filter" className="brand-label mb-2 block">
               Branch applied
             </label>
@@ -412,15 +424,15 @@ export default function LeadsManager() {
               className="brand-input w-full"
             >
               <option value="">All branches</option>
-              {branches.map((b) => (
-                <option key={b.value} value={b.value}>
-                  {branchOptionLabel(b)}
+              {branches.map((branch) => (
+                <option key={branch.value} value={branch.value}>
+                  {branch.value} ({branch.leads})
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="min-w-0">
+          <div className="w-full lg:max-w-xs">
             <label htmlFor="lead-queue-filter" className="brand-label mb-2 block">
               Review queue
             </label>
@@ -439,40 +451,44 @@ export default function LeadsManager() {
             </select>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-1 xl:flex-nowrap">
-            {hasFilters && (
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+            {(positionFilter || branchFilter || queueFilter) && (
               <button
                 type="button"
                 onClick={() => {
                   setPositionFilter("");
-                  setQueueFilter("");
                   setBranchFilter("");
+                  setQueueFilter("");
                 }}
-                className="whitespace-nowrap rounded-lg border border-foreground/15 px-4 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
+                className="rounded-lg border border-foreground/15 px-4 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
               >
-                Clear filters
+                Clear filter
               </button>
             )}
             <button
               type="button"
               onClick={handleDownloadCvs}
-              disabled={downloadingCvs || selectedCvCount === 0}
-              className="btn-primary inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
-              title={`Download CVs for ${selectionLabel}`}
+              disabled={downloadingCvs || selectedNewCvs === 0}
+              className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
+              title={
+                positionFilter
+                  ? `Download new CVs for ${positionFilter}`
+                  : "Download new CVs for all jobs"
+              }
             >
               <FileArchive size={16} />
               {downloadingCvs
                 ? "Zipping..."
-                : `Download CVs (${selectedCvCount})`}
+                : `Download New CVs (${selectedNewCvs})`}
             </button>
           </div>
         </div>
         <p className="mt-3 text-xs text-muted">
-          {selectedCvCount === 0
-            ? "No uploaded CVs available for this selection."
-            : `Downloads a ZIP with ${selectedCvCount} CV file${
-                selectedCvCount === 1 ? "" : "s"
-              } only — ${selectionLabel}. Lead data stays in the Excel export.`}
+          {selectedNewCvs === 0
+            ? "No new CVs available for this selection."
+            : `Downloads a ZIP with the ${selectedNewCvs} new CV${
+                selectedNewCvs === 1 ? "" : "s"
+              }${positionFilter ? ` for ${positionFilter}` : " for all jobs"}. CVs already downloaded are left out, and these will be marked as downloaded.`}
         </p>
       </div>
 
@@ -586,42 +602,31 @@ export default function LeadsManager() {
       {pagination.total === 0 ? (
         <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
           <p className="text-muted">
-            {hasFilters
-              ? `No leads match ${selectionLabel}. Try different filters or clear them.`
+            {positionFilter
+              ? `No leads found for "${positionFilter}". Try a different job or clear the filter.`
               : "No leads yet. They will appear here when visitors submit the contact form."}
           </p>
         </div>
       ) : (
         <>
           <div className="admin-surface border border-foreground/10">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1040px] table-fixed text-left text-sm">
-                {/* Fixed layout, because the widths cannot be left to the
-                    content: applicants paste the office address into Company,
-                    and a single 90-character value wrapped to eleven lines and
-                    set the height of the whole row. Every cell below is one
-                    line and clipped, so rows stay uniform however long a value
-                    is, and the full text is on the lead's own page.
-
-                    The shares are set so that the values that have to be read
-                    in full are not the ones that get clipped: a phone number, a
-                    status control and a date each get enough room at the
-                    minimum width, and the slack comes out of email, company and
-                    message, which are the ones a reader scans rather than
-                    reads. */}
+            <div className="admin-leads-table-scroll">
+              <table className="w-full min-w-[1180px] table-fixed text-left text-sm">
+                {/* Fixed layout keeps row height stable. Message / Review is
+                    given more width and may wrap so experience and flags stay
+                    readable; both scrollbars stay inside this panel. */}
                 <colgroup>
-                  <col className="w-[10%]" />
+                  <col className="w-[11%]" />
                   <col className="w-[12%]" />
-                  {/* 13% because a +92 number needs every pixel of it. */}
-                  <col className="w-[13%]" />
                   <col className="w-[12%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[12%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[6%]" />
                 </colgroup>
-                <thead className="bg-card text-muted">
+                <thead className="sticky top-0 z-10 bg-card text-muted">
                   <tr>
                     <th className="px-3 py-3 font-medium">Name</th>
                     <th className="px-3 py-3 font-medium">Email</th>
@@ -629,7 +634,7 @@ export default function LeadsManager() {
                     <th className="px-3 py-3 font-medium">Company / Branch</th>
                     <th className="px-3 py-3 font-medium">Job Applied</th>
                     <th className="px-3 py-3 font-medium">Message / Review</th>
-                    <th className="px-3 py-3 font-medium">Status</th>
+                    <th className="px-3 py-3 font-medium">Downloaded</th>
                     <th className="px-3 py-3 font-medium">Date</th>
                     <th className="px-2 py-3 font-medium text-center">Actions</th>
                   </tr>
@@ -698,42 +703,64 @@ export default function LeadsManager() {
                           {leadPosition(lead) ?? "—"}
                         </td>
                         {lead.referenceId ? (
-                          <td className="px-3 py-3 text-muted">
-                            <span className="block truncate text-xs">{queueLabel(lead.queue)}</span>
-                            {parseFlags(lead.flags).map((flag) => (
-                              <span
-                                key={flag}
-                                className="mr-1 mt-1 inline-block rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange"
-                              >
-                                {FLAG_LABELS[flag] ?? flag}
+                          <td
+                            className="px-3 py-3 text-muted align-top"
+                            title={reviewCellTitle(lead)}
+                          >
+                            {leadExperience(lead) ? (
+                              <span className="block text-sm leading-snug text-foreground">
+                                {leadExperience(lead)}
                               </span>
-                            ))}
+                            ) : null}
+                            <span className="mt-0.5 block text-xs leading-snug">
+                              {queueLabel(lead.queue) || "Recruitment"}
+                            </span>
+                            {parseFlags(lead.flags).length > 0 && (
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {parseFlags(lead.flags).map((flag) => (
+                                  <span
+                                    key={flag}
+                                    className="inline-block rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange"
+                                  >
+                                    {FLAG_LABELS[flag] ?? flag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </td>
                         ) : (
                           <td
-                            className="truncate px-3 py-3 text-muted"
+                            className="px-3 py-3 text-muted align-top"
                             title={lead.message ?? undefined}
                           >
-                            {lead.message ?? "—"}
+                            <span className="line-clamp-3 whitespace-pre-wrap break-words text-sm leading-snug">
+                              {lead.message ?? "—"}
+                            </span>
                           </td>
                         )}
-                        <td
-                          className="px-3 py-3"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <select
-                            value={lead.status}
-                            onChange={(e) =>
-                              updateStatus(lead.id, e.target.value)
-                            }
-                            className="brand-input w-full px-2 py-1"
-                          >
-                            {statusOptions.map((s) => (
-                              <option key={s} value={s}>
-                                {s}
-                              </option>
-                            ))}
-                          </select>
+                        <td className="px-3 py-3">
+                          <div className="flex flex-col gap-1">
+                            {lead.exportedAt ? (
+                              <span className="text-xs text-muted">
+                                Lead ✓ {formatDownloadDate(lead.exportedAt)}
+                              </span>
+                            ) : (
+                              <span className="inline-flex w-fit rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange">
+                                New Lead
+                              </span>
+                            )}
+                            {lead.cvPath ? (
+                              lead.cvDownloadedAt ? (
+                                <span className="text-xs text-muted">
+                                  CV ✓ {formatDownloadDate(lead.cvDownloadedAt)}
+                                </span>
+                              ) : (
+                                <span className="inline-flex w-fit rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange">
+                                  New CV
+                                </span>
+                              )
+                            ) : null}
+                          </div>
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-muted">
                           {new Date(lead.createdAt).toLocaleDateString()}

@@ -108,9 +108,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
           },
         }}
       />
-      <article className="section-gradient section-with-net pb-12 pt-24 sm:pb-16">
+      <article className="section-gradient section-with-net py-24">
         <SectionAnimatedNet />
-        <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-6">
+        <div className="blog-post__container">
           <Link
             href="/blog"
             className="text-sm font-bold uppercase tracking-wider text-orange hover:underline"
@@ -118,17 +118,13 @@ export default async function BlogDetailPage({ params }: PageProps) {
             ← Back to Blog
           </Link>
 
-          <p className="brand-label mt-6">{formatBlogDate(blog.createdAt)}</p>
+          <p className="brand-label mt-8">{formatBlogDate(blog.createdAt)}</p>
           <h1 className="mt-3 text-3xl font-black uppercase tracking-tight text-foreground sm:text-4xl md:text-5xl">
             {blog.title}
           </h1>
 
-          {/* Tags are SEO keywords: they go into the page metadata and the
-              BlogPosting schema above, and are managed in the admin, but are
-              not shown to readers. */}
-
           {blog.image && (
-            <div className="relative mt-6 aspect-[4/3] overflow-hidden rounded-2xl glow-border sm:aspect-[16/9] sm:rounded-3xl">
+            <div className="relative mt-8 aspect-[16/9] min-h-[18rem] overflow-hidden rounded-3xl glow-border sm:min-h-[24rem]">
               <Image
                 src={blog.image}
                 alt={blog.title}
@@ -136,24 +132,24 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 priority
                 unoptimized={blog.image.startsWith("/blogs/") || blog.image.startsWith("/uploads/")}
                 className="object-cover"
-                sizes="(max-width: 1280px) 100vw, 1280px"
+                sizes="(max-width: 1216px) 100vw, 72rem"
               />
             </div>
           )}
 
           {blog.excerpt && (
-            <p className="mt-6 text-lg font-medium leading-relaxed text-foreground/90">
+            <p className="mt-8 text-lg font-medium leading-relaxed text-foreground/90">
               {blog.excerpt}
             </p>
           )}
 
           <div
-            className="prose-blog mt-5"
+            className="prose-blog mt-8"
             dangerouslySetInnerHTML={{ __html: html }}
           />
 
           <aside
-            className="mt-10 rounded-2xl border border-foreground/10 bg-background/40 p-5 sm:p-6"
+            className="mt-14 rounded-2xl border border-foreground/10 bg-background/40 p-6"
             aria-labelledby="blog-related-services"
           >
             <h2 id="blog-related-services" className="text-lg font-bold text-foreground">

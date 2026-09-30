@@ -443,7 +443,7 @@ export default function VacanciesManager() {
               </label>
             </div>
             <p className="admin-branch-picker__hint">
-              Applicants choose from these branches.
+              Applicants choose from these branches or &ldquo;Any suitable branch&rdquo;.
             </p>
           </fieldset>
 

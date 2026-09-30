@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BrandArcs, BrandBubbles } from "@/components/brand/BrandDecorations";
@@ -52,11 +51,9 @@ export default function AdminLoginPage() {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="mb-8 text-center flex flex-col items-center">
-          <Image
+          <img
             src="/bali-tech-logo.png"
             alt="BaliTech Logo"
-            width={180}
-            height={48}
             className="h-12 w-auto object-contain mb-4"
           />
           <p className="brand-label mb-2">Admin Panel</p>

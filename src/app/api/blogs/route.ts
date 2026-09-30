@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
-import { blogFieldError, uniqueBlogSlug } from "@/lib/blog-server";
+import { slugify } from "@/lib/blog";
 import { fallbackBlogs } from "@/lib/fallback-blogs";
 
 export async function GET(request: Request) {
@@ -76,12 +76,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const fieldError = blogFieldError({ title, content, excerpt, image, tags });
-    if (fieldError) {
-      return NextResponse.json({ error: fieldError }, { status: 400 });
-    }
-
-    const finalSlug = await uniqueBlogSlug(slug, String(title));
+    const finalSlug = slug?.trim() || slugify(String(title));
 
     const blog = await prisma.blog.create({
       data: {
@@ -103,10 +98,9 @@ export async function POST(request: Request) {
 
     refreshPublicPages();
     return NextResponse.json({ blog }, { status: 201 });
-  } catch (error) {
-    console.error("[blogs] create failed:", error);
+  } catch {
     return NextResponse.json(
-      { error: "The blog could not be saved. Please try again." },
+      { error: "Failed to create blog. Slug may already exist." },
       { status: 500 }
     );
   }

@@ -14,7 +14,13 @@ export async function GET(request: Request) {
 
   const [leads, offices] = await Promise.all([
     prisma.lead.findMany({
-      select: { referenceId: true, company: true, message: true, cvPath: true },
+      select: {
+        referenceId: true,
+        company: true,
+        message: true,
+        cvPath: true,
+        cvDownloadedAt: true,
+      },
     }),
     prisma.office.findMany({
       where: { isActive: true },
@@ -28,7 +34,7 @@ export async function GET(request: Request) {
     return {
       value: office.name,
       leads: matching.length,
-      cvs: matching.filter((lead) => lead.cvPath).length,
+      cvs: matching.filter((lead) => lead.cvPath && !lead.cvDownloadedAt).length,
     };
   });
 

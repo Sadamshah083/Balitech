@@ -195,14 +195,10 @@ export default async function Footer() {
         <div className="footer-social-section sm:col-span-2 lg:col-span-1">
           <h2 className="mb-4 font-bold text-foreground">Follow Us</h2>
           <div className="footer-social-board">
-            <div className="footer-social-board__col footer-social-board__col--active">
-              <SocialBranchBlock branch={getBranch("Commercial Branch")} />
-              <SocialBranchBlock branch={getBranch("Shamsabad Branch")} />
-            </div>
-            <div className="footer-social-board__col footer-social-board__col--inactive">
-              <SocialBranchBlock branch={getBranch("Iran Road Branch")} />
-              <SocialBranchBlock branch={getBranch("I-9/3 Branch")} />
-            </div>
+            <SocialBranchBlock branch={getBranch("Commercial Branch")} />
+            <SocialBranchBlock branch={getBranch("Iran Road Branch")} />
+            <SocialBranchBlock branch={getBranch("Shamsabad Branch")} />
+            <SocialBranchBlock branch={getBranch("I-9/3 Branch")} />
           </div>
         </div>
       </div>

@@ -116,9 +116,3 @@ scripts/zip_app.js
 /.tmp-shots/
 /tmp/
 /scripts/_shots/
-
-# Contain hardcoded server passwords; keep local only. Credentials belong in
-# BALITECH_SSH_* env vars.
-scripts/deploy-config.js
-scripts/deploy_new.js
-scripts/test_ssh.js

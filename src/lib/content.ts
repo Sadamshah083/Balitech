@@ -2,7 +2,7 @@
    metrics counter, the site meta description, and a dozen sentences of prose,
    so it is written once here — the count-up in Metrics.tsx parses the digits
    off it rather than hardcoding a target. */
-const EMPLOYEE_COUNT = "800+";
+const EMPLOYEE_COUNT = "900+";
 
 /** The same figure without the "+", for prose like "an 800-person team". */
 const EMPLOYEE_COUNT_PLAIN = EMPLOYEE_COUNT.replace("+", "");
@@ -655,12 +655,12 @@ export const companyContent = {
         links: [
           {
             platform: "instagram",
-            href: "",
+            href: "https://www.instagram.com/balitech.iran.rd/",
             label: "Iran Road Branch on Instagram",
           },
           {
             platform: "facebook",
-            href: "",
+            href: "https://www.facebook.com/people/Balitech-Iran-Rd/61569259733646/",
             label: "Iran Road Branch on Facebook",
           },
           {
@@ -675,12 +675,12 @@ export const companyContent = {
         links: [
           {
             platform: "instagram",
-            href: "",
+            href: "https://www.instagram.com/balitechi9/",
             label: "I-9/3 Branch on Instagram",
           },
           {
             platform: "facebook",
-            href: "",
+            href: "https://www.facebook.com/p/Bali-Tech-I-9-61593950835202/",
             label: "I-9/3 Branch on Facebook",
           },
           {

@@ -6,7 +6,7 @@ import { MAX_CV_BYTES, resolveCvAbsolutePath, saveLeadCv } from "@/lib/cv-upload
 import { buildLeadWhere } from "@/lib/lead-filters";
 import { extractPositionFromMessage } from "@/lib/lead-position";
 
-const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 50;
 
 export async function GET(request: Request) {
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit;
   const where = buildLeadWhere(url.searchParams);
 
-  const [leads, total, cvCount] = await Promise.all([
+  const [leads, total] = await Promise.all([
     prisma.lead.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -43,12 +43,12 @@ export async function GET(request: Request) {
         referenceId: true,
         queue: true,
         flags: true,
+        details: true,
+        exportedAt: true,
+        cvDownloadedAt: true,
       },
     }),
     prisma.lead.count({ where }),
-    /* CVs among the filtered leads, so the admin CV download can say how many
-       files its ZIP will hold for exactly this selection. */
-    prisma.lead.count({ where: { AND: [where, { NOT: { cvPath: null } }] } }),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -61,7 +61,6 @@ export async function GET(request: Request) {
       total,
       totalPages,
     },
-    cvCount,
   });
 }
 

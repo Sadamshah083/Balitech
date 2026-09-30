@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
-import { resolveLeadBranch } from "@/lib/lead-branch";
-import { buildLeadWhere } from "@/lib/lead-filters";
 import { resolveLeadPosition } from "@/lib/lead-position";
+import { buildLeadWhere } from "@/lib/lead-filters";
 import { FLAG_LABELS, parseFlags, queueLabel } from "@/lib/careers/review";
 import { NextResponse } from "next/server";
 
@@ -27,11 +26,21 @@ export async function GET(request: Request) {
   const auth = await requireApiAuth(request);
   if (auth.response) return auth.response;
 
-  /* Follows the filters on the Leads page; with none set it is every lead. */
+  const url = new URL(request.url);
+  const exportAll = url.searchParams.get("all") === "1";
+  const filters = buildLeadWhere(url.searchParams);
+
   const leads = await prisma.lead.findMany({
-    where: buildLeadWhere(new URL(request.url).searchParams),
+    where: exportAll ? filters : { AND: [filters, { exportedAt: null }] },
     orderBy: { createdAt: "desc" },
   });
+
+  if (!exportAll && leads.length === 0) {
+    return NextResponse.json(
+      { error: "No new leads to download. Use “Download all again” for the full list." },
+      { status: 404 }
+    );
+  }
 
   const headers = [
     "S.No",
@@ -39,7 +48,6 @@ export async function GET(request: Request) {
     "Email",
     "Phone",
     "Company",
-    "Branch",
     "Job Applied",
     "Message",
     "CV File",
@@ -56,7 +64,6 @@ export async function GET(request: Request) {
     lead.email,
     lead.phone ?? "",
     lead.company ?? "",
-    resolveLeadBranch(lead) ?? "",
     resolveLeadPosition(lead) ?? "",
     lead.message ?? "",
     lead.cvFileName ?? "",
@@ -75,18 +82,27 @@ export async function GET(request: Request) {
       .map((row) => row.map(csvEscape).join(","))
       .join("\r\n");
 
+  if (!exportAll && leads.length > 0) {
+    await prisma.lead.updateMany({
+      where: { id: { in: leads.map((lead) => lead.id) } },
+      data: { exportedAt: new Date() },
+    });
+  }
+
   const now = new Date();
   const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
     2,
     "0"
   )}-${String(now.getDate()).padStart(2, "0")}`;
+  const kind = exportAll ? "all" : "new";
 
   return new NextResponse(csv, {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="balitech-leads-${stamp}.csv"`,
+      "Content-Disposition": `attachment; filename="balitech-leads-${kind}-${stamp}.csv"`,
       "Cache-Control": "no-store",
+      "X-Lead-Count": String(leads.length),
     },
   });
 }

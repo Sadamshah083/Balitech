@@ -48,7 +48,7 @@ export function pageMetadata({
     openGraph: {
       type: "website",
       url,
-      siteName: SITE_LEGAL_NAME,
+      siteName: SITE_NAME,
       title: socialTitle,
       description,
       locale: SITE_LOCALE,

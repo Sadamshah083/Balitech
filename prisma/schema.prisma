@@ -45,6 +45,10 @@ model Lead {
   details       String? @db.Text
   // JSON: { channel, campaign, adId, medium, landing, heardAbout, referrer }
   source        String? @db.Text
+  // Set when "Download New Leads" includes this row; null means still new.
+  exportedAt      DateTime?
+  // Set when "Download New CVs" includes this CV; null means still new.
+  cvDownloadedAt  DateTime?
 }
 
 // A role HR is currently hiring for. Only active rows are listed on the careers

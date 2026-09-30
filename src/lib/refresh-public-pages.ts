@@ -6,9 +6,9 @@ import { revalidatePath } from "next/cache";
  * Marks every page under the root layout stale; each one re-renders from the
  * live database on its next visit.
  *
- * The sitemap and llms.txt are route handlers, not pages, so the layout
- * refresh does not reach them. They are named here so a newly published blog
- * is listed for search engines straight away, not only after a rebuild.
+ * `/sitemap.xml` and `/llms.txt` are route handlers, not layout children, so
+ * they need their own revalidatePath calls — otherwise a newly published blog
+ * stays missing from both until the next deploy or the hourly rebuild.
  */
 export function refreshPublicPages() {
   revalidatePath("/", "layout");

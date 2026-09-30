@@ -92,7 +92,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    siteName: SITE_LEGAL_NAME,
+    siteName: SITE_NAME,
     title: `${SITE_NAME} | Professional BPO & Call Center Services in Pakistan`,
     description: SITE_DESCRIPTION,
     locale: SITE_LOCALE,
@@ -111,10 +111,17 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [DEFAULT_OG_IMAGE],
   },
-  /* `src/app/favicon.ico` and `src/app/icon.png` emit their own links;
-     declaring /favicon.ico here as well made browsers fetch it twice. */
+  /* Next also emits /favicon.ico and /icon from app/favicon.ico + app/icon.png.
+     Public copies at 48/192/512px are what Google Search prefers to pick up. */
   icons: {
-    apple: "/bali-tech-logo.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
   },
 };
 
@@ -125,7 +132,13 @@ function buildJsonLd() {
     name: SITE_LEGAL_NAME,
     alternateName: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}${DEFAULT_OG_IMAGE}`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/icon-512.png`,
+      width: 512,
+      height: 512,
+    },
+    image: `${SITE_URL}/icon-512.png`,
     description: SITE_DESCRIPTION,
     slogan: companyContent.tagline,
     foundingDate: "2022-04",
@@ -166,12 +179,20 @@ function buildJsonLd() {
   const website = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: SITE_LEGAL_NAME,
+    name: SITE_NAME,
+    alternateName: SITE_LEGAL_NAME,
     url: SITE_URL,
     inLanguage: "en",
     publisher: {
       "@type": "Organization",
-      name: SITE_LEGAL_NAME,
+      name: SITE_NAME,
+      legalName: SITE_LEGAL_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/icon-512.png`,
+        width: 512,
+        height: 512,
+      },
     },
   };
 
