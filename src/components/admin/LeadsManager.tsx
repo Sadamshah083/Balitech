@@ -11,10 +11,12 @@ import {
   Eye,
   FileArchive,
   Pencil,
+  Search,
   Trash2,
 } from "lucide-react";
-import { FLAG_LABELS, QUEUES, parseFlags, queueLabel } from "@/lib/careers/review";
+import { FLAG_LABELS, parseFlags, queueLabel } from "@/lib/careers/review";
 import { EXPERIENCE_OPTIONS, optionLabel } from "@/lib/careers/catalog";
+import { officeCodeFromBranch } from "@/lib/application-reference";
 
 type Lead = {
   id: string;
@@ -136,7 +138,8 @@ export default function LeadsManager() {
   const [exporting, setExporting] = useState(false);
   const [positionFilter, setPositionFilter] = useState("");
   const [branchFilter, setBranchFilter] = useState("");
-  const [queueFilter, setQueueFilter] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [positions, setPositions] = useState<PositionOption[]>([]);
   const [branches, setBranches] = useState<BranchOption[]>([]);
   const [totalLeads, setTotalLeads] = useState(0);
@@ -154,7 +157,7 @@ export default function LeadsManager() {
       });
       if (positionFilter) query.set("position", positionFilter);
       if (branchFilter) query.set("branch", branchFilter);
-      if (queueFilter) query.set("queue", queueFilter);
+      if (searchQuery) query.set("q", searchQuery);
 
       const res = await adminFetch(`/api/leads?${query.toString()}`);
       if (res.ok) {
@@ -165,13 +168,13 @@ export default function LeadsManager() {
       setLoading(false);
       setInitialized(true);
     },
-    [positionFilter, branchFilter, queueFilter]
+    [positionFilter, branchFilter, searchQuery]
   );
 
   const fetchPositions = useCallback(async () => {
     const query = new URLSearchParams();
     if (branchFilter) query.set("branch", branchFilter);
-    if (queueFilter) query.set("queue", queueFilter);
+    if (searchQuery) query.set("q", searchQuery);
     const qs = query.toString();
     const res = await adminFetch(`/api/leads/positions${qs ? `?${qs}` : ""}`);
     if (res.ok) {
@@ -181,7 +184,7 @@ export default function LeadsManager() {
       setNewLeads(data.totals?.newLeads ?? 0);
       setNewCvs(data.totals?.newCvs ?? 0);
     }
-  }, [branchFilter, queueFilter]);
+  }, [branchFilter, searchQuery]);
 
   const fetchBranches = useCallback(async () => {
     const res = await adminFetch("/api/leads/branches");
@@ -202,6 +205,14 @@ export default function LeadsManager() {
   useEffect(() => {
     fetchBranches();
   }, [fetchBranches]);
+
+  /* Debounce search so typing filters without a Search button. */
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+    }, 350);
+    return () => window.clearTimeout(handle);
+  }, [searchInput]);
 
   function openEdit(lead: Lead) {
     setEditingLeadId(lead.id);
@@ -262,7 +273,7 @@ export default function LeadsManager() {
       if (all) query.set("all", "1");
       if (positionFilter) query.set("position", positionFilter);
       if (branchFilter) query.set("branch", branchFilter);
-      if (queueFilter) query.set("queue", queueFilter);
+      if (searchQuery) query.set("q", searchQuery);
       const qs = query.toString();
       const res = await adminFetch(`/api/leads/export${qs ? `?${qs}` : ""}`);
       if (!res.ok) {
@@ -292,7 +303,7 @@ export default function LeadsManager() {
       const query = new URLSearchParams();
       if (positionFilter) query.set("position", positionFilter);
       if (branchFilter) query.set("branch", branchFilter);
-      if (queueFilter) query.set("queue", queueFilter);
+      if (searchQuery) query.set("q", searchQuery);
       const qs = query.toString();
       const res = await adminFetch(`/api/leads/cvs${qs ? `?${qs}` : ""}`);
       if (!res.ok) {
@@ -347,149 +358,130 @@ export default function LeadsManager() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Leads</h2>
-          <p className="text-sm text-muted">
-            {positionFilter || branchFilter || queueFilter
-              ? `${pagination.total} of ${totalLeads} inquiries match these filters`
-              : `${pagination.total} total inquiries from the website`}
+      <div className="admin-leads-toolbar">
+        <div className="admin-leads-toolbar__title">
+          <h2>Leads</h2>
+          <p>
+            {positionFilter || branchFilter || searchQuery
+              ? `${pagination.total} of ${totalLeads} match`
+              : `${pagination.total} total`}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1">
+
+        <div className="admin-leads-toolbar__search">
+          <label htmlFor="lead-search" className="brand-label mb-1 block">
+            Search
+          </label>
+          <div className="admin-lead-search-wrap">
+            <Search size={16} strokeWidth={2.25} aria-hidden />
+            <input
+              id="lead-search"
+              type="search"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Name, email, reference, COM / ISM…"
+              className="brand-input w-full"
+              autoComplete="off"
+            />
+          </div>
+        </div>
+
+        <div className="admin-leads-toolbar__select">
+          <label htmlFor="lead-position-filter" className="brand-label mb-1 block">
+            Job
+          </label>
+          <select
+            id="lead-position-filter"
+            value={positionFilter}
+            onChange={(e) => setPositionFilter(e.target.value)}
+            className="brand-input w-full"
+          >
+            <option value="">All jobs ({totalLeads})</option>
+            {POSITION_GROUPS.map(({ group, label }) => {
+              const items = positions.filter((p) => (p.group ?? "position") === group);
+              if (items.length === 0) return null;
+              return (
+                <optgroup key={group} label={label}>
+                  {items.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {positionOptionLabel(p)}
+                    </option>
+                  ))}
+                </optgroup>
+              );
+            })}
+          </select>
+        </div>
+
+        <div className="admin-leads-toolbar__select">
+          <label htmlFor="lead-branch-filter" className="brand-label mb-1 block">
+            Branch
+          </label>
+          <select
+            id="lead-branch-filter"
+            value={branchFilter}
+            onChange={(e) => setBranchFilter(e.target.value)}
+            className="brand-input w-full"
+          >
+            <option value="">All branches</option>
+            {branches.map((branch) => {
+              const code = officeCodeFromBranch(branch.value);
+              return (
+                <option key={branch.value} value={branch.value}>
+                  {branch.value} ({code} · {branch.leads})
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        <div className="admin-leads-toolbar__actions">
+          {(positionFilter || branchFilter || searchQuery) && (
+            <button
+              type="button"
+              onClick={() => {
+                setPositionFilter("");
+                setBranchFilter("");
+                setSearchInput("");
+                setSearchQuery("");
+              }}
+              className="rounded-lg border border-foreground/15 px-3 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
+            >
+              Clear
+            </button>
+          )}
           <button
             type="button"
             onClick={() => handleExport(false)}
             disabled={exporting || selectedNewLeads === 0}
-            className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
+            className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-60"
           >
-            <Download size={16} />
-            {exporting
-              ? "Preparing..."
-              : `Download New Leads (${selectedNewLeads})`}
+            <Download size={15} />
+            {exporting ? "…" : `Leads (${selectedNewLeads})`}
+          </button>
+          <button
+            type="button"
+            onClick={handleDownloadCvs}
+            disabled={downloadingCvs || selectedNewCvs === 0}
+            className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-60"
+            title={
+              positionFilter
+                ? `Download new CVs for ${positionFilter}`
+                : "Download new CVs for all jobs"
+            }
+          >
+            <FileArchive size={15} />
+            {downloadingCvs ? "…" : `CVs (${selectedNewCvs})`}
           </button>
           <button
             type="button"
             onClick={() => handleExport(true)}
             disabled={exporting || totalLeads === 0}
-            className="text-sm text-sky-400 transition hover:text-sky-300 disabled:opacity-40"
+            className="text-xs text-sky-400 transition hover:text-sky-300 disabled:opacity-40"
           >
-            Download all again
+            All again
           </button>
         </div>
-      </div>
-
-      <div className="admin-card glow-border mb-6 rounded-lg bg-card p-4 sm:p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="w-full lg:max-w-sm">
-            <label
-              htmlFor="lead-position-filter"
-              className="brand-label mb-2 block"
-            >
-              Filter by job applied
-            </label>
-            <select
-              id="lead-position-filter"
-              value={positionFilter}
-              onChange={(e) => setPositionFilter(e.target.value)}
-              className="brand-input w-full"
-            >
-              <option value="">
-                All jobs ({totalLeads} lead{totalLeads === 1 ? "" : "s"})
-              </option>
-              {POSITION_GROUPS.map(({ group, label }) => {
-                const items = positions.filter((p) => (p.group ?? "position") === group);
-                if (items.length === 0) return null;
-                return (
-                  <optgroup key={group} label={label}>
-                    {items.map((p) => (
-                      <option key={p.value} value={p.value}>
-                        {positionOptionLabel(p)}
-                      </option>
-                    ))}
-                  </optgroup>
-                );
-              })}
-            </select>
-          </div>
-
-          <div className="w-full lg:max-w-xs">
-            <label htmlFor="lead-branch-filter" className="brand-label mb-2 block">
-              Branch applied
-            </label>
-            <select
-              id="lead-branch-filter"
-              value={branchFilter}
-              onChange={(e) => setBranchFilter(e.target.value)}
-              className="brand-input w-full"
-            >
-              <option value="">All branches</option>
-              {branches.map((branch) => (
-                <option key={branch.value} value={branch.value}>
-                  {branch.value} ({branch.leads})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="w-full lg:max-w-xs">
-            <label htmlFor="lead-queue-filter" className="brand-label mb-2 block">
-              Review queue
-            </label>
-            <select
-              id="lead-queue-filter"
-              value={queueFilter}
-              onChange={(e) => setQueueFilter(e.target.value)}
-              className="brand-input w-full"
-            >
-              <option value="">All queues</option>
-              {QUEUES.map((q) => (
-                <option key={q.value} value={q.value}>
-                  {q.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-            {(positionFilter || branchFilter || queueFilter) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setPositionFilter("");
-                  setBranchFilter("");
-                  setQueueFilter("");
-                }}
-                className="rounded-lg border border-foreground/15 px-4 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
-              >
-                Clear filter
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={handleDownloadCvs}
-              disabled={downloadingCvs || selectedNewCvs === 0}
-              className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-60"
-              title={
-                positionFilter
-                  ? `Download new CVs for ${positionFilter}`
-                  : "Download new CVs for all jobs"
-              }
-            >
-              <FileArchive size={16} />
-              {downloadingCvs
-                ? "Zipping..."
-                : `Download New CVs (${selectedNewCvs})`}
-            </button>
-          </div>
-        </div>
-        <p className="mt-3 text-xs text-muted">
-          {selectedNewCvs === 0
-            ? "No new CVs available for this selection."
-            : `Downloads a ZIP with the ${selectedNewCvs} new CV${
-                selectedNewCvs === 1 ? "" : "s"
-              }${positionFilter ? ` for ${positionFilter}` : " for all jobs"}. CVs already downloaded are left out, and these will be marked as downloaded.`}
-        </p>
       </div>
 
       {showForm && (

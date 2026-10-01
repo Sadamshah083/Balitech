@@ -12,6 +12,7 @@ import { revalidatePath } from "next/cache";
  */
 export function refreshPublicPages() {
   revalidatePath("/", "layout");
+  revalidatePath("/blog");
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");
 }

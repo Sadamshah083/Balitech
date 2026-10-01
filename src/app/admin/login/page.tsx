@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
       <div className="relative z-10 w-full max-w-md">
         <div className="mb-8 text-center flex flex-col items-center">
           <img
-            src="/bali-tech-logo.png"
+            src="/bali-tech-logo-nav.png"
             alt="BaliTech Logo"
             className="h-12 w-auto object-contain mb-4"
           />

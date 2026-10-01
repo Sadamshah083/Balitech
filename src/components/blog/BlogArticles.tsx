@@ -18,8 +18,8 @@ export default function BlogArticles({ blogs }: Props) {
     );
   }
 
-  const featured = blogs.find((b) => b.format === "featured") ?? blogs[0];
-  const rest = blogs.filter((b) => b.id !== featured.id);
+  const featured = blogs[0];
+  const rest = blogs.slice(1);
 
   return (
     <section className="blog-articles" aria-labelledby="blog-articles-heading">

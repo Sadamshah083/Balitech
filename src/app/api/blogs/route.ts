@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
     try {
       const blogs = await prisma.blog.findMany({
         where: { isPublished: true },
-        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+        orderBy: [{ createdAt: "desc" }, { order: "asc" }],
         take: limit > 0 ? limit : undefined,
         select: {
           id: true,
@@ -43,7 +44,7 @@ export async function GET(request: Request) {
   if (auth.response) return auth.response;
 
   const blogs = await prisma.blog.findMany({
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    orderBy: [{ createdAt: "desc" }, { order: "asc" }],
   });
 
   return NextResponse.json({ blogs });
@@ -97,6 +98,7 @@ export async function POST(request: Request) {
     });
 
     refreshPublicPages();
+    revalidatePath(`/blog/${finalSlug}`);
     return NextResponse.json({ blog }, { status: 201 });
   } catch {
     return NextResponse.json(

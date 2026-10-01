@@ -108,7 +108,7 @@ export default function AdminShell({
       <div className="admin-sidebar__brand border-b border-orange/20 p-5">
         <Link href="/admin/dashboard" className="inline-block">
           <img
-            src="/bali-tech-logo.png"
+            src="/bali-tech-logo-nav.png"
             alt="BaliTech Pvt. Ltd"
             className="mx-auto h-10 w-auto object-contain"
           />

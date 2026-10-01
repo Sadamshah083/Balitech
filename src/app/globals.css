@@ -1978,6 +1978,91 @@ select.brand-input {
   border-radius: 0.5rem;
 }
 
+/* Leads page: title + search + filters + actions on one responsive row. */
+.admin-leads-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.65rem 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.admin-leads-toolbar__title {
+  flex: 0 0 auto;
+  min-width: 4.25rem;
+  padding-bottom: 0.35rem;
+}
+
+.admin-leads-toolbar__title h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.admin-leads-toolbar__title p {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+.admin-leads-toolbar__search {
+  flex: 1 1 12rem;
+  min-width: 10rem;
+}
+
+.admin-leads-toolbar__select {
+  flex: 0 1 11rem;
+  min-width: 9rem;
+}
+
+.admin-leads-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  padding-bottom: 0.15rem;
+}
+
+.admin-lead-search-wrap {
+  position: relative;
+}
+
+.admin-lead-search-wrap > svg {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: var(--muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Beat .brand-input shorthand padding so text clears the icon. */
+.admin-lead-search-wrap > input.brand-input {
+  padding-left: 2.5rem !important;
+}
+
+@media (min-width: 1100px) {
+  .admin-leads-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  .admin-leads-toolbar__search {
+    flex: 1 1 auto;
+  }
+
+  .admin-leads-toolbar__select {
+    flex: 0 0 11rem;
+  }
+}
+
 /* Leads table: both scrollbars sit inside the bordered panel, not over rows. */
 .admin-leads-table-scroll {
   max-height: 70vh;

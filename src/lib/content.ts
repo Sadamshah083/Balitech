@@ -732,10 +732,10 @@ export const companyContent = {
       },
     ],
     contact: {
-      email: "hr@balitech.org",
+      email: "humanresource@balitech.org",
       emails: [
-        { label: "Business inquiries", address: "info@balitech.org" },
-        { label: "Careers", address: "hr@balitech.org" },
+        { label: "Business inquiries", address: "humanresource@balitech.org" },
+        { label: "Careers", address: "humanresource@balitech.org" },
       ],
     },
     phones: [
@@ -1067,7 +1067,7 @@ export const companyContent = {
       hoursLabel: "Shift Hours",
       hours: "Monday–Friday · 6:00 PM – 4:00 AM",
       emailLabel: "HR Email",
-      email: "hr@balitech.org",
+      email: "humanresource@balitech.org",
       phoneLabel: "Phone",
       phone: "0370 0585660",
       phoneHref: "tel:+923700585660",

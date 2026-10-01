@@ -5,6 +5,7 @@ import { requireApiAuth } from "@/lib/auth";
 import { MAX_CV_BYTES, resolveCvAbsolutePath, saveLeadCv } from "@/lib/cv-upload";
 import { buildLeadWhere } from "@/lib/lead-filters";
 import { extractPositionFromMessage } from "@/lib/lead-position";
+import { notifyNewLead } from "@/lib/mail";
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 50;
@@ -157,6 +158,17 @@ export async function POST(request: Request) {
         cvFileName,
         cvPath,
       },
+    });
+
+    await notifyNewLead({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      company: lead.company,
+      position: lead.position,
+      message: lead.message,
+      leadId: lead.id,
+      hasCv: Boolean(lead.cvPath),
     });
 
     return NextResponse.json({ lead }, { status: 201 });

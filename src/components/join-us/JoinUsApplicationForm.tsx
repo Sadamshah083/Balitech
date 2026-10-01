@@ -8,6 +8,7 @@ import { getCampaignFromSearch } from "@/lib/apply";
 import { parseCampaignLocations } from "@/lib/campaign-locations";
 import { fetchPublicCampaigns } from "@/lib/campaigns-client";
 import { fallbackOffices } from "@/lib/fallback-offices";
+import { loadGsap } from "@/lib/gsap-register";
 import {
   CAMPAIGN_VACANCIES_LABEL,
   DEPARTMENTS,
@@ -17,7 +18,6 @@ import {
   EXAMPLE_CAMPAIGNS,
   EXPERIENCE_OPTIONS,
   GENERAL_APPLICATION,
-  GENERAL_APPLICATION_LABEL,
   HEARD_ABOUT_OPTIONS,
   HR_TASK_OPTIONS,
   JOIN_OPTIONS,
@@ -329,6 +329,37 @@ export default function JoinUsApplicationForm() {
     sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  /* Scroll + animate the success card once it replaces the form. */
+  useEffect(() => {
+    if (status !== "success") return;
+    const el = sectionRef.current;
+    if (!el) return;
+
+    let cancelled = false;
+    const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - 88);
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    window.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
+
+    void loadGsap().then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return;
+      ScrollTrigger.refresh();
+      const card = el.querySelector(".join-us-form__success");
+      if (!card || reduced) return;
+      gsap.fromTo(
+        card,
+        { autoAlpha: 0, y: 28 },
+        { autoAlpha: 1, y: 0, duration: 0.55, ease: "power2.out" }
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [status, referenceId]);
+
   function goToStep(next: number) {
     setStep(next);
     setStatus((s) => (s === "error" ? "idle" : s));
@@ -387,7 +418,6 @@ export default function JoinUsApplicationForm() {
         setReferenceId(data.referenceId);
         setStatus("success");
         submissionKey.current = newSubmissionKey();
-        scrollToTop();
         return;
       }
 
@@ -606,6 +636,7 @@ export default function JoinUsApplicationForm() {
               <Field
                 id={fid("email")}
                 label="Email"
+                required
                 hint="Use an email address you check regularly."
                 error={errors.email}
               >
@@ -848,11 +879,6 @@ export default function JoinUsApplicationForm() {
                       ))}
                     </optgroup>
                   ))}
-                  {!presetPositions && (
-                    <optgroup label="Not sure which role?">
-                      <option value={GENERAL_APPLICATION}>{GENERAL_APPLICATION_LABEL}</option>
-                    </optgroup>
-                  )}
                 </select>
               </Field>
 

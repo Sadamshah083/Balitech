@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
@@ -48,6 +49,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     });
 
     refreshPublicPages();
+    revalidatePath(`/blog/${blog.slug}`);
     return NextResponse.json({ blog });
   } catch {
     return NextResponse.json(

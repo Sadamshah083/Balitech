@@ -16,7 +16,7 @@ This file is the single place for facts about the website: business details, arc
 | Tagline | "Together We Build Success." | `companyContent.tagline` |
 | CEO | Sheraz Bali (`/ceo-muhammad-shiraz-bali.png`) | `companyContent.ceo` |
 | Hours | Monday–Friday · 6:00 PM – 4:00 AM (US-shift operations, "24/5") | `src/lib/fallback-offices.ts` |
-| Email / phones | info@balitech.org · general 0370 0585660 / 0327 1233435; each office has its own numbers, which the footer shows | DB `Office.phone` (admin), fallback in `src/lib/fallback-offices.ts` |
+| Email / phones | humanresource@balitech.org · general 0370 0585660 / 0327 1233435; each office has its own numbers, which the footer shows | DB `Office.phone` (admin), fallback in `src/lib/fallback-offices.ts` |
 | Offices | Shamsabad (head office, Rawalpindi), Islamabad I-9/3, Commercial (Rawalpindi), Iran Road (Satellite Town, Rawalpindi) | DB `Office` table, fallback in `src/lib/fallback-offices.ts` |
 | Brand colors | navy `#0d1a3a`, orange `#ed9129` | `src/lib/brand.ts`, `src/app/globals.css` |
 | Fonts | Manrope (body), Sora (headings), Great Vibes subset (intro wordmark only) | `src/app/layout.tsx` |
@@ -65,12 +65,14 @@ Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): d
 - **Prisma:** import `prisma` from `src/lib/prisma.ts`. With `PRISMA_READONLY=1` (set by `build:live`), every write throws, so build-time code must be read-only.
 - **CV downloads:** the admin "Download New CVs" ZIP includes only leads with `cvDownloadedAt = null` and stamps them once the ZIP has been fully sent, so each download holds only CVs that arrived since the last one. A lead's own page can always fetch its single CV again. The Excel export works the same way with `Lead.exportedAt` ("Download New Leads"), plus a "Download all again" link (`?all=1`) that re-exports everything without marking. Lead status is no longer shown on the Leads list; its column shows each lead's Lead/CV download state instead.
 - **Schema changes need the live DB first.** `deploy:live` never touches the database, so a new column must be added on the live DB *before* deploying code that uses it, or every query on that model fails (this took down lead listing and job applications once).
-- **Careers:** fixed choices (role groups, departments, positions) live in `src/lib/careers/catalog.ts`, shared by the public form, API and admin editor. An application becomes a `Lead` with `referenceId`, an idempotent `submissionKey`, `queue`, and duplicate/employee `flags`.
+- **Careers:** fixed choices (role groups, departments, positions) live in `src/lib/careers/catalog.ts`, shared by the public form, API and admin editor. An application becomes a `Lead` with `referenceId` (`BT-{OFFICE}-{ID}-{DATE}`, e.g. `BT-ISM-DHRTD-260930` — office codes MAIN/ISM/COM/IRRD, then unique id, then apply date YYMMDD), an idempotent `submissionKey`, `queue`, and duplicate/employee `flags`. Candidate confirmation + HR alert go through `src/lib/mail.ts`.
 - **Media:** large videos are git-ignored (100MB GitHub limit) and hosted separately. Uploaded blog covers go in `public/blogs/`, media in `public/media/`, and CVs in `/uploads/`. All three are git-ignored. Keep masters in `media-src/`.
 
 ## 6. Environment variables (`.env`, template in `.env.example`)
 
-`DATABASE_URL`, `JWT_SECRET` (required, throws if missing), `JWT_EXPIRES_IN`, `JWT_ISSUER`, `JWT_AUDIENCE`, `CRM_API_TOKEN`, `ADMIN_EMAIL`/`ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_APP_URL`. Build-only: `PRISMA_READONLY`, `BALITECH_BUILD_DATA=live|local`, `BALITECH_SSH_HOST/USER/PASSWORD`.
+`DATABASE_URL`, `JWT_SECRET` (required, throws if missing), `JWT_EXPIRES_IN`, `JWT_ISSUER`, `JWT_AUDIENCE`, `CRM_API_TOKEN`, `ADMIN_EMAIL`/`ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_APP_URL`. Titan SMTP (optional but used in prod for HR alerts): `SMTP_HOST`/`SMTP_PORT`/`SMTP_SECURE`/`SMTP_USER`/`SMTP_PASS`/`SMTP_FROM`/`SMTP_TO` — see `.env.example`; password must never be committed. Build-only: `PRISMA_READONLY`, `BALITECH_BUILD_DATA=live|local`, `BALITECH_SSH_HOST/USER/PASSWORD`.
+
+New join-us applications email the candidate a confirmation (branch contact + HR), and also notify `SMTP_TO` (default `humanresource@balitech.org`) via `src/lib/mail.ts`. Public contact/inquiry leads notify HR only. Mail failures are logged and never fail the form submission.
 
 ## 7. Deployment and CI
 

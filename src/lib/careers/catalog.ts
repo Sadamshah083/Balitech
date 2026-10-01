@@ -223,7 +223,6 @@ export const QUALIFICATION_OPTIONS: Option[] = [
 export const SCHEDULE_OPTIONS: Option[] = [
   { value: "yes", label: "Yes" },
   { value: "no", label: "No" },
-  { value: "discuss", label: "I need to discuss my availability" },
 ];
 
 export const JOIN_OPTIONS: Option[] = [

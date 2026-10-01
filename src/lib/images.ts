@@ -73,6 +73,6 @@ export const siteImages = {
       },
     ],
   },
-  logo: "/bali-tech-logo.png",
+  logo: "/bali-tech-logo-nav.png",
   career: "/career/career-cta-bg.jpg",
 } as const;

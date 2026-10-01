@@ -62,7 +62,8 @@ export async function getPublicBlogs(): Promise<PublicBlog[]> {
   try {
     const blogs = await prisma.blog.findMany({
       where: { isPublished: true },
-      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+      // Newest published article first (featured slot + grid).
+      orderBy: [{ createdAt: "desc" }, { order: "asc" }],
       select: publicBlogSelect,
     });
     return blogs.length === 0 ? fallbackBlogs.map(fromFallback) : blogs;

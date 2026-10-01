@@ -159,7 +159,7 @@ export default async function Footer() {
               </li>
             ))}
             {footer.contact.emails.map((entry) => (
-              <li key={entry.address} className="flex items-start gap-2">
+              <li key={entry.label} className="flex items-start gap-2">
                 <Mail size={16} className="mt-0.5 shrink-0 text-orange" />
                 <span>
                   <span className="block text-xs uppercase tracking-wider text-muted/70">

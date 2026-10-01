@@ -112,16 +112,17 @@ export const metadata: Metadata = {
     images: [DEFAULT_OG_IMAGE],
   },
   /* Next also emits /favicon.ico and /icon from app/favicon.ico + app/icon.png.
-     Public copies at 48/192/512px are what Google Search prefers to pick up. */
+     Public copies at 48/192/512px are what Google Search prefers to pick up.
+     PNGs are circular (transparent corners) so the tab icon reads rounded. */
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
-    shortcut: "/favicon.ico",
+    shortcut: "/favicon-48x48.png",
   },
 };
 
@@ -142,7 +143,7 @@ function buildJsonLd() {
     description: SITE_DESCRIPTION,
     slogan: companyContent.tagline,
     foundingDate: "2022-04",
-    email: "hr@balitech.org",
+    email: "humanresource@balitech.org",
     telephone: "+92 370 0585660",
     address: fallbackOffices.map((office) => ({
       "@type": "PostalAddress",

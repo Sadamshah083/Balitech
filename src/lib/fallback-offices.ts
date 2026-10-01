@@ -16,7 +16,7 @@ export type PublicOffice = {
 
 export const officeHours = "Monday–Friday · 6:00 PM – 4:00 AM";
 
-export const officeEmail = "info@balitech.org";
+export const officeEmail = "humanresource@balitech.org";
 
 export const officePhonePrimary = "0370 0585660";
 export const officePhoneSecondary = "0327 1233435";
@@ -35,12 +35,12 @@ export const fallbackOffices: PublicOffice[] = [
     slug: "shamsabad-office",
     address:
       "Office 8, 1st Floor, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400",
-    phone: officePhoneDisplay,
+    phone: "0331-8638312 / 0333-8513359",
     email: officeEmail,
     hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",
-    image: null,
+    image: "/offices/shamsabad.jpg",
     mapEmbedUrl: mapUrl(
       "Office 8, Maryam Business Centre, Murree Road, Shamsabad, Rawalpindi, Punjab 4400"
     ),
@@ -57,7 +57,7 @@ export const fallbackOffices: PublicOffice[] = [
     hours: officeHours,
     city: "Islamabad",
     country: "Pakistan",
-    image: null,
+    image: "/offices/islamabad-i9.jpg",
     mapEmbedUrl: mapUrl("Plot No.349-352 street No 1 industrial Area 1-9/3, Islamabad"),
     order: 2,
     isHeadOffice: false,
@@ -73,7 +73,7 @@ export const fallbackOffices: PublicOffice[] = [
     hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",
-    image: null,
+    image: "/offices/commercial.jpg",
     mapEmbedUrl: mapUrl("Ideas Building Plaza Satellite Town B Block Rawalpindi"),
     order: 3,
     isHeadOffice: false,
@@ -88,7 +88,7 @@ export const fallbackOffices: PublicOffice[] = [
     hours: officeHours,
     city: "Rawalpindi",
     country: "Pakistan",
-    image: null,
+    image: "/offices/iran-road.jpg",
     mapEmbedUrl: mapUrl("Plaza No A-74, Iran Road Satellite Town-A Rawalpindi"),
     order: 4,
     isHeadOffice: false,

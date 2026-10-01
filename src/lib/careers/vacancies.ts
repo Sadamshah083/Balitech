@@ -101,17 +101,12 @@ function toCampaignVacancies(row: Campaign): PublicVacancy[] {
   }));
 }
 
-async function listCampaignVacancies(published: PublicVacancy[]) {
-  const taken = new Set(
-    published.flatMap((v) => [v.title, v.campaign ?? ""]).map((t) => t.trim().toLowerCase()).filter(Boolean)
-  );
+async function listCampaignVacancies() {
   const rows = await prisma.campaign.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
   });
-  return rows
-    .filter((row) => !taken.has(row.title.trim().toLowerCase()))
-    .flatMap(toCampaignVacancies);
+  return rows.flatMap(toCampaignVacancies);
 }
 
 /**
@@ -128,18 +123,35 @@ export async function listPublicVacancies(): Promise<{
   vacancies: PublicVacancy[];
   fallback: boolean;
 }> {
+  /* Campaign cards on Current Job Openings always feed the form dropdown. */
+  const fromCampaigns = await listCampaignVacancies();
+  const campaignTitles = new Set(
+    fromCampaigns
+      .flatMap((v) => [v.title, v.campaign ?? ""])
+      .map((t) => t.trim().toLowerCase())
+      .filter(Boolean)
+  );
+
   const total = await prisma.vacancy.count();
   if (total === 0) {
-    const fromCampaigns = await listCampaignVacancies(fallbackVacancies);
-    return { vacancies: [...fromCampaigns, ...fallbackVacancies], fallback: true };
+    const extras = fallbackVacancies.filter(
+      (v) => !campaignTitles.has(v.title.trim().toLowerCase())
+    );
+    return { vacancies: [...fromCampaigns, ...extras], fallback: true };
   }
 
   const rows = await prisma.vacancy.findMany({
     where: { isActive: true },
     orderBy: [{ order: "asc" }, { title: "asc" }],
   });
-  const published = rows.map(toPublicVacancy);
-  const fromCampaigns = await listCampaignVacancies(published);
+  /* Skip HR vacancy rows that duplicate an active campaign opening title. */
+  const published = rows
+    .map(toPublicVacancy)
+    .filter(
+      (v) =>
+        !campaignTitles.has(v.title.trim().toLowerCase()) &&
+        !(v.campaign && campaignTitles.has(v.campaign.trim().toLowerCase()))
+    );
   return { vacancies: [...fromCampaigns, ...published], fallback: false };
 }
 

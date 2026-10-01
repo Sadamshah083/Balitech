@@ -281,7 +281,6 @@ export function branchChoices(
   if (!general && vacancy?.remoteAllowed) {
     options.push({ value: REMOTE_BRANCH, label: REMOTE_BRANCH_LABEL });
   }
-  options.push({ value: ANY_BRANCH, label: ANY_BRANCH_LABEL });
   return options;
 }
 
@@ -332,8 +331,7 @@ export function getVisibility(
     formerBranchOther: employee && answers.formerBranch === "other",
     previous,
     scheduleFit: !general && Boolean(ctx.vacancy),
-    availabilityNote:
-      !general && Boolean(ctx.vacancy) && answers.scheduleFit === "discuss",
+    availabilityNote: false,
     earliestDate: answers.joinTiming === "30d+",
     campaignInterest: groups.has("campaign") && !ctx.vacancy?.campaign,
     campaignsWorked: groups.has("campaign") && experienced,
@@ -457,8 +455,10 @@ export function validateApplication(
   if (v.whatsapp && answers.whatsapp.number.trim() && !isValidPhone(answers.whatsapp)) {
     set("whatsapp", "Enter a valid WhatsApp number or leave it blank.");
   }
-  if (answers.email.trim() && !EMAIL_RE.test(answers.email.trim())) {
-    set("email", "Enter a valid email address or leave it blank.");
+  if (!answers.email.trim()) {
+    set("email", "Enter your email address.");
+  } else if (!EMAIL_RE.test(answers.email.trim())) {
+    set("email", "Enter a valid email address.");
   }
   requireText("city", answers.city, "Enter your current city.", 80);
   requireText("locality", answers.locality, "Enter your area or locality.", 80);

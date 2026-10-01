@@ -1,11 +1,16 @@
-import { unlink } from "fs/promises";
-import { randomInt } from "crypto";
+import { unlink, readFile } from "fs/promises";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { resolveCvAbsolutePath, saveLeadCv } from "@/lib/cv-upload";
+import {
+  notifyNewApplication,
+  resolveBranchForMail,
+  sendApplicationConfirmation,
+} from "@/lib/mail";
 import { getPublicOffices } from "@/lib/offices";
 import { withCampaignBranchList } from "@/lib/campaign-locations";
+import { buildApplicationReferenceId } from "@/lib/application-reference";
 import {
   branchLabel,
   buildSummary,
@@ -25,21 +30,8 @@ import {
   leadPositionTitle,
 } from "@/lib/careers/vacancies";
 
-const REFERENCE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const DUPLICATE_WINDOW_DAYS = 180;
 const CV_EXTENSIONS = new Set([".pdf", ".docx"]);
-
-function newReferenceId() {
-  const now = new Date();
-  const date = [
-    String(now.getFullYear()).slice(-2),
-    String(now.getMonth() + 1).padStart(2, "0"),
-    String(now.getDate()).padStart(2, "0"),
-  ].join("");
-  let suffix = "";
-  for (let i = 0; i < 5; i++) suffix += REFERENCE_ALPHABET[randomInt(REFERENCE_ALPHABET.length)];
-  return `BT-${date}-${suffix}`;
-}
 
 function parseJson(value: FormDataEntryValue | null): unknown {
   if (typeof value !== "string") return null;
@@ -205,14 +197,19 @@ export async function POST(request: Request) {
     });
 
     for (let attempt = 0; attempt < 5; attempt++) {
-      const referenceId = newReferenceId();
+      const appliedAt = new Date();
+      const branchName = branchLabel(answers.branch);
+      const referenceId = buildApplicationReferenceId({
+        branch: branchName,
+        appliedAt,
+      });
       try {
         await prisma.lead.create({
           data: {
             name: answers.fullName.trim(),
             email,
             phone,
-            company: branchLabel(answers.branch),
+            company: branchName,
             position: positionTitle,
             message: null,
             cvFileName,
@@ -226,6 +223,60 @@ export async function POST(request: Request) {
             source: sourceJson,
           },
         });
+
+        let cvAttachment: {
+          filename: string;
+          content: Buffer;
+          contentType?: string;
+        } | null = null;
+        if (savedCvPath && cvFileName) {
+          try {
+            const content = await readFile(resolveCvAbsolutePath(savedCvPath));
+            cvAttachment = {
+              filename: cvFileName,
+              content,
+              contentType: cvFileName.toLowerCase().endsWith(".pdf")
+                ? "application/pdf"
+                : undefined,
+            };
+          } catch (error) {
+            console.error("[api/applications] could not attach CV to mail:", error);
+          }
+        }
+
+        const summary = buildSummary(answers, ctx);
+        const summaryLines = summary.flatMap((section) => [
+          section.title,
+          ...section.items.map((item) => `  ${item.label}: ${item.value}`),
+        ]);
+
+        await notifyNewApplication({
+          referenceId,
+          name: answers.fullName.trim(),
+          email,
+          phone,
+          branch: branchName,
+          position: positionTitle,
+          queue,
+          flags,
+          summaryLines,
+          cv: cvAttachment,
+        });
+
+        if (email) {
+          const branch = resolveBranchForMail(branchName, offices);
+          await sendApplicationConfirmation({
+            candidateName: answers.fullName.trim(),
+            candidateEmail: email,
+            jobTitle: positionTitle || "General application",
+            branchName: branch.name,
+            branchAddress: branch.address,
+            branchPhone: branch.phone,
+            applicationDate: appliedAt,
+            referenceId,
+          });
+        }
+
         return NextResponse.json({ referenceId }, { status: 201 });
       } catch (error) {
         if (isUniqueViolation(error, "referenceId")) continue;

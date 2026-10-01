@@ -63,7 +63,7 @@ export async function GET() {
     "",
     "## Contact",
     `- Website: ${SITE_URL}/`,
-    "- Email: hr@balitech.org",
+    "- Email: humanresource@balitech.org",
     "- Phone: +92 370 0585660",
     "- Phone: +92 327 1233435",
     "",
