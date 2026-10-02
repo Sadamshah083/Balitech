@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarClock, CheckCircle2, MapPin, Pencil } from "lucide-react";
+import { thankYouHref } from "@/lib/thank-you";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
 import { getCampaignFromSearch } from "@/lib/apply";
@@ -144,6 +146,7 @@ export default function JoinUsApplicationForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
   const [referenceId, setReferenceId] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     submissionKey.current = newSubmissionKey();
@@ -418,6 +421,7 @@ export default function JoinUsApplicationForm() {
         setReferenceId(data.referenceId);
         setStatus("success");
         submissionKey.current = newSubmissionKey();
+        router.push(thankYouHref("application", data.referenceId));
         return;
       }
 

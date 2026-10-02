@@ -5,8 +5,10 @@ import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
 import GoogleTagManager, {
   GoogleTagManagerNoScript,
 } from "@/components/seo/GoogleTagManager";
+import MetaPixel, { MetaPixelNoScript } from "@/components/seo/MetaPixel";
 import { GOOGLE_SITE_VERIFICATION } from "@/lib/analytics";
 import ScrollToTopOnNavigate from "@/components/ScrollToTopOnNavigate";
+import { Suspense } from "react";
 import { companyContent } from "@/lib/content";
 import { fallbackOffices } from "@/lib/fallback-offices";
 import {
@@ -218,6 +220,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GoogleTagManagerNoScript />
+        <MetaPixelNoScript />
         {jsonLd.map((entry, index) => (
           <script
             key={`ld-${index}`}
@@ -227,6 +230,9 @@ export default function RootLayout({
         ))}
         <GoogleTagManager />
         <GoogleAnalytics />
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         <ScrollToTopOnNavigate />
         {children}
       </body>

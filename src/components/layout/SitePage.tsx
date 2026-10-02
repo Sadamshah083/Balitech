@@ -11,7 +11,7 @@ export default function SitePage({
 }) {
   return (
     <main
-      className={`site-main relative min-h-screen overflow-x-hidden bg-background${indexTheme ? " site-main--index" : ""}`}
+      className={`site-main relative min-h-screen overflow-x-clip bg-background${indexTheme ? " site-main--index" : ""}`}
     >
       <DeferredScrollAtmosphere />
       <SiteHeader />

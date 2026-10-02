@@ -7,7 +7,7 @@ import { UPLOADS_ROOT } from "@/lib/media-upload";
 export const runtime = "nodejs";
 
 /* CVs also live under uploads/ and must never be publicly reachable. */
-const PUBLIC_FOLDERS = new Set(["media", "blogs", "offices"]);
+const PUBLIC_FOLDERS = new Set(["media", "blogs", "offices", "blog-categories"]);
 
 const CONTENT_TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",

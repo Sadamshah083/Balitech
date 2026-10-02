@@ -11,6 +11,10 @@ export const GA_MEASUREMENT_ID =
 export const GTM_CONTAINER_ID =
   process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-55JDM3MK";
 
+/** Meta (Facebook) Pixel ID. Override with NEXT_PUBLIC_META_PIXEL_ID. */
+export const META_PIXEL_ID =
+  process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1528153738658754";
+
 /** Search Console ownership token, emitted as `google-site-verification`. */
 export const GOOGLE_SITE_VERIFICATION =
   "sFrnCJRe0T1NZZFw84pBhu0oMyqMd07OEVpTk3r8V1s";

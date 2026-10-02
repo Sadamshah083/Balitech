@@ -95,20 +95,86 @@ model Campaign {
 }
 
 model Blog {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   title           String
-  slug            String   @unique
-  excerpt         String?  @db.Text
-  content         String   @db.Text
+  slug            String    @unique
+  excerpt         String?   @db.Text
+  content         String    @db.Text
   image           String?
-  tags            String   @default("[]")
-  format          String   @default("standard")
+  imageAlt        String?
+  // Legacy JSON string of tag names; kept in sync with BlogTagOnBlog for older readers.
+  tags            String    @default("[]")
+  format          String    @default("standard")
+  metaTitle       String?
+  metaDescription String?   @db.Text
+  order           Int       @default(0)
+  isPublished     Boolean   @default(true)
+  // draft | published | scheduled
+  status          String    @default("published")
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
+  categoryId      String?
+  category        BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tagLinks        BlogTagOnBlog[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([categoryId])
+  @@index([status, scheduledAt])
+}
+
+model BlogCategory {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String?  @db.Text
+  image           String?
+  imageAlt        String?
   metaTitle       String?
   metaDescription String?  @db.Text
+  isActive        Boolean  @default(true)
   order           Int      @default(0)
-  isPublished     Boolean  @default(true)
+  blogs           Blog[]
+  tagLinks        BlogCategoryTag[]
+  redirects       BlogCategoryRedirect[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model BlogCategoryRedirect {
+  id         String       @id @default(cuid())
+  oldSlug    String       @unique
+  categoryId String
+  category   BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+}
+
+model BlogTag {
+  id         String            @id @default(cuid())
+  name       String
+  slug       String            @unique
+  blogs      BlogTagOnBlog[]
+  categories BlogCategoryTag[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model BlogCategoryTag {
+  categoryId String
+  tagId      String
+  category   BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tag        BlogTag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, tagId])
+}
+
+model BlogTagOnBlog {
+  blogId String
+  tagId  String
+  blog   Blog    @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  tag    BlogTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([blogId, tagId])
 }
 
 model Office {

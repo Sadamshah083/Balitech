@@ -5,6 +5,7 @@ export type FallbackBlog = {
   excerpt: string | null;
   content: string;
   image: string | null;
+  imageAlt?: string | null;
   tags: string;
   format: string;
   metaTitle?: string | null;

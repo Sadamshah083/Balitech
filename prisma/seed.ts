@@ -3,6 +3,12 @@ import bcrypt from "bcryptjs";
 import { fallbackOffices } from "../src/lib/fallback-offices";
 import { fallbackMediaItems } from "../src/lib/fallback-media";
 import { initialCampaignLocations } from "../src/lib/campaign-locations";
+import {
+  DEFAULT_BLOG_CATEGORIES,
+  normalizeTagName,
+  tagSlugFromName,
+} from "../src/lib/blog-taxonomy";
+import { parseTags, stringifyTags } from "../src/lib/blog";
 
 const programDescriptions: Record<string, string> = {
   "ACA Campaign": "Affordable Care Act enrollment and support campaigns.",
@@ -50,6 +56,7 @@ const defaultBlogs = [
     tags: JSON.stringify(["BPO", "Campaigns", "Operations"]),
     format: "featured",
     order: 1,
+    categorySlug: "call-center-operations",
   },
   {
     title: "5 Qualities of a High-Performing Call Center Team",
@@ -63,6 +70,7 @@ const defaultBlogs = [
     tags: JSON.stringify(["Team", "Training", "Performance"]),
     format: "standard",
     order: 2,
+    categorySlug: "call-center-operations",
   },
   {
     title: "Why Outsourcing to Pakistan Makes Strategic Sense",
@@ -76,6 +84,7 @@ const defaultBlogs = [
     tags: JSON.stringify(["Outsourcing", "Strategy", "BPO"]),
     format: "standard",
     order: 3,
+    categorySlug: "bpo-outsourcing",
   },
   {
     title: "Inside Our Annual Team Excellence Awards",
@@ -89,8 +98,104 @@ const defaultBlogs = [
     tags: JSON.stringify(["Culture", "Awards", "Team"]),
     format: "compact",
     order: 4,
+    categorySlug: "careers-workplace",
   },
 ];
+
+async function ensureBlogTaxonomy() {
+  for (const item of DEFAULT_BLOG_CATEGORIES) {
+    await prisma.blogCategory.upsert({
+      where: { slug: item.slug },
+      create: {
+        name: item.name,
+        slug: item.slug,
+        description: item.description,
+        order: item.order,
+        isActive: true,
+      },
+      update: {
+        name: item.name,
+        description: item.description,
+        order: item.order,
+        isActive: true,
+      },
+    });
+  }
+
+  const categories = await prisma.blogCategory.findMany();
+  const bySlug = new Map(categories.map((c) => [c.slug, c.id]));
+  const insightsId = bySlug.get("balitech-insights") ?? null;
+
+  /** Known default-post → category mapping (and safe heuristics for older rows). */
+  const slugCategory: Record<string, string> = {
+    "scales-us-campaign-operations": "call-center-operations",
+    "high-performing-call-center-team": "call-center-operations",
+    "outsourcing-to-pakistan": "bpo-outsourcing",
+    "annual-team-excellence-awards": "careers-workplace",
+  };
+
+  const blogs = await prisma.blog.findMany();
+  for (const blog of blogs) {
+    const status =
+      blog.status === "draft" || blog.status === "scheduled"
+        ? blog.status
+        : blog.isPublished
+          ? "published"
+          : "draft";
+
+    let categoryId = blog.categoryId;
+    const preferred = slugCategory[blog.slug];
+    const preferredId = preferred ? bySlug.get(preferred) : undefined;
+    // Only auto-assign when unset or still on the Insights fallback from first migrate.
+    if (
+      preferredId &&
+      (!categoryId || categoryId === insightsId)
+    ) {
+      categoryId = preferredId;
+    } else if (!categoryId && insightsId) {
+      categoryId = insightsId;
+    }
+
+    const names = parseTags(blog.tags);
+    const tagIds: string[] = [];
+    for (const raw of names) {
+      const name = normalizeTagName(raw);
+      if (!name) continue;
+      const slug = tagSlugFromName(name);
+      const tag = await prisma.blogTag.upsert({
+        where: { slug },
+        create: { name, slug },
+        update: { name },
+      });
+      tagIds.push(tag.id);
+    }
+
+    await prisma.blog.update({
+      where: { id: blog.id },
+      data: {
+        categoryId,
+        status,
+        isPublished: status === "published",
+        publishedAt:
+          status === "published"
+            ? blog.publishedAt ?? blog.createdAt
+            : blog.publishedAt,
+        tags: stringifyTags(names),
+      },
+    });
+
+    await prisma.blogTagOnBlog.deleteMany({ where: { blogId: blog.id } });
+    if (tagIds.length) {
+      await prisma.blogTagOnBlog.createMany({
+        data: tagIds.map((tagId) => ({ blogId: blog.id, tagId })),
+        skipDuplicates: true,
+      });
+    }
+  }
+
+  console.log("Blog categories/tags synced.");
+}
+
 async function main() {
   const email = (process.env.ADMIN_EMAIL ?? "Admin@balitech.com").toLowerCase().trim();
   const password = process.env.ADMIN_PASSWORD ?? "balitech@321!";
@@ -138,9 +243,44 @@ async function main() {
     console.log("Default campaigns seeded.");
   }
 
+  await ensureBlogTaxonomy();
+
   const blogCount = await prisma.blog.count();
   if (blogCount === 0) {
-    await prisma.blog.createMany({ data: defaultBlogs });
+    const categories = await prisma.blogCategory.findMany();
+    const bySlug = new Map(categories.map((c) => [c.slug, c.id]));
+    for (const post of defaultBlogs) {
+      const created = await prisma.blog.create({
+        data: {
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          content: post.content,
+          image: post.image,
+          tags: post.tags,
+          format: post.format,
+          order: post.order,
+          status: "published",
+          isPublished: true,
+          publishedAt: new Date(),
+          categoryId:
+            bySlug.get(post.categorySlug) ??
+            bySlug.get("balitech-insights") ??
+            null,
+        },
+      });
+      for (const name of parseTags(post.tags)) {
+        const slug = tagSlugFromName(name);
+        const tag = await prisma.blogTag.upsert({
+          where: { slug },
+          create: { name: normalizeTagName(name), slug },
+          update: {},
+        });
+        await prisma.blogTagOnBlog.create({
+          data: { blogId: created.id, tagId: tag.id },
+        });
+      }
+    }
     console.log("Default blogs seeded.");
   }
 

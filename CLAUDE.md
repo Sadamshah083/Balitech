@@ -27,7 +27,7 @@ Change a fact in its source file, not in the component that displays it. Content
 
 - **Next.js 16.2 (App Router), React 19.2, TypeScript.** This is not the Next.js from training data: read `node_modules/next/dist/docs/` before using an API. Middleware is **`src/proxy.ts`** (exported `proxy` function), not `middleware.ts`.
 - **Tailwind CSS 4** via `@tailwindcss/postcss`. `src/app/globals.css` is about 10k lines of custom CSS; the theme is handled by `ThemeProvider` plus `src/lib/theme.ts`.
-- **Prisma 5 + MySQL** (XAMPP locally). Models: `Admin`, `Lead`, `Vacancy`, `Campaign`, `Blog`, `Office`, `MediaItem`. List-like columns (`Campaign.locations`, `Vacancy.branches`, `Blog.tags`, `Lead.flags/details/source`) are **JSON stored in strings**, so parse and stringify them.
+- **Prisma 5 + MySQL** (XAMPP locally). Models: `Admin`, `Lead`, `Vacancy`, `Campaign`, `Blog`, `BlogCategory`, `BlogTag`, `BlogCategoryTag`, `BlogTagOnBlog`, `BlogCategoryRedirect`, `Office`, `MediaItem`. List-like columns (`Campaign.locations`, `Vacancy.branches`, `Blog.tags` legacy JSON, `Lead.flags/details/source`) are **JSON stored in strings**, so parse and stringify them. Blog taxonomy is relational; `Blog.tags` is kept in sync for older readers.
 - **GSAP** for animation, loaded lazily (`src/lib/use-lazy-gsap.ts`, `gsap-register.ts`, `on-idle.ts`, `on-interaction.ts`). Performance and LCP are a big focus (see the long comments in `layout.tsx`), so don't add eager heavy JS to the home page.
 - Auth: `jose` JWT (HS256) + `bcryptjs`.
 
@@ -49,13 +49,13 @@ There is no test suite. `scripts/_*.js` are one-off local audit and debug tools 
 
 ## 4. Site map
 
-Public pages (`src/app/`): `/` · `/services` · `/services/[slug]` (inbound, outbound, customer-support, lead-generation, sales-verification, medical-billing, b2b-outreach, defined in `src/lib/service-pages.ts`) · `/about` · `/our-team` (nav label "Growth") · `/gallery` · `/ceo-words` · `/our-offices` · `/blog`, `/blog/[slug]` · `/join-us` (careers + application form) · `/privacy-policy` · `/recruitment-privacy-notice`. Generated: `sitemap.ts`, `robots.ts`, `llms.txt/route.ts`. `/uploads/[...path]` serves uploaded files.
+Public pages (`src/app/`): `/` · `/services` · `/services/[slug]` (inbound, outbound, customer-support, lead-generation, sales-verification, medical-billing, b2b-outreach, defined in `src/lib/service-pages.ts`) · `/about` · `/our-team` (nav label "Growth") · `/gallery` · `/ceo-words` · `/our-offices` · `/blog`, `/blog/[slug]`, `/blog/category/[slug]`, `/blog/tag/[slug]` · `/join-us` (careers + application form) · `/privacy-policy` · `/recruitment-privacy-notice`. Generated: `sitemap.ts`, `robots.ts`, `llms.txt/route.ts`. `/uploads/[...path]` serves uploaded files (including `blog-categories`).
 
 - Nav links: `src/lib/navigation.ts`.
 - Legacy PHP URLs (`/contact.php`, `/careers`, and others) redirect in `next.config.ts`. Add new redirects there.
 - Components are grouped by page area in `src/components/{landing,home,about,services,join-us,gallery,blog,admin,...}`.
 
-Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): dashboard, leads (+ `/leads/[id]` detail, CSV export, CV download), campaigns, vacancies, blogs, offices, media, settings (admin users).
+Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): dashboard, leads (+ `/leads/[id]` detail, CSV export, CV download), campaigns, vacancies, blogs (Categories / Tags / Blogs tabs), offices, media, settings (admin users). Blog category images upload to `/uploads/blog-categories`. Default categories live in `DEFAULT_BLOG_CATEGORIES` (`src/lib/blog-taxonomy.ts`) and are seeded via `npm run db:seed` or admin “Sync default categories”.
 
 ## 5. Key conventions
 
@@ -64,13 +64,14 @@ Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): d
 - **After any admin write**, call `refreshPublicPages()` (`src/lib/refresh-public-pages.ts`). Public pages are prerendered and otherwise stay stale until the next deploy. It also refreshes `/sitemap.xml` and `/llms.txt` (route handlers are not covered by the layout refresh), so a newly published blog is in the sitemap at once; the sitemap additionally rebuilds hourly.
 - **Prisma:** import `prisma` from `src/lib/prisma.ts`. With `PRISMA_READONLY=1` (set by `build:live`), every write throws, so build-time code must be read-only.
 - **CV downloads:** the admin "Download New CVs" ZIP includes only leads with `cvDownloadedAt = null` and stamps them once the ZIP has been fully sent, so each download holds only CVs that arrived since the last one. A lead's own page can always fetch its single CV again. The Excel export works the same way with `Lead.exportedAt` ("Download New Leads"), plus a "Download all again" link (`?all=1`) that re-exports everything without marking. Lead status is no longer shown on the Leads list; its column shows each lead's Lead/CV download state instead.
+- **Blog SEO fields:** categories have `metaTitle` / `metaDescription` (admin Categories form); blogs have cover `imageAlt` (public pages fall back to meta description → excerpt → title).
 - **Schema changes need the live DB first.** `deploy:live` never touches the database, so a new column must be added on the live DB *before* deploying code that uses it, or every query on that model fails (this took down lead listing and job applications once).
 - **Careers:** fixed choices (role groups, departments, positions) live in `src/lib/careers/catalog.ts`, shared by the public form, API and admin editor. An application becomes a `Lead` with `referenceId` (`BT-{OFFICE}-{ID}-{DATE}`, e.g. `BT-ISM-DHRTD-260930` — office codes MAIN/ISM/COM/IRRD, then unique id, then apply date YYMMDD), an idempotent `submissionKey`, `queue`, and duplicate/employee `flags`. Candidate confirmation + HR alert go through `src/lib/mail.ts`.
 - **Media:** large videos are git-ignored (100MB GitHub limit) and hosted separately. Uploaded blog covers go in `public/blogs/`, media in `public/media/`, and CVs in `/uploads/`. All three are git-ignored. Keep masters in `media-src/`.
 
 ## 6. Environment variables (`.env`, template in `.env.example`)
 
-`DATABASE_URL`, `JWT_SECRET` (required, throws if missing), `JWT_EXPIRES_IN`, `JWT_ISSUER`, `JWT_AUDIENCE`, `CRM_API_TOKEN`, `ADMIN_EMAIL`/`ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_APP_URL`. Titan SMTP (optional but used in prod for HR alerts): `SMTP_HOST`/`SMTP_PORT`/`SMTP_SECURE`/`SMTP_USER`/`SMTP_PASS`/`SMTP_FROM`/`SMTP_TO` — see `.env.example`; password must never be committed. Build-only: `PRISMA_READONLY`, `BALITECH_BUILD_DATA=live|local`, `BALITECH_SSH_HOST/USER/PASSWORD`.
+`DATABASE_URL`, `JWT_SECRET` (required, throws if missing), `JWT_EXPIRES_IN`, `JWT_ISSUER`, `JWT_AUDIENCE`, `CRM_API_TOKEN`, `ADMIN_EMAIL`/`ADMIN_PASSWORD` (seed only), `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_META_PIXEL_ID` (default `1528153738658754`), `NEXT_PUBLIC_APP_URL`. Titan SMTP (optional but used in prod for HR alerts): `SMTP_HOST`/`SMTP_PORT`/`SMTP_SECURE`/`SMTP_USER`/`SMTP_PASS`/`SMTP_FROM`/`SMTP_TO` — see `.env.example`; password must never be committed. Build-only: `PRISMA_READONLY`, `BALITECH_BUILD_DATA=live|local`, `BALITECH_SSH_HOST/USER/PASSWORD`. Meta Pixel loads only in production (`src/components/seo/MetaPixel.tsx`).
 
 New join-us applications email the candidate a confirmation (branch contact + HR), and also notify `SMTP_TO` (default `humanresource@balitech.org`) via `src/lib/mail.ts`. Public contact/inquiry leads notify HR only. Mail failures are logged and never fail the form submission.
 

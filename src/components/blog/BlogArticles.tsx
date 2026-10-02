@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatBlogDate } from "@/lib/blog";
-import type { PublicBlog } from "@/lib/blogs";
+import { blogImageAlt, type PublicBlog } from "@/lib/blogs";
 
 type Props = {
   blogs: PublicBlog[];
@@ -39,7 +39,7 @@ export default function BlogArticles({ blogs }: Props) {
             <div className="blog-articles__featured-media">
               <Image
                 src={featured.image}
-                alt={featured.title}
+                alt={blogImageAlt(featured)}
                 fill
                 priority
                 unoptimized={featured.image.startsWith("/blogs/") || featured.image.startsWith("/uploads/")}
@@ -68,7 +68,7 @@ export default function BlogArticles({ blogs }: Props) {
                       <div className="blog-articles__item-media">
                         <Image
                           src={blog.image}
-                          alt={blog.title}
+                          alt={blogImageAlt(blog)}
                           fill
                           unoptimized={blog.image.startsWith("/blogs/") || blog.image.startsWith("/uploads/")}
                           className="object-cover"

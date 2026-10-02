@@ -1,5 +1,8 @@
 import type { MetadataRoute } from "next";
-import { getPublicBlogs } from "@/lib/blogs";
+import {
+  getActiveBlogCategories,
+  getPublicBlogs,
+} from "@/lib/blogs";
 import { SITE_URL as BASE_URL } from "@/lib/seo";
 import { serviceHref, servicePages } from "@/lib/service-pages";
 
@@ -38,9 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85,
   }));
 
-  /* Same source the article pages are prerendered from, so this cannot
-     advertise a URL that has not been built. */
-  const blogs = await getPublicBlogs();
+  const [blogs, categories] = await Promise.all([
+    getPublicBlogs(),
+    getActiveBlogCategories(),
+  ]);
+
   const blogEntries: MetadataRoute.Sitemap = blogs.map((blog) => ({
     url: `${BASE_URL}/blog/${blog.slug}`,
     lastModified: blog.updatedAt,
@@ -48,5 +53,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...serviceEntries, ...blogEntries];
+  const categoryEntries: MetadataRoute.Sitemap = categories
+    .filter((category) => category.postCount > 0)
+    .map((category) => ({
+      url: `${BASE_URL}/blog/category/${category.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.65,
+    }));
+
+  const tagSlugs = new Set<string>();
+  for (const blog of blogs) {
+    for (const tag of blog.tagList) tagSlugs.add(tag.slug);
+  }
+  const tagEntries: MetadataRoute.Sitemap = [...tagSlugs].map((slug) => ({
+    url: `${BASE_URL}/blog/tag/${slug}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.55,
+  }));
+
+  return [
+    ...staticEntries,
+    ...serviceEntries,
+    ...blogEntries,
+    ...categoryEntries,
+    ...tagEntries,
+  ];
 }
