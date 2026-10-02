@@ -2,15 +2,14 @@ import Script from "next/script";
 import { ANALYTICS_ENABLED, GTM_CONTAINER_ID } from "@/lib/analytics";
 
 /**
- * Google Tag Manager container script. `afterInteractive` injects it into the
- * <head> as soon as the page hydrates, which is what Google's snippet does, but
- * without blocking the first paint the hero is tuned for.
+ * Google Tag Manager. `lazyOnload` keeps gtm.js off the hydration / TBT window
+ * while still firing after the page is usable — same tags, later start.
  */
 export default function GoogleTagManager() {
   if (!ANALYTICS_ENABLED || !GTM_CONTAINER_ID) return null;
 
   return (
-    <Script id="gtm-init" strategy="afterInteractive">
+    <Script id="gtm-init" strategy="lazyOnload">
       {`
 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

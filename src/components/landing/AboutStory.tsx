@@ -16,19 +16,19 @@ export default function AboutStory() {
             <div>
               <p className="brand-label">Who We Are</p>
               <h2 id="about-story-title" className="brand-heading mt-3">
-                {about.historyHeadline.replace(" Professionals", "")}{" "}
+                From 7 People to {workforce.count}{" "}
                 <span className="heading-last-word">
                   Professionals
                   <HeadingBrush />
                 </span>
               </h2>
               <div className="mt-6 space-y-4">
-                {about.history.map((paragraph) => (
+                {about.history.map((chapter) => (
                   <p
-                    key={paragraph.slice(0, 40)}
+                    key={chapter.title}
                     className="text-sm leading-relaxed text-muted sm:text-base"
                   >
-                    {paragraph}
+                    {chapter.text}
                   </p>
                 ))}
               </div>

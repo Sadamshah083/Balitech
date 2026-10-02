@@ -8,7 +8,7 @@ This file is the single place for facts about the website: business details, arc
 
 | Fact | Value | Lives in |
 |---|---|---|
-| Brand / legal name | BALITECH / Bali Tech Pvt. Ltd | `src/lib/seo.ts`, `src/lib/content.ts` |
+| Brand / legal name | BALITECH / Bali Tech | `src/lib/seo.ts`, `src/lib/content.ts` |
 | Domain | https://balitech.org (`NEXT_PUBLIC_APP_URL` overrides) | `src/lib/seo.ts` |
 | Business | BPO / call center: inbound, outbound, lead gen, customer support | `SITE_DESCRIPTION` in `src/lib/seo.ts` |
 | Founded | April 2022, 7 people, first setup of 40 agents | `src/lib/content.ts` |
@@ -59,7 +59,7 @@ Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): d
 
 ## 5. Key conventions
 
-- **SEO:** every page uses `pageMetadata({ title, description, path })` from `src/lib/seo.ts`. Pass a **bare** title because the root layout template appends `| Bali Tech Pvt. Ltd`. Top-level pages also emit `breadcrumbSchema`. There are no `keywords` meta tags, on purpose.
+- **SEO:** every page uses `pageMetadata({ title, description, path })` from `src/lib/seo.ts`. Pass a **bare** title because the root layout template appends `| Bali Tech`. Top-level pages also emit `breadcrumbSchema`. There are no `keywords` meta tags, on purpose.
 - **API auth:** every mutating/admin API route calls `requireApiAuth(request)` from `src/lib/auth.ts`. It accepts the cookie `balitech_admin_token`, a Bearer JWT, or the static `CRM_API_TOKEN` (32+ chars, for CRM integration). Server pages use `requireAdmin()` from `src/lib/admin.ts`. Client admin code uses `adminFetch` (`src/lib/admin-token.ts`).
 - **After any admin write**, call `refreshPublicPages()` (`src/lib/refresh-public-pages.ts`). Public pages are prerendered and otherwise stay stale until the next deploy. It also refreshes `/sitemap.xml` and `/llms.txt` (route handlers are not covered by the layout refresh), so a newly published blog is in the sitemap at once; the sitemap additionally rebuilds hourly.
 - **Prisma:** import `prisma` from `src/lib/prisma.ts`. With `PRISMA_READONLY=1` (set by `build:live`), every write throws, so build-time code must be read-only.

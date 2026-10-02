@@ -204,7 +204,7 @@ export default async function Footer() {
       </div>
 
       <div className="site-footer__baseline">
-        <p>© {new Date().getFullYear()} Bali Tech Pvt. Ltd. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Bali Tech. All rights reserved.</p>
         <ul className="site-footer__legal">
           {legalLinks.map((link) => (
             <li key={link.href}>

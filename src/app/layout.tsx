@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Sora } from "next/font/google";
 import localFont from "next/font/local";
-import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
 import GoogleTagManager, {
   GoogleTagManagerNoScript,
@@ -229,7 +228,7 @@ export default function RootLayout({
         <GoogleTagManager />
         <GoogleAnalytics />
         <ScrollToTopOnNavigate />
-        <ThemeProvider>{children}</ThemeProvider>
+        {children}
       </body>
     </html>
   );

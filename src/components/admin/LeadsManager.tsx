@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { adminFetch } from "@/lib/admin-token";
 import {
@@ -122,7 +121,6 @@ function reviewCellTitle(lead: Lead) {
 }
 
 export default function LeadsManager() {
-  const router = useRouter();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -143,6 +141,7 @@ export default function LeadsManager() {
   const [positions, setPositions] = useState<PositionOption[]>([]);
   const [branches, setBranches] = useState<BranchOption[]>([]);
   const [totalLeads, setTotalLeads] = useState(0);
+  const [totalCvs, setTotalCvs] = useState(0);
   const [newLeads, setNewLeads] = useState(0);
   const [newCvs, setNewCvs] = useState(0);
   const [downloadingCvs, setDownloadingCvs] = useState(false);
@@ -181,6 +180,7 @@ export default function LeadsManager() {
       const data = await res.json();
       setPositions(data.positions ?? []);
       setTotalLeads(data.totals?.leads ?? 0);
+      setTotalCvs(data.totals?.cvs ?? 0);
       setNewLeads(data.totals?.newLeads ?? 0);
       setNewCvs(data.totals?.newCvs ?? 0);
     }
@@ -297,10 +297,11 @@ export default function LeadsManager() {
     }
   }
 
-  async function handleDownloadCvs() {
+  async function handleDownloadCvs(all = false) {
     setDownloadingCvs(true);
     try {
       const query = new URLSearchParams();
+      if (all) query.set("all", "1");
       if (positionFilter) query.set("position", positionFilter);
       if (branchFilter) query.set("branch", branchFilter);
       if (searchQuery) query.set("q", searchQuery);
@@ -319,7 +320,7 @@ export default function LeadsManager() {
         ? positionFilter.replace(/[^\w]+/g, "-").toLowerCase()
         : "all-jobs";
       link.href = url;
-      link.download = `balitech-cvs-new-${slug}-${stamp}.zip`;
+      link.download = `balitech-cvs-${all ? "all" : "new"}-${slug}-${stamp}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -348,9 +349,15 @@ export default function LeadsManager() {
   const selectedNewCvs = positionFilter
     ? (selectedPosition?.newCvs ?? 0)
     : newCvs;
+  const selectedTotalCvs = positionFilter
+    ? (selectedPosition?.cvs ?? 0)
+    : totalCvs;
   const selectedNewLeads = positionFilter
     ? (selectedPosition?.newLeads ?? 0)
     : newLeads;
+  const selectedTotalLeads = positionFilter
+    ? (selectedPosition?.leads ?? 0)
+    : totalLeads;
 
   if (!initialized) {
     return <p className="text-muted">Loading leads...</p>;
@@ -380,7 +387,7 @@ export default function LeadsManager() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Name, email, reference, COM / ISM…"
-              className="brand-input w-full"
+              className="brand-input admin-leads-toolbar__control w-full"
               autoComplete="off"
             />
           </div>
@@ -394,7 +401,7 @@ export default function LeadsManager() {
             id="lead-position-filter"
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
-            className="brand-input w-full"
+            className="brand-input admin-leads-toolbar__control w-full"
           >
             <option value="">All jobs ({totalLeads})</option>
             {POSITION_GROUPS.map(({ group, label }) => {
@@ -421,7 +428,7 @@ export default function LeadsManager() {
             id="lead-branch-filter"
             value={branchFilter}
             onChange={(e) => setBranchFilter(e.target.value)}
-            className="brand-input w-full"
+            className="brand-input admin-leads-toolbar__control w-full"
           >
             <option value="">All branches</option>
             {branches.map((branch) => {
@@ -445,7 +452,7 @@ export default function LeadsManager() {
                 setSearchInput("");
                 setSearchQuery("");
               }}
-              className="rounded-lg border border-foreground/15 px-3 py-2 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
+              className="admin-leads-toolbar__control rounded-lg border border-foreground/15 px-3 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
             >
               Clear
             </button>
@@ -454,16 +461,16 @@ export default function LeadsManager() {
             type="button"
             onClick={() => handleExport(false)}
             disabled={exporting || selectedNewLeads === 0}
-            className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-60"
+            className="btn-primary admin-leads-toolbar__control inline-flex items-center gap-1.5 rounded-lg px-3 text-sm font-semibold disabled:opacity-60"
           >
             <Download size={15} />
             {exporting ? "…" : `Leads (${selectedNewLeads})`}
           </button>
           <button
             type="button"
-            onClick={handleDownloadCvs}
+            onClick={() => handleDownloadCvs(false)}
             disabled={downloadingCvs || selectedNewCvs === 0}
-            className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-60"
+            className="btn-primary admin-leads-toolbar__control inline-flex items-center gap-1.5 rounded-lg px-3 text-sm font-semibold disabled:opacity-60"
             title={
               positionFilter
                 ? `Download new CVs for ${positionFilter}`
@@ -476,10 +483,22 @@ export default function LeadsManager() {
           <button
             type="button"
             onClick={() => handleExport(true)}
-            disabled={exporting || totalLeads === 0}
-            className="text-xs text-sky-400 transition hover:text-sky-300 disabled:opacity-40"
+            disabled={exporting || selectedTotalLeads === 0}
+            className="btn-primary admin-leads-toolbar__control inline-flex items-center gap-1.5 rounded-lg px-3 text-sm font-semibold disabled:opacity-60"
+            title="Download every matching lead again (does not mark as new)"
           >
-            All again
+            <Download size={15} />
+            {exporting ? "…" : "Download All leads again"}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDownloadCvs(true)}
+            disabled={downloadingCvs || selectedTotalCvs === 0}
+            className="btn-primary admin-leads-toolbar__control inline-flex items-center gap-1.5 rounded-lg px-3 text-sm font-semibold disabled:opacity-60"
+            title="Download every matching CV again (does not mark as new)"
+          >
+            <FileArchive size={15} />
+            {downloadingCvs ? "…" : "Download ALL CV again"}
           </button>
         </div>
       </div>
@@ -642,28 +661,13 @@ export default function LeadsManager() {
                     leads.map((lead) => (
                       <tr
                         key={lead.id}
-                        role="link"
-                        tabIndex={0}
-                        onClick={() => router.push(`/admin/leads/${lead.id}`)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            router.push(`/admin/leads/${lead.id}`);
-                          }
-                        }}
-                        className="cursor-pointer border-t border-foreground/8 hover:bg-surface"
+                        className="border-t border-foreground/8 hover:bg-surface"
                       >
                         <td
                           className="truncate px-3 py-3 font-medium text-foreground"
                           title={lead.name}
                         >
-                          <Link
-                            href={`/admin/leads/${lead.id}`}
-                            className="hover:text-orange"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {lead.name}
-                          </Link>
+                          {lead.name}
                           {lead.referenceId && (
                             <span className="block truncate text-xs font-normal text-muted">
                               {lead.referenceId}
@@ -757,10 +761,7 @@ export default function LeadsManager() {
                         <td className="whitespace-nowrap px-3 py-3 text-muted">
                           {new Date(lead.createdAt).toLocaleDateString()}
                         </td>
-                        <td
-                          className="px-2 py-3 text-center"
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        <td className="px-2 py-3 text-center">
                           <div className="flex justify-center gap-1">
                             <Link
                               href={`/admin/leads/${lead.id}`}

@@ -1,4 +1,4 @@
-# Bali Tech Pvt. Ltd — Website
+# Bali Tech — Website
 
 Professional outsourcing landing page with admin panel for leads and campaign management.
 

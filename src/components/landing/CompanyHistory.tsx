@@ -6,7 +6,10 @@ const { about } = companyContent;
 
 export default function CompanyHistory() {
   return (
-    <section id="history" className="section-gradient section-with-net px-4 py-20 sm:px-6 lg:px-8">
+    <section
+      id="history"
+      className="journey section-with-net px-4 py-20 sm:px-6 lg:px-8"
+    >
       <SectionAnimatedNet />
       <div className="mx-auto max-w-4xl text-center">
         <p className="brand-label mb-4">{about.historyLabel}</p>
@@ -15,20 +18,22 @@ export default function CompanyHistory() {
         </AnimatedTitle>
       </div>
 
-      <div className="mx-auto mt-12 grid max-w-5xl gap-6">
-        {about.history.map((paragraph, index) => (
-          <article
-            key={paragraph.slice(0, 40)}
-            className="glow-border rounded-2xl bg-card/60 p-6 sm:p-8"
-          >
-            <p className="brand-label mb-3">
-              Chapter {String(index + 1).padStart(2, "0")}
-            </p>
-            <p className="text-sm leading-relaxed text-muted sm:text-base">
-              {paragraph}
-            </p>
-          </article>
-        ))}
+      <div className="journey__grid">
+        {about.history.map((chapter, index) => {
+          const n = String(index + 1).padStart(2, "0");
+          return (
+            <article key={chapter.title} className="journey-card">
+              <div className="journey-card__meta">
+                <span className="journey-card__chapter">Chapter {n}</span>
+                <span className="journey-card__index" aria-hidden>
+                  — {n}
+                </span>
+              </div>
+              <h3 className="journey-card__title">{chapter.title}</h3>
+              <p className="journey-card__text">{chapter.text}</p>
+            </article>
+          );
+        })}
       </div>
     </section>
   );

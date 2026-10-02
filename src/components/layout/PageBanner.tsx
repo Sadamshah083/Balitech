@@ -35,7 +35,7 @@ export default function PageBanner({ title, subtitle, image, compact = false }: 
       <BrandBubbles className="right-12 top-16 hidden md:flex" />
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
-        <p className="brand-label mb-3">Bali Tech Pvt. Ltd</p>
+        <p className="brand-label mb-3">Bali Tech</p>
         <h1
           className={
             compact

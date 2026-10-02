@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { loadGsap, loadGsapWhenIdle } from "@/lib/gsap-register";
+import { loadGsapWhenIdle } from "@/lib/gsap-register";
 import { onIdle } from "@/lib/on-idle";
 import { onFirstInteraction } from "@/lib/on-interaction";
 import { HERO_LOADER_REMOVE_MS } from "@/lib/hero-loader";
@@ -14,9 +14,6 @@ const RESTING_TIP = 0.66;
 /** Depth of the soft edge at the tip, in pixels. Mirrors the gradient on
     `.light-path__curtain`, which is what actually draws the fade. */
 const TIP_FADE = 220;
-
-/** Quiet time after `load` before GSAP is fetched ahead of the first scroll. */
-const GSAP_WARM_AFTER_LOAD_MS = 2500;
 
 /**
  * The comet's own little canvas, and where its head sits inside it.
@@ -94,27 +91,10 @@ export default function LightPath() {
      respond to. Before that it costs a full-page SVG rasterisation, the GSAP
      download, and a 2.3s reveal, all of it spent while the visitor is still
      reading the hero. */
+  /* The ribbon waits for first interaction before building. Warming GSAP on
+     load put ~70 KB of parse/eval into Lighthouse's TBT window for no visual
+     gain — first scroll already loads it via loadGsapWhenIdle. */
   useEffect(() => onFirstInteraction(() => setArmed(true)), []);
-
-  /* On a phone the first interaction is the touch that starts the first swipe,
-     so fetching and evaluating GSAP then cost the opening frames of that
-     scroll. Warming it once the page has loaded and gone quiet moves that work
-     out of the swipe; the ribbon itself still waits for the interaction. */
-  useEffect(() => {
-    let cancel = () => {};
-    const warm = () => {
-      const timer = window.setTimeout(() => {
-        cancel = onIdle(() => void loadGsap(), 3000);
-      }, GSAP_WARM_AFTER_LOAD_MS);
-      cancel = () => window.clearTimeout(timer);
-    };
-    if (document.readyState === "complete") warm();
-    else window.addEventListener("load", warm, { once: true });
-    return () => {
-      window.removeEventListener("load", warm);
-      cancel();
-    };
-  }, []);
 
   /* The geometry is built from the measured box, so it has to be remeasured
      whenever the page reflows — images loading and fonts swapping both change

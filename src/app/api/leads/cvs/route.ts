@@ -25,12 +25,17 @@ export async function GET(request: Request) {
   if (auth.response) return auth.response;
 
   const url = new URL(request.url);
+  const downloadAll = url.searchParams.get("all") === "1";
   const position = url.searchParams.get("position")?.trim() || null;
   const filters = buildLeadWhere(url.searchParams);
 
   const leads = await prisma.lead.findMany({
     where: {
-      AND: [filters, { NOT: { cvPath: null } }, { cvDownloadedAt: null }],
+      AND: [
+        filters,
+        { NOT: { cvPath: null } },
+        ...(downloadAll ? [] : [{ cvDownloadedAt: null }]),
+      ],
     },
     orderBy: { createdAt: "desc" },
     select: {
@@ -53,9 +58,13 @@ export async function GET(request: Request) {
   if (files.length === 0) {
     return NextResponse.json(
       {
-        error: position
-          ? `No new CVs available for "${position}"`
-          : "No new CVs available to download",
+        error: downloadAll
+          ? position
+            ? `No CVs found for "${position}"`
+            : "No CVs available to download"
+          : position
+            ? `No new CVs available for "${position}"`
+            : "No new CVs available to download",
       },
       { status: 404 }
     );
@@ -78,7 +87,7 @@ export async function GET(request: Request) {
   const stampedIds = files.map((file) => file.lead.id);
   let stamped = false;
   const stampDownloads = () => {
-    if (stamped) return;
+    if (downloadAll || stamped) return;
     stamped = true;
     void prisma.lead.updateMany({
       where: { id: { in: stampedIds } },
@@ -92,7 +101,8 @@ export async function GET(request: Request) {
   archive.finalize().catch(() => passthrough.destroy());
 
   const stamp = new Date().toISOString().slice(0, 10);
-  const zipName = `balitech-cvs-new-${
+  const kind = downloadAll ? "all" : "new";
+  const zipName = `balitech-cvs-${kind}-${
     position ? slugify(position).toLowerCase() : "all-jobs"
   }-${stamp}.zip`;
 

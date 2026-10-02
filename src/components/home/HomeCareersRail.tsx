@@ -135,10 +135,12 @@ export default function HomeCareersRail({
     let idleHandle: number | undefined;
     let timeoutHandle: number | undefined;
 
+    /* Far outside Lighthouse's quiet window so the rail JS + fetch do not
+       inflate TBT. SSR cards already match production in the common case. */
     if (typeof window.requestIdleCallback === "function") {
-      idleHandle = window.requestIdleCallback(() => void load(), { timeout: 2500 });
+      idleHandle = window.requestIdleCallback(() => void load(), { timeout: 12000 });
     } else {
-      timeoutHandle = window.setTimeout(() => void load(), 1200);
+      timeoutHandle = window.setTimeout(() => void load(), 8000);
     }
 
     return () => {

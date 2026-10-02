@@ -1,14 +1,12 @@
 import SitePage from "@/components/layout/SitePage";
 import AnimateSection from "@/components/animations/AnimateSection";
-import LightPath from "@/components/effects/LightPath";
+import DeferredLightPath from "@/components/effects/DeferredLightPath";
 import Hero from "@/components/landing/Hero";
 import AudiencePaths from "@/components/landing/AudiencePaths";
 import Metrics from "@/components/landing/Metrics";
 import ServiceCards from "@/components/landing/ServiceCards";
 import WhyBalitech from "@/components/landing/WhyBalitech";
 import HowWeWork from "@/components/landing/HowWeWork";
-import CaseStudies from "@/components/landing/CaseStudies";
-import Testimonials from "@/components/landing/Testimonials";
 import InsideCompany from "@/components/home/InsideCompany";
 import HomeCareers from "@/components/home/HomeCareers";
 import HomeLocations from "@/components/home/HomeLocations";
@@ -27,7 +25,7 @@ export default function Home() {
     <SitePage indexTheme>
       {/* Spans the whole page, so it is a direct child of the page shell
           rather than nested inside any one section. */}
-      <LightPath />
+      <DeferredLightPath />
 
       <Hero />
       <Metrics />
@@ -53,9 +51,6 @@ export default function Home() {
       <AnimateSection delay={0.05}>
         <HowWeWork />
       </AnimateSection>
-
-      <CaseStudies />
-      <Testimonials />
 
       <AnimateSection delay={0.05}>
         <InsideCompany />

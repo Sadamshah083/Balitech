@@ -9,7 +9,7 @@ const EMPLOYEE_COUNT_PLAIN = EMPLOYEE_COUNT.replace("+", "");
 
 export const companyContent = {
   name: "BALITECH",
-  legalName: "Bali Tech Pvt. Ltd",
+  legalName: "Bali Tech",
   tagline: "Together We Build Success.",
   missionTagline: "Empowering Your Vision, Shaping Tomorrow.",
 
@@ -30,8 +30,8 @@ export const companyContent = {
     title: "Operational Excellence & Professional Growth",
     description:
       "BALITECH is a rapidly growing BPO organization dedicated to operational excellence, employee development, and delivering high-quality client services. With a strong focus on professionalism, innovation, and performance, BALITECH continues to build a dynamic work environment that supports both business success and career growth.",
-    historyLabel: "History",
-    historyHeadline: `From 7 People to ${EMPLOYEE_COUNT} Professionals`,
+    historyLabel: "Our Team",
+    historyHeadline: "Our Journey",
     goalsLabel: "Goals",
     collageLabel: "About BALITECH",
     collageTitle: "Annual Trips",
@@ -74,9 +74,18 @@ export const companyContent = {
       },
     },
     history: [
-      "BALITECH was established in April 2022 with a vision, determination, and a small team of only 7 people. The company began with a single setup of 40 agents and gradually evolved through hard work, consistency, and continuous improvement.",
-      "Despite early challenges, BALITECH remained focused on building strong teams, developing leadership, and creating a professional organizational structure. Through dedication and resilience, the company successfully expanded into a recognized and fast-growing BPO organization.",
-      `Today, BALITECH proudly operates with ${EMPLOYEE_COUNT} employees and manages multiple successful international campaigns while continuing to expand its operations and workforce nationwide.`,
+      {
+        title: "The Beginning",
+        text: "BALITECH was established in April 2022 with a vision, determination, and a small team of only 7 people. The company began with a single setup of 40 agents and gradually evolved through hard work, consistency, and continuous improvement.",
+      },
+      {
+        title: "Building Our Foundation",
+        text: "Despite early challenges, BALITECH remained focused on building strong teams, developing leadership, and creating a professional organizational structure. Through dedication and resilience, the company successfully expanded into a recognized and fast-growing BPO organization.",
+      },
+      {
+        title: "Growing Together",
+        text: `Today, BALITECH proudly operates with ${EMPLOYEE_COUNT} employees and manages multiple successful international campaigns while continuing to expand its operations and workforce nationwide.`,
+      },
     ],
     showcaseLabel: "Inside BALITECH",
     showcaseHeadline: "Built for Performance. Designed for People.",

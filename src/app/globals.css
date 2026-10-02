@@ -401,6 +401,79 @@ input:disabled,
     0 0 60px color-mix(in srgb, var(--orange) 20%, transparent);
 }
 
+/* Our Journey — three chapter cards on /our-team */
+.journey__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  max-width: 72rem;
+  margin: 3rem auto 0;
+}
+
+@media (min-width: 900px) {
+  .journey__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.35rem;
+    align-items: stretch;
+  }
+}
+
+.journey-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: clamp(1.35rem, 2.2vw, 1.85rem);
+  border: 1px solid var(--orange);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--blue-dark) 72%, transparent);
+}
+
+.journey-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.journey-card__chapter,
+.journey-card__index {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+.journey-card__title {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-sora), sans-serif;
+  font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+
+.journey-card__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--foreground) 88%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .journey-card {
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .journey-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 28px color-mix(in srgb, var(--orange) 22%, transparent);
+  }
+}
+
 /* Gallery — portrait phones + TV row */
 .gallery-portrait-player {
   width: 100%;
@@ -2047,6 +2120,27 @@ select.brand-input {
 /* Beat .brand-input shorthand padding so text clears the icon. */
 .admin-lead-search-wrap > input.brand-input {
   padding-left: 2.5rem !important;
+}
+
+/* Match search + Job/Branch selects to the orange action button height
+   without changing their flex widths. */
+.admin-leads-toolbar__control {
+  box-sizing: border-box;
+  height: 2.625rem;
+  min-height: 2.625rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1.25;
+}
+
+.admin-leads-toolbar__actions .admin-leads-toolbar__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+select.admin-leads-toolbar__control {
+  padding-right: 2rem;
 }
 
 @media (min-width: 1100px) {

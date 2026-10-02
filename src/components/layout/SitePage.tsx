@@ -1,6 +1,6 @@
 import SiteHeader from "@/components/landing/SiteHeader";
 import Footer from "@/components/landing/Footer";
-import ScrollAtmosphere from "@/components/effects/ScrollAtmosphere";
+import DeferredScrollAtmosphere from "@/components/effects/DeferredScrollAtmosphere";
 
 export default function SitePage({
   children,
@@ -13,7 +13,7 @@ export default function SitePage({
     <main
       className={`site-main relative min-h-screen overflow-x-hidden bg-background${indexTheme ? " site-main--index" : ""}`}
     >
-      <ScrollAtmosphere />
+      <DeferredScrollAtmosphere />
       <SiteHeader />
       {children}
       <Footer />

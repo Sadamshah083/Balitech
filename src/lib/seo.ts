@@ -4,7 +4,7 @@ export const SITE_URL =
   process.env.NEXT_PUBLIC_APP_URL || "https://balitech.org";
 
 export const SITE_NAME = "BALITECH";
-export const SITE_LEGAL_NAME = "Bali Tech Pvt. Ltd";
+export const SITE_LEGAL_NAME = "Bali Tech";
 export const SITE_LOCALE = "en_US";
 
 export const DEFAULT_OG_IMAGE = "/bali-tech-logo.png";
@@ -32,7 +32,7 @@ export function pageMetadata({
 
   /* The root layout's title template already appends the legal name, so the
      page title stays bare — adding the brand here produced titles reading
-     "… | BALITECH | Bali Tech Pvt. Ltd", which is both redundant and long
+     "… | BALITECH | Bali Tech", which is both redundant and long
      enough for Google to truncate. Social cards do not run through the
      template, so those get the brand explicitly. */
   const socialTitle = title.includes(SITE_NAME)

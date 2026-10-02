@@ -56,6 +56,16 @@ export { fallbackVacancies };
 
 export { isCampaignVacancyId };
 
+/** Titles kept off the public join-us form (DB rows left untouched). */
+const HIDDEN_FORM_TITLES = new Set([
+  "customer service representative",
+  "sales agent",
+]);
+
+function isHiddenFromForm(title: string) {
+  return HIDDEN_FORM_TITLES.has(title.trim().toLowerCase());
+}
+
 /* Campaign cards on the site are job ads with an Apply button, so each active
    campaign is also offered as a position unless HR published a vacancy for it. */
 function campaignRole(title: string): { department: string; roleGroups: RoleGroup[] } {
@@ -134,10 +144,10 @@ export async function listPublicVacancies(): Promise<{
 
   const total = await prisma.vacancy.count();
   if (total === 0) {
-    const extras = fallbackVacancies.filter(
-      (v) => !campaignTitles.has(v.title.trim().toLowerCase())
-    );
-    return { vacancies: [...fromCampaigns, ...extras], fallback: true };
+    return {
+      vacancies: fromCampaigns.filter((v) => !isHiddenFromForm(v.title)),
+      fallback: true,
+    };
   }
 
   const rows = await prisma.vacancy.findMany({
@@ -149,10 +159,17 @@ export async function listPublicVacancies(): Promise<{
     .map(toPublicVacancy)
     .filter(
       (v) =>
+        !isHiddenFromForm(v.title) &&
         !campaignTitles.has(v.title.trim().toLowerCase()) &&
         !(v.campaign && campaignTitles.has(v.campaign.trim().toLowerCase()))
     );
-  return { vacancies: [...fromCampaigns, ...published], fallback: false };
+  return {
+    vacancies: [
+      ...fromCampaigns.filter((v) => !isHiddenFromForm(v.title)),
+      ...published,
+    ],
+    fallback: false,
+  };
 }
 
 /** An open vacancy by id, or null when it is closed or never existed. */

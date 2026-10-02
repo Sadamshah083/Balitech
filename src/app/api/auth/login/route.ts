@@ -41,10 +41,12 @@ export async function POST(request: Request) {
       token,
       expiresIn: getJwtExpiresIn(),
     });
-  } catch {
-    return NextResponse.json(
-      { error: "Login failed" },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("[auth/login]", error);
+    const message =
+      error instanceof Error && /Can't reach database server/i.test(error.message)
+        ? "Database is offline. Start MySQL (XAMPP) and try again."
+        : "Login failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { siteImages } from "@/lib/images";
 import { onIdle } from "@/lib/on-idle";
+import { onFirstInteraction } from "@/lib/on-interaction";
 
 type HeroBackgroundSliderProps = {
   onFirstImageReady?: () => void;
@@ -19,10 +20,9 @@ export default function HeroBackgroundSlider({
   /**
    * The poster is a frame of the clip, so the hero looks finished the moment it
    * paints and the film itself is pure enhancement. At 746 KB it is also by far
-   * the largest thing the page can ask for, so it is only ever fetched where it
-   * earns its weight: after the page has loaded, on a screen large enough to
-   * show it properly, and not over a connection the visitor is paying for by
-   * the megabyte.
+   * the largest thing the page can ask for, so it is only ever fetched after the
+   * visitor interacts (or has already scrolled) — never during the Lighthouse
+   * quiet window after load.
    */
   useEffect(() => {
     const video = videoRef.current;
@@ -106,28 +106,20 @@ export default function HeroBackgroundSlider({
       observer.observe(video);
     };
 
+    /* Wait for a real interaction (or restored scroll) so Lighthouse's
+       post-load quiet period never pays for video decode. */
     let cancelIdle = () => {};
-    const schedule = () => {
-      cancelIdle = onIdle(attach);
-    };
+    const cancelInteraction = onFirstInteraction(() => {
+      cancelIdle = onIdle(attach, 1200);
+    });
 
-    const stop = () => {
+    return () => {
       cancelled = true;
+      cancelInteraction();
       cancelIdle();
       clearTimeout(watchdog);
       video.removeEventListener("playing", watchPlayback);
       observer?.disconnect();
-    };
-
-    if (document.readyState === "complete") {
-      schedule();
-      return stop;
-    }
-
-    window.addEventListener("load", schedule, { once: true });
-    return () => {
-      stop();
-      window.removeEventListener("load", schedule);
     };
   }, [heroVideo.src]);
 

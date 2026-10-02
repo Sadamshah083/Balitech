@@ -11,7 +11,7 @@ import { companyContent } from "@/lib/content";
 
 export const metadata = pageMetadata({
   title: "Our Growth & Top Performers",
-  description: `From 7 people to ${companyContent.workforce.count} professionals — meet the team, top performers, and leadership behind Bali Tech Pvt. Ltd's rapid growth across Pakistan.`,
+  description: `From 7 people to ${companyContent.workforce.count} professionals — meet the team, top performers, and leadership behind Bali Tech's rapid growth across Pakistan.`,
   path: "/our-team",
 });
 

@@ -1,5 +1,3 @@
-"use client";
-
 import IntentLink from "@/components/navigation/IntentLink";
 import {
   ArrowRight,
@@ -30,8 +28,6 @@ const SERVICE_ICONS: LucideIcon[] = [
   Settings,
   FileText,
 ];
-
-const handleImageReady = () => {};
 
 export default function Hero() {
   return (
@@ -106,7 +102,7 @@ export default function Hero() {
             <span className="hero-media__orbit" aria-hidden />
 
             <div className="hero-media__frame">
-              <HeroBackgroundSlider onFirstImageReady={handleImageReady} />
+              <HeroBackgroundSlider />
               <span className="hero-media__scrim" aria-hidden />
 
               <div className="hero-media__badge" aria-hidden>

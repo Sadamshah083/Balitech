@@ -10,7 +10,7 @@ import JsonLd from "@/components/seo/JsonLd";
 export const metadata = pageMetadata({
   title: "Our Offices in Rawalpindi & Islamabad",
   description:
-    "Visit Bali Tech Pvt. Ltd offices in Shamsabad, Satellite Town, Iran Road (Rawalpindi) and I-9/3 (Islamabad). Call 0370 0585660 or 0327 1233435.",
+    "Visit Bali Tech offices in Shamsabad, Satellite Town, Iran Road (Rawalpindi) and I-9/3 (Islamabad). Call 0370 0585660 or 0327 1233435.",
   path: "/our-offices",
 });
 
@@ -40,6 +40,10 @@ export default async function OurOfficesPage() {
                     src={office.image}
                     alt={`${office.name} building`}
                     fill
+                    unoptimized={
+                      office.image.startsWith("http") ||
+                      office.image.startsWith("/uploads/")
+                    }
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />

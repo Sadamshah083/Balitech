@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type AnimateSectionProps = {
   children: React.ReactNode;
@@ -13,6 +13,9 @@ type AnimateSectionProps = {
  * sections on most pages, and pulling framer-motion in for a fade-up cost more
  * JavaScript than the rest of the page combined. An IntersectionObserver plus a
  * CSS transition is a few hundred bytes and animates on the compositor.
+ *
+ * Class toggles go straight on the DOM node so eight wrappers do not each force
+ * a React re-render during the load window.
  */
 export default function AnimateSection({
   children,
@@ -20,8 +23,6 @@ export default function AnimateSection({
   className = "",
 }: AnimateSectionProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [isArmed, setIsArmed] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -30,7 +31,8 @@ export default function AnimateSection({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          setIsVisible(true);
+          el.classList.add("is-visible");
+          el.classList.remove("is-armed");
           observer.disconnect();
           return;
         }
@@ -42,7 +44,7 @@ export default function AnimateSection({
 
            The decision comes from the observer rather than a getBoundingClientRect
            on mount so that arming a dozen sections costs no forced layout. */
-        setIsArmed(true);
+        el.classList.add("is-armed");
       },
       { rootMargin: "0px 0px -80px 0px" }
     );
@@ -54,9 +56,7 @@ export default function AnimateSection({
   return (
     <div
       ref={ref}
-      className={`reveal-up${isArmed ? " is-armed" : ""}${
-        isVisible ? " is-visible" : ""
-      }${className ? ` ${className}` : ""}`}
+      className={`reveal-up${className ? ` ${className}` : ""}`}
       style={delay ? { transitionDelay: `${delay}s` } : undefined}
     >
       {children}

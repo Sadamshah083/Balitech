@@ -39,8 +39,6 @@ export const DEPARTMENTS: Department[] = [
     value: "operations",
     label: "Operations",
     positions: [
-      { title: "Sales Agent", groups: ["campaign", "english"] },
-      { title: "Customer Service Representative", groups: ["campaign", "english"] },
       { title: "Verifier", groups: ["campaign", "english"] },
       { title: "Self Verifier", groups: ["campaign", "english"] },
       { title: "Closer", groups: ["campaign", "english"] },

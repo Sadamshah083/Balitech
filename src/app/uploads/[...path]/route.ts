@@ -7,7 +7,7 @@ import { UPLOADS_ROOT } from "@/lib/media-upload";
 export const runtime = "nodejs";
 
 /* CVs also live under uploads/ and must never be publicly reachable. */
-const PUBLIC_FOLDERS = new Set(["media", "blogs"]);
+const PUBLIC_FOLDERS = new Set(["media", "blogs", "offices"]);
 
 const CONTENT_TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -15,6 +15,10 @@ const CONTENT_TYPES: Record<string, string> = {
   ".png": "image/png",
   ".webp": "image/webp",
   ".gif": "image/gif",
+  ".avif": "image/avif",
+  ".bmp": "image/bmp",
+  ".heic": "image/heic",
+  ".heif": "image/heif",
   ".mp4": "video/mp4",
   ".webm": "video/webm",
   ".mov": "video/quicktime",

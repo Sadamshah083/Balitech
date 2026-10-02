@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { Building2, Clock, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Building2, Clock, ImagePlus, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { adminFetch } from "@/lib/admin-token";
 import { officeHours } from "@/lib/fallback-offices";
 
@@ -39,6 +39,14 @@ const emptyForm = {
   isHeadOffice: false,
 };
 
+function imageUnoptimized(src: string) {
+  return (
+    src.startsWith("http") ||
+    src.startsWith("/uploads/") ||
+    src.startsWith("/media/")
+  );
+}
+
 export default function OfficesManager() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +54,9 @@ export default function OfficesManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
   async function fetchOffices() {
     const res = await adminFetch("/api/offices");
@@ -65,12 +76,14 @@ export default function OfficesManager() {
 
   function openCreate() {
     setEditingId(null);
+    setUploadError("");
     setForm({ ...emptyForm, order: offices.length + 1 });
     setShowForm(true);
   }
 
   function openEdit(office: Office) {
     setEditingId(office.id);
+    setUploadError("");
     setForm({
       name: office.name,
       slug: office.slug,
@@ -87,6 +100,43 @@ export default function OfficesManager() {
       isHeadOffice: office.isHeadOffice,
     });
     setShowForm(true);
+  }
+
+  async function handleImagePick(file: File | null) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError(
+        `Image is ${(file.size / 1024 / 1024).toFixed(1)}MB — max is 10MB.`
+      );
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+    setUploading(true);
+    setUploadError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await adminFetch("/api/offices/upload", {
+        method: "POST",
+        body,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setUploadError(
+          data.error ||
+            (res.status === 413
+              ? "File is too large for the server."
+              : `Upload failed (HTTP ${res.status}).`)
+        );
+        return;
+      }
+      setForm((current) => ({ ...current, image: data.url as string }));
+    } catch {
+      setUploadError("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -232,13 +282,59 @@ export default function OfficesManager() {
               }
               className="brand-input"
             />
-            <input
-              type="text"
-              placeholder="Image URL (e.g. /balitech_office/DSC03829.JPG)"
-              value={form.image}
-              onChange={(e) => setForm({ ...form, image: e.target.value })}
-              className="brand-input"
-            />
+            <div className="sm:col-span-2">
+              <p className="brand-label mb-2">Branch photo</p>
+              {form.image ? (
+                <div className="relative mb-3 h-40 overflow-hidden rounded-lg bg-background-dark">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={form.image}
+                    alt="Branch preview"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ) : null}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => fileRef.current?.click()}
+                  className="btn-secondary inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold disabled:opacity-60"
+                >
+                  <ImagePlus size={16} />
+                  {uploading ? "Uploading…" : "Choose from PC"}
+                </button>
+                {form.image && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, image: "" })}
+                    className="rounded-lg border border-foreground/15 px-3 py-2 text-sm text-muted hover:text-foreground"
+                  >
+                    Remove photo
+                  </button>
+                )}
+              </div>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.avif,.bmp,.heic,.heif"
+                className="sr-only"
+                onChange={(e) => handleImagePick(e.target.files?.[0] ?? null)}
+              />
+              <input
+                type="text"
+                placeholder="Or paste image path / URL"
+                value={form.image}
+                onChange={(e) => setForm({ ...form, image: e.target.value })}
+                className="brand-input mt-2 w-full"
+              />
+              {uploadError && (
+                <p className="mt-1 text-xs text-red-400">{uploadError}</p>
+              )}
+              <p className="mt-1 text-[11px] text-muted">
+                Upload a photo from your PC, or paste an existing path/URL.
+              </p>
+            </div>
           </div>
 
           <textarea
@@ -286,7 +382,7 @@ export default function OfficesManager() {
           <div className="flex gap-3">
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploading}
               className="btn-primary rounded-lg px-6 py-2 text-sm font-semibold disabled:opacity-60"
             >
               {saving ? "Saving..." : editingId ? "Update Branch" : "Create Branch"}
@@ -323,7 +419,7 @@ export default function OfficesManager() {
                     src={office.image}
                     alt={office.name}
                     fill
-                    unoptimized={office.image.startsWith("http")}
+                    unoptimized={imageUnoptimized(office.image)}
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />

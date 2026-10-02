@@ -298,7 +298,7 @@ export default function VacanciesManager() {
 
       {vacancies.length === 0 && (
         <p className="mb-6 rounded-lg border border-orange/30 bg-orange/10 p-4 text-sm text-foreground">
-          No vacancies yet, so the careers form is offering Customer Service Representative and Sales Agent at every branch.
+          No vacancies yet, so the careers form only lists active campaign openings until you add a vacancy here.
           Once you add a vacancy, only the vacancies listed here are offered.
         </p>
       )}
