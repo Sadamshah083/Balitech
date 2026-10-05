@@ -1611,14 +1611,21 @@ input:disabled,
 }
 
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
   background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
   color: #000000;
-  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   box-shadow:
     0 0 28px var(--orange-glow),
     0 0 48px color-mix(in srgb, var(--orange) 35%, transparent);
@@ -1626,7 +1633,20 @@ input:disabled,
   color: #000000;
 }
 
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   border: 1px solid var(--border-subtle);
   color: var(--foreground);
   background: var(--background-light);
@@ -1634,10 +1654,15 @@ input:disabled,
   transition: all 0.3s ease;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   border-color: var(--orange);
   color: var(--orange);
   box-shadow: 0 0 16px var(--orange-glow);
+}
+
+.btn-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .decorative-arc {
@@ -2213,6 +2238,8 @@ select.admin-leads-toolbar__control {
   border-radius: 0.5rem;
 }
 
+/* Base .btn-primary / .btn-secondary already have border-radius; this guard
+   is kept only so nothing drifts if the base ever changes. */
 .admin-shell .btn-primary,
 .admin-shell .btn-secondary {
   border-radius: 0.5rem;
@@ -2261,7 +2288,7 @@ select.admin-leads-toolbar__control {
 }
 
 .admin-modal__panel--lg {
-  max-width: 44rem;
+  max-width: 48rem;
 }
 
 .admin-modal__panel:focus-visible {
@@ -2323,7 +2350,13 @@ select.admin-leads-toolbar__control {
   gap: 0.75rem;
   border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   background: color-mix(in srgb, var(--surface) 55%, transparent);
-  padding: 1rem 1.5rem;
+  padding: 1.125rem 1.5rem;
+}
+
+.admin-modal__footer .btn-primary,
+.admin-modal__footer .btn-secondary {
+  padding: 0.625rem 1.5rem;
+  font-size: 0.9375rem;
 }
 
 .admin-modal__btn {

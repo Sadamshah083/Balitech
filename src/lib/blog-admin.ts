@@ -37,6 +37,8 @@ export async function uniqueBlogSlug(base: string, excludeId?: string) {
   }
 }
 
+const CUID_RE = /^c[a-z0-9]{20,}$/;
+
 /** Find-or-create tags by name; returns tag ids. */
 export async function resolveTagIds(
   input: Array<string | { id?: string; name?: string }>
@@ -45,8 +47,7 @@ export async function resolveTagIds(
   const seen = new Set<string>();
 
   for (const item of input) {
-    if (typeof item === "string" && item.startsWith("cl")) {
-      // likely cuid
+    if (typeof item === "string" && CUID_RE.test(item)) {
       if (!seen.has(item)) {
         const exists = await prisma.blogTag.findUnique({ where: { id: item } });
         if (exists) {
@@ -54,6 +55,8 @@ export async function resolveTagIds(
           ids.push(item);
           continue;
         }
+      } else {
+        continue;
       }
     }
 

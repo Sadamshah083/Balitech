@@ -206,6 +206,28 @@ export async function PUT(request: Request) {
     await syncCategoryTagLinks(category.id, tagIds);
   }
 
+  // Clean up garbage tags created by the old CUID-detection bug: tags whose
+  // name looks like a Prisma ID (c + 20+ lowercase alphanumeric chars).
+  const garbageTags = await prisma.blogTag.findMany({
+    where: { slug: { startsWith: "c" } },
+    select: { id: true, name: true, slug: true },
+  });
+  const cuidRe = /^c[a-z0-9]{20,}$/;
+  const garbageIds = garbageTags
+    .filter((t) => cuidRe.test(t.name) || cuidRe.test(t.slug))
+    .map((t) => t.id);
+  if (garbageIds.length > 0) {
+    await prisma.blogTagOnBlog.deleteMany({
+      where: { tagId: { in: garbageIds } },
+    });
+    await prisma.blogCategoryTag.deleteMany({
+      where: { tagId: { in: garbageIds } },
+    });
+    await prisma.blogTag.deleteMany({
+      where: { id: { in: garbageIds } },
+    });
+  }
+
   refreshPublicPages();
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, garbageTagsCleaned: garbageIds.length });
 }

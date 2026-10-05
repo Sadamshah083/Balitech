@@ -155,25 +155,14 @@ export default async function BlogDetailPage({ params }: PageProps) {
               {blog.title}
             </h1>
 
-            {(blog.category || blog.tagList.length > 0) && (
+            {blog.category && (
               <div className="mt-5 flex flex-wrap gap-2">
-                {blog.category && (
-                  <Link
-                    href={`/blog/category/${blog.category.slug}`}
-                    className="inline-flex rounded-full bg-orange px-3.5 py-1.5 text-xs font-bold text-[#0d1a3a] no-underline"
-                  >
-                    {blog.category.name}
-                  </Link>
-                )}
-                {blog.tagList.map((tag) => (
-                  <Link
-                    key={tag.id}
-                    href={`/blog/tag/${tag.slug}`}
-                    className="inline-flex rounded-full border border-orange/40 bg-orange/15 px-3 py-1.5 text-xs font-bold text-orange no-underline"
-                  >
-                    #{tag.name}
-                  </Link>
-                ))}
+                <Link
+                  href={`/blog/category/${blog.category.slug}`}
+                  className="inline-flex rounded-full bg-orange px-3.5 py-1.5 text-xs font-bold text-[#0d1a3a] no-underline"
+                >
+                  {blog.category.name}
+                </Link>
               </div>
             )}
 
