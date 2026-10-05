@@ -47,6 +47,7 @@ export default function BlogListing({
   const shellRef = useRef<HTMLDivElement>(null);
   const asideTrackRef = useRef<HTMLElement>(null);
   const stickyCardRef = useRef<HTMLDivElement>(null);
+  const postsRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState(initialQuery);
   const [categorySlug, setCategorySlug] = useState(initialCategory);
   const [tagSlug, setTagSlug] = useState(initialTag);
@@ -239,11 +240,19 @@ export default function BlogListing({
     });
   }
 
+  function scrollToResults() {
+    const el = postsRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - FILTER_STICKY_TOP - 16;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }
+
   function applyCategory(slug: string) {
     startTransition(() => {
       setCategorySlug((current) => (current === slug ? "" : slug));
       setPage(1);
     });
+    scrollToResults();
   }
 
   const filterBox = (
@@ -384,7 +393,7 @@ export default function BlogListing({
             type="button"
             className="rounded-full border border-foreground/15 px-4 py-2 disabled:cursor-not-allowed disabled:opacity-40"
             disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
+            onClick={() => { setPage((p) => p - 1); scrollToResults(); }}
           >
             Previous
           </button>
@@ -395,7 +404,7 @@ export default function BlogListing({
             type="button"
             className="rounded-full border border-foreground/15 px-4 py-2 disabled:cursor-not-allowed disabled:opacity-40"
             disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => { setPage((p) => p + 1); scrollToResults(); }}
           >
             Next
           </button>
@@ -465,7 +474,7 @@ export default function BlogListing({
               </div>
             )}
 
-            <div className="blog-index-posts__list">{results}</div>
+            <div ref={postsRef} className="blog-index-posts__list">{results}</div>
           </div>
         </div>
 
