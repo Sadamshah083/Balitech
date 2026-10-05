@@ -114,7 +114,7 @@ export default function SiteHeader() {
       )}
     >
 
-      <div className="site-navbar__inner mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-2 sm:px-8 lg:px-12 lg:py-2.5">
+      <div className="site-navbar__inner mx-auto flex max-w-400 items-center gap-3 px-4 py-2 sm:px-8 lg:px-12 lg:py-2.5">
 
         <BrandLogo
           priority
@@ -215,7 +215,7 @@ export default function SiteHeader() {
         aria-label="Close navigation menu"
         data-open={mobileOpen}
         inert={!mobileOpen}
-        className="mobile-nav-scrim fixed inset-0 top-[var(--site-navbar-height)] z-40 bg-black/50 backdrop-blur-[2px] lg:hidden"
+        className="mobile-nav-scrim fixed inset-0 top-(--site-navbar-height) z-40 bg-black/50 backdrop-blur-[2px] lg:hidden"
         onClick={() => setMobileOpen(false)}
       />
 
@@ -227,7 +227,7 @@ export default function SiteHeader() {
         aria-label="Mobile navigation"
       >
 
-              <ul className="mx-auto max-w-[1600px] px-4 py-4 sm:px-8">
+              <ul className="mx-auto max-w-400 px-4 py-4 sm:px-8">
 
                 {allLinks.map((link) => {
 
