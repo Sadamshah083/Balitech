@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   ImagePlus,
   Pencil,
@@ -1069,10 +1071,13 @@ export default function BlogsManager({
               </thead>
               <tbody>
                 {(pageRows as BlogRow[]).map((blog) => {
+                  const cuidRe = /^c[a-z0-9]{20,}$/;
                   const tagNames = (
                     blog.tagList ??
                     parseTags(blog.tags).map((name) => ({ name }))
-                  ).map((t) => t.name);
+                  )
+                    .map((t) => t.name)
+                    .filter((n) => !cuidRe.test(n));
                   return (
                     <tr
               key={blog.id}
@@ -1168,19 +1173,61 @@ export default function BlogsManager({
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between gap-3">
+      {activeRows.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted">
-            Page {page} of {totalPages} · {activeRows.length} items
+            Showing {Math.min((page - 1) * pageSize + 1, activeRows.length)}–{Math.min(page * pageSize, activeRows.length)} of {activeRows.length}
           </p>
-          <div className="flex gap-2">
-            <button type="button" className="btn-secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Previous
-            </button>
-            <button type="button" className="btn-secondary" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-              Next
-            </button>
-          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                className="btn-secondary inline-flex items-center gap-1 px-2.5"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                <ChevronLeft size={16} /> Prev
+              </button>
+              {(() => {
+                const pages: (number | "...")[] = [];
+                if (totalPages <= 7) {
+                  for (let i = 1; i <= totalPages; i++) pages.push(i);
+                } else {
+                  pages.push(1);
+                  if (page > 3) pages.push("...");
+                  for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) pages.push(i);
+                  if (page < totalPages - 2) pages.push("...");
+                  pages.push(totalPages);
+                }
+                return pages.map((n, idx) =>
+                  n === "..." ? (
+                    <span key={`dot-${idx}`} className="px-1 text-muted">...</span>
+                  ) : (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setPage(n)}
+                      className={`min-w-9 rounded-lg px-2.5 py-1.5 text-sm font-medium transition ${
+                        n === page
+                          ? "bg-orange text-[#0d1a3a]"
+                          : "btn-secondary"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  )
+                );
+              })()}
+              <button
+                type="button"
+                className="btn-secondary inline-flex items-center gap-1 px-2.5"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
