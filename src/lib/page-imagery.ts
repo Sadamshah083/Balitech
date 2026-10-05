@@ -31,13 +31,13 @@ export const homeCareersPathImage = {
 
 /** Home page "how we work" panel — the operations floor in use. */
 export const homeOperationsImage = {
-  src: "/balitech_office/DSC03814.JPG",
+  src: "/balitech_office/DSC03814.webp",
   alt: "BALITECH operations centre with agents working live campaigns",
 } as const;
 
 /** About page story photograph — rendered through next/image. */
 export const aboutStoryImage = {
-  src: "/balitech_office/DSC03829.JPG",
+  src: "/balitech_office/DSC03829.webp",
   alt: "BALITECH main office floor and team workstations",
 } as const;
 
