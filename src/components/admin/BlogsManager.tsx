@@ -50,7 +50,7 @@ type BlogRow = {
   title: string;
   slug: string;
   excerpt: string | null;
-  content: string;
+  content?: string;
   image: string | null;
   imageAlt: string | null;
   tags: string;
@@ -160,6 +160,7 @@ export default function BlogsManager() {
   const [pendingDeleteBlog, setPendingDeleteBlog] = useState<BlogRow | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [contentLoading, setContentLoading] = useState(false);
 
   async function loadAll() {
     try {
@@ -182,7 +183,7 @@ export default function BlogsManager() {
     } catch {
       setListError("Could not reach the server.");
     } finally {
-      setLoading(false);
+    setLoading(false);
     }
   }
 
@@ -442,13 +443,13 @@ export default function BlogsManager() {
     setShowBlogForm(true);
   }
 
-  function openEditBlog(blog: BlogRow) {
+  async function openEditBlog(blog: BlogRow) {
     setEditingBlogId(blog.id);
     setBlogForm({
       title: blog.title,
       slug: blog.slug,
       excerpt: blog.excerpt ?? "",
-      content: blog.content,
+      content: blog.content ?? "",
       image: blog.image ?? "",
       imageAlt: blog.imageAlt ?? "",
       format: blog.format,
@@ -466,6 +467,40 @@ export default function BlogsManager() {
     setFormError(null);
     setUploadError("");
     setShowBlogForm(true);
+    setContentLoading(true);
+    try {
+      const res = await adminFetch(`/api/blogs/${blog.id}`);
+      if (!res.ok) {
+        setFormError(await readError(res, "Could not load blog content"));
+        return;
+      }
+      const data = await res.json();
+      const full = data.blog as BlogRow | undefined;
+      if (!full) return;
+      setBlogForm({
+        title: full.title,
+        slug: full.slug,
+        excerpt: full.excerpt ?? "",
+        content: full.content ?? "",
+        image: full.image ?? "",
+        imageAlt: full.imageAlt ?? "",
+        format: full.format,
+        metaTitle: full.metaTitle ?? "",
+        metaDescription: full.metaDescription ?? "",
+        order: full.order,
+        status: full.status || (full.isPublished ? "published" : "draft"),
+        scheduledAt: full.scheduledAt
+          ? new Date(full.scheduledAt).toISOString().slice(0, 16)
+          : "",
+        categoryId: full.category?.id ?? "",
+        tagIds: (full.tagList ?? []).map((t) => t.id),
+        newTag: "",
+      });
+    } catch {
+      setFormError("Could not load blog content.");
+    } finally {
+      setContentLoading(false);
+    }
   }
 
   async function createInlineTag() {
@@ -499,6 +534,7 @@ export default function BlogsManager() {
 
   async function saveBlog(e: React.FormEvent) {
     e.preventDefault();
+    if (contentLoading) return;
     setSaving(true);
     setFormError(null);
     if (!blogForm.categoryId) {
@@ -620,13 +656,13 @@ export default function BlogsManager() {
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           {tab === "categories" && (
             <>
-              <button
-                type="button"
+        <button
+          type="button"
                 className="btn-secondary rounded-lg px-4 py-2.5 text-sm font-semibold"
                 onClick={ensureSeedCategories}
-              >
+        >
                 Sync default categories
-              </button>
+        </button>
               <button
                 type="button"
                 className="btn-primary flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
@@ -654,13 +690,13 @@ export default function BlogsManager() {
               <Plus className="h-4 w-4" /> Add blog
             </button>
           )}
-        </div>
-      </div>
+            </div>
+          </div>
 
       {notice && (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300" role="status">
           {notice}
-        </div>
+          </div>
       )}
       {listError && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
@@ -692,12 +728,12 @@ export default function BlogsManager() {
             </button>
           );
         })}
-      </div>
+          </div>
 
       <div className="admin-leads-toolbar !mb-0 items-end">
         <div className="admin-lead-search-wrap admin-leads-toolbar__search">
           <Search className="h-4 w-4" aria-hidden />
-          <input
+              <input
             className="brand-input admin-leads-toolbar__control w-full"
             placeholder={
               tab === "categories"
@@ -712,14 +748,14 @@ export default function BlogsManager() {
               else if (tab === "tags") setTagQuery(e.target.value);
               else setBlogQuery(e.target.value);
             }}
-          />
-        </div>
+              />
+            </div>
         {tab === "categories" && (
           <div className="admin-leads-toolbar__select">
             <label className="brand-label mb-1 block" htmlFor="blog-cms-cat-status">
               Status
             </label>
-            <select
+              <select
               id="blog-cms-cat-status"
               className="brand-input admin-leads-toolbar__control w-full"
               value={catStatus}
@@ -781,15 +817,15 @@ export default function BlogsManager() {
                 <option value="oldest">Oldest first</option>
                 <option value="title">Title A–Z</option>
               </select>
-            </div>
+          </div>
           </>
         )}
-      </div>
+          </div>
 
       {loading ? (
         <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
           <p className="text-muted">Loading…</p>
-        </div>
+            </div>
       ) : tab === "categories" ? (
         filteredCategories.length === 0 ? (
           <div className="glow-border rounded-lg admin-card bg-card p-12 text-center">
@@ -822,15 +858,15 @@ export default function BlogsManager() {
                       <td className="px-4 py-3">
                         {category.image ? (
                           <div className="relative h-11 w-16 overflow-hidden rounded-lg">
-                            <Image
+              <Image
                               src={category.image}
                               alt={category.imageAlt || category.name}
-                              fill
-                              className="object-cover"
+                fill
+                className="object-cover"
                               unoptimized={category.image.startsWith("/uploads/")}
                               sizes="64px"
-                            />
-                          </div>
+              />
+            </div>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
@@ -867,16 +903,16 @@ export default function BlogsManager() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex justify-center gap-1">
-                          <button
+            <button
                             type="button"
                             onClick={() => openEditCategory(category)}
                             className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-orange"
                             aria-label={`Edit ${category.name}`}
                           >
                             <Pencil size={16} aria-hidden="true" />
-                          </button>
-                          <button
-                            type="button"
+            </button>
+            <button
+              type="button"
                             onClick={() => {
                               setPendingDeleteCategory(category);
                               setReassignTo("");
@@ -886,8 +922,8 @@ export default function BlogsManager() {
                             aria-label={`Delete ${category.name}`}
                           >
                             <Trash2 size={16} aria-hidden="true" />
-                          </button>
-                        </div>
+            </button>
+          </div>
                       </td>
                     </tr>
                   ))}
@@ -990,24 +1026,24 @@ export default function BlogsManager() {
                   ).map((t) => t.name);
                   return (
                     <tr
-                      key={blog.id}
+              key={blog.id}
                       className="border-t border-foreground/8 hover:bg-surface"
-                    >
+            >
                       <td className="px-4 py-3">
                         {blog.image ? (
                           <div className="relative h-11 w-16 overflow-hidden rounded-lg">
-                            <Image
-                              src={blog.image}
+                  <Image
+                    src={blog.image}
                               alt=""
-                              fill
-                              className="object-cover"
+                    fill
+                    className="object-cover"
                               unoptimized={
                                 blog.image.startsWith("/blogs/") ||
                                 blog.image.startsWith("/uploads/")
                               }
                               sizes="64px"
-                            />
-                          </div>
+                  />
+                </div>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
@@ -1025,7 +1061,7 @@ export default function BlogsManager() {
                         {tagNames.length ? tagNames.join(", ") : "—"}
                       </td>
                       <td className="px-4 py-3">
-                        <span
+                    <span
                           className={`inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-medium capitalize ${
                             blog.status === "published"
                               ? "bg-green-400/10 text-green-400"
@@ -1035,7 +1071,7 @@ export default function BlogsManager() {
                           }`}
                         >
                           {blog.status}
-                        </span>
+                    </span>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-muted">
                         {new Date(
@@ -1044,14 +1080,14 @@ export default function BlogsManager() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex justify-center gap-1">
-                          <button
-                            type="button"
+                <button
+                  type="button"
                             onClick={() => openEditBlog(blog)}
                             className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-orange"
                             aria-label={`Edit ${blog.title}`}
-                          >
+                >
                             <Pencil size={16} aria-hidden="true" />
-                          </button>
+                </button>
                           <a
                             href={`/blog/${blog.slug}`}
                             target="_blank"
@@ -1061,8 +1097,8 @@ export default function BlogsManager() {
                           >
                             <ExternalLink size={16} aria-hidden="true" />
                           </a>
-                          <button
-                            type="button"
+                <button
+                  type="button"
                             onClick={() => {
                               setPendingDeleteBlog(blog);
                               setDeleteError(null);
@@ -1071,15 +1107,15 @@ export default function BlogsManager() {
                             aria-label={`Delete ${blog.title}`}
                           >
                             <Trash2 size={16} aria-hidden="true" />
-                          </button>
-                        </div>
+                </button>
+              </div>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          </div>
+            </div>
         </div>
       )}
 
@@ -1288,9 +1324,9 @@ export default function BlogsManager() {
         dismissible={!saving}
         footer={
           <>
-            <button type="button" className="btn-secondary" disabled={saving} onClick={() => setShowBlogForm(false)}>Cancel</button>
-            <button type="submit" form="blog-form" className="btn-primary" disabled={saving}>
-              {saving ? "Saving…" : "Save blog"}
+            <button type="button" className="btn-secondary" disabled={saving || contentLoading} onClick={() => setShowBlogForm(false)}>Cancel</button>
+            <button type="submit" form="blog-form" className="btn-primary" disabled={saving || contentLoading}>
+              {saving ? "Saving…" : contentLoading ? "Loading…" : "Save blog"}
             </button>
           </>
         }
@@ -1320,7 +1356,13 @@ export default function BlogsManager() {
           </label>
           <label className="sm:col-span-2 grid gap-1 text-sm">
             Content *
-            <textarea className="brand-input min-h-48" required value={blogForm.content} onChange={(e) => setBlogForm((f) => ({ ...f, content: e.target.value }))} />
+            <textarea
+              className="brand-input min-h-48"
+              required
+              disabled={contentLoading}
+              value={contentLoading ? "Loading content…" : blogForm.content}
+              onChange={(e) => setBlogForm((f) => ({ ...f, content: e.target.value }))}
+            />
           </label>
           <div className="sm:col-span-2 grid gap-2">
             <p className="text-sm font-medium">Cover image</p>
@@ -1334,7 +1376,7 @@ export default function BlogsManager() {
                   unoptimized={blogForm.image.startsWith("/blogs/") || blogForm.image.startsWith("/uploads/")}
                   sizes="480px"
                 />
-              </div>
+        </div>
             ) : null}
             <div className="flex flex-wrap gap-2">
               <button type="button" className="btn-secondary" disabled={uploading} onClick={() => fileRef.current?.click()}>
@@ -1342,8 +1384,8 @@ export default function BlogsManager() {
               </button>
               {blogForm.image && (
                 <button type="button" className="btn-secondary" onClick={() => setBlogForm((f) => ({ ...f, image: "", imageAlt: "" }))}>Remove image</button>
-              )}
-            </div>
+      )}
+    </div>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => uploadBlogImage(e.target.files?.[0] ?? null)} />
             {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
           </div>

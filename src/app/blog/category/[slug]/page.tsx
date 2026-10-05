@@ -104,11 +104,20 @@ export default async function BlogCategoryPage({ params }: PageProps) {
             <div className="blog-archive-hero__copy">
               <p className="blog-articles__eyebrow">Category</p>
               <h1 className="blog-archive-hero__title">{category.name}</h1>
-              {(category.metaDescription || category.description) && (
+              {category.description?.trim() ? (
+                <div className="blog-archive-hero__lead blog-archive-hero__lead--body">
+                  {category.description
+                    .trim()
+                    .split(/\n\s*\n/)
+                    .map((paragraph) => (
+                      <p key={paragraph.slice(0, 48)}>{paragraph.trim()}</p>
+                    ))}
+                </div>
+              ) : category.metaDescription?.trim() ? (
                 <p className="blog-archive-hero__lead">
-                  {category.metaDescription?.trim() || category.description}
+                  {category.metaDescription.trim()}
                 </p>
-              )}
+              ) : null}
               <p className="blog-archive-hero__count">
                 {blogs.length} published article{blogs.length === 1 ? "" : "s"}
               </p>

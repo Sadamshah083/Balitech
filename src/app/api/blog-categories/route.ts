@@ -60,7 +60,9 @@ export async function GET(request: Request) {
     },
     orderBy: [{ order: "asc" }, { name: "asc" }],
     include: {
-      tagLinks: { include: { tag: true } },
+      tagLinks: {
+        include: { tag: { select: { id: true, name: true, slug: true } } },
+      },
       _count: { select: { blogs: true } },
     },
   });
@@ -134,38 +136,74 @@ export async function POST(request: Request) {
   }
 }
 
-/** Ensures the six seed categories exist (idempotent). */
+/** Ensures the six seed categories exist with SEO + recommended tags (idempotent). */
 export async function PUT(request: Request) {
   const auth = await requireApiAuth(request);
   if (auth.response) return auth.response;
 
   for (const item of DEFAULT_BLOG_CATEGORIES) {
-    await prisma.blogCategory.upsert({
+    let category = await prisma.blogCategory.findUnique({
       where: { slug: item.slug },
-      create: {
-        name: item.name,
-        slug: item.slug,
-        description: item.description,
-        order: item.order,
-        isActive: true,
-      },
-      update: {
-        name: item.name,
-        description: item.description,
-        order: item.order,
-      },
     });
-  }
 
-  // Assign uncategorized published blogs to BaliTech Insights as a safe default.
-  const fallback = await prisma.blogCategory.findUnique({
-    where: { slug: "balitech-insights" },
-  });
-  if (fallback) {
-    await prisma.blog.updateMany({
-      where: { categoryId: null },
-      data: { categoryId: fallback.id },
-    });
+    if (!category && item.formerSlugs?.length) {
+      for (const oldSlug of item.formerSlugs) {
+        const former = await prisma.blogCategory.findUnique({
+          where: { slug: oldSlug },
+        });
+        if (former) {
+          category = await prisma.blogCategory.update({
+            where: { id: former.id },
+            data: { slug: item.slug },
+          });
+          await prisma.blogCategoryRedirect.upsert({
+            where: { oldSlug },
+            create: { oldSlug, categoryId: former.id },
+            update: { categoryId: former.id },
+          });
+          break;
+        }
+      }
+    }
+
+    if (category) {
+      category = await prisma.blogCategory.update({
+        where: { id: category.id },
+        data: {
+          name: item.name,
+          slug: item.slug,
+          description: item.description,
+          metaTitle: item.metaTitle,
+          metaDescription: item.metaDescription,
+          order: item.order,
+          isActive: true,
+        },
+      });
+    } else {
+      category = await prisma.blogCategory.create({
+        data: {
+          name: item.name,
+          slug: item.slug,
+          description: item.description,
+          metaTitle: item.metaTitle,
+          metaDescription: item.metaDescription,
+          order: item.order,
+          isActive: true,
+        },
+      });
+    }
+
+    for (const oldSlug of item.formerSlugs ?? []) {
+      if (oldSlug === item.slug) continue;
+      await prisma.blogCategoryRedirect.upsert({
+        where: { oldSlug },
+        create: { oldSlug, categoryId: category.id },
+        update: { categoryId: category.id },
+      });
+    }
+
+    const tagIds = await resolveTagIds([...item.tags]);
+    await syncCategoryTagLinks(category.id, tagIds);
   }
 
   refreshPublicPages();

@@ -22,6 +22,32 @@ const adminInclude = {
   },
 } as const;
 
+function mapAdminBlog<T extends {
+  tagLinks: { tag: { id: string; name: string; slug: string } }[];
+}>(blog: T) {
+  return {
+    ...blog,
+    tagList: blog.tagLinks.map((l) => l.tag),
+    tagLinks: undefined,
+  };
+}
+
+export async function GET(_request: Request, context: RouteContext) {
+  const auth = await requireApiAuth(_request);
+  if (auth.response) return auth.response;
+
+  const { id } = await context.params;
+  const blog = await prisma.blog.findUnique({
+    where: { id },
+    include: adminInclude,
+  });
+  if (!blog) {
+    return NextResponse.json({ error: "Blog not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ blog: mapAdminBlog(blog) });
+}
+
 export async function PATCH(request: Request, context: RouteContext) {
   const auth = await requireApiAuth(request);
   if (auth.response) return auth.response;

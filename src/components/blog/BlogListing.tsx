@@ -35,13 +35,14 @@ const PAGE_SIZE = 9;
 export default function BlogListing({
   blogs,
   categories,
-  tags,
+  tags: _unusedTags,
   initialQuery = "",
   initialCategory = "",
   initialTag = "",
   showHero = false,
   archiveMode = false,
 }: Props) {
+  void _unusedTags;
   const heroRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const asideTrackRef = useRef<HTMLElement>(null);
@@ -245,13 +246,6 @@ export default function BlogListing({
     });
   }
 
-  function applyTag(slug: string) {
-    startTransition(() => {
-      setTagSlug((current) => (current === slug ? "" : slug));
-      setPage(1);
-    });
-  }
-
   const filterBox = (
     <div className="blog-filter-card">
       <form
@@ -315,27 +309,7 @@ export default function BlogListing({
         </div>
       )}
 
-      {tags.length > 0 && (
-        <div className="blog-filter-card__group">
-          <p className="blog-filter-card__label">Tags</p>
-          <div className="blog-filter-card__chips" role="group" aria-label="Tags">
-            {tags.map((tag) => {
-              const active = tagSlug === tag.slug;
-              return (
-                <button
-                  key={tag.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => applyTag(tag.slug)}
-                  className={`blog-filter-card__chip blog-filter-card__chip--tag${active ? " is-active" : ""}`}
-                >
-                  #{tag.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Recommended tags stay in admin/CMS; public listing shows categories only. */}
     </div>
   );
 
@@ -387,25 +361,16 @@ export default function BlogListing({
                       )}
                     </div>
                   </Link>
-                  <div className="flex flex-wrap gap-2 pt-3">
-                    {blog.category && (
+                  {blog.category && (
+                    <div className="flex flex-wrap gap-2 pt-3">
                       <Link
                         href={`/blog/category/${blog.category.slug}`}
                         className="inline-flex rounded-full bg-[#0d1a3a] px-2.5 py-1 text-xs font-bold text-white no-underline ring-1 ring-white/10"
                       >
                         {blog.category.name}
                       </Link>
-                    )}
-                    {blog.tagList.slice(0, 4).map((tag) => (
-                      <Link
-                        key={tag.id}
-                        href={`/blog/tag/${tag.slug}`}
-                        className="inline-flex rounded-full bg-orange/20 px-2.5 py-1 text-xs font-bold text-orange no-underline"
-                      >
-                        #{tag.name}
-                      </Link>
-                    ))}
-                  </div>
+                    </div>
+                  )}
                 </article>
               </li>
             ))}
@@ -483,7 +448,7 @@ export default function BlogListing({
                     Insights &amp; articles
                   </h2>
                   <p className="blog-articles__lead">
-                    Search and filter by category or tag. New posts appear here as soon as they are
+                    Search and filter by category. New posts appear here as soon as they are
                     published.
                   </p>
                 </div>
@@ -496,7 +461,7 @@ export default function BlogListing({
                     Insights &amp; articles
                   </h2>
                   <p className="blog-articles__lead">
-                    Search and filter by category or tag. New posts appear here as soon as they are
+                    Search and filter by category. New posts appear here as soon as they are
                     published.
                   </p>
                 </header>

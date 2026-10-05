@@ -2880,7 +2880,7 @@ select.admin-leads-toolbar__control {
 
 /* ── Blog page hero ── */
 .blog-page {
-  --blog-page-max: 76rem;
+  --blog-page-max: 90rem;
   --blog-page-gutter: clamp(0.75rem, 1.5vw, 1.25rem);
   position: relative;
   /* visible so sticky filter can track the viewport until the footer */
@@ -2891,7 +2891,7 @@ select.admin-leads-toolbar__control {
 /* Open blog post: wider column, tighter side gutters (matches listing feel) */
 .blog-post__container {
   width: 100%;
-  max-width: 72rem;
+  max-width: 82rem;
   margin-inline: auto;
   padding-inline: clamp(0.75rem, 1.5vw, 1.25rem);
 }
@@ -3618,6 +3618,16 @@ select.admin-leads-toolbar__control {
   color: color-mix(in srgb, var(--foreground) 78%, transparent);
 }
 
+.blog-archive-hero__lead--body {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 40rem;
+}
+
+.blog-archive-hero__lead--body p {
+  margin: 0;
+}
+
 .blog-archive-hero__count {
   margin: 0.85rem 0 0;
   font-size: 0.9rem;
@@ -3751,7 +3761,7 @@ select.admin-leads-toolbar__control {
  */
 .blog-index-shell {
   width: 100%;
-  max-width: var(--blog-page-max, 76rem);
+  max-width: var(--blog-page-max, 90rem);
   margin-inline: auto;
   display: flex;
   flex-direction: column;
@@ -3992,21 +4002,28 @@ select.admin-leads-toolbar__control {
 
 @media (min-width: 1280px) {
   .blog-index-shell {
-    grid-template-columns: minmax(0, 1fr) 21rem;
+    grid-template-columns: minmax(0, 1fr) 22rem;
     padding-inline: clamp(1rem, 2vw, 1.75rem);
   }
 
   .blog-index-shell__aside {
-    width: 21rem;
+    width: 22rem;
   }
 
   .blog-index-shell__aside-sticky,
   .blog-filter-card-wrap {
-    width: 21rem;
+    width: 22rem;
   }
 
   .blog-articles__grid--listing {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
+  .blog-index-shell {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    column-gap: 2.5rem;
   }
 }
 

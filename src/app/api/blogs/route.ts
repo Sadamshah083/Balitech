@@ -81,7 +81,27 @@ export async function GET(request: Request) {
       ],
     },
     orderBy: [{ createdAt: "desc" }, { order: "asc" }],
-    include: adminInclude,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      image: true,
+      imageAlt: true,
+      tags: true,
+      format: true,
+      metaTitle: true,
+      metaDescription: true,
+      order: true,
+      isPublished: true,
+      status: true,
+      publishedAt: true,
+      scheduledAt: true,
+      createdAt: true,
+      categoryId: true,
+      category: adminInclude.category,
+      tagLinks: adminInclude.tagLinks,
+    },
   });
 
   return NextResponse.json({

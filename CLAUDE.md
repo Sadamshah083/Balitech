@@ -55,7 +55,7 @@ Public pages (`src/app/`): `/` · `/services` · `/services/[slug]` (inbound, ou
 - Legacy PHP URLs (`/contact.php`, `/careers`, and others) redirect in `next.config.ts`. Add new redirects there.
 - Components are grouped by page area in `src/components/{landing,home,about,services,join-us,gallery,blog,admin,...}`.
 
-Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): dashboard, leads (+ `/leads/[id]` detail, CSV export, CV download), campaigns, vacancies, blogs (Categories / Tags / Blogs tabs), offices, media, settings (admin users). Blog category images upload to `/uploads/blog-categories`. Default categories live in `DEFAULT_BLOG_CATEGORIES` (`src/lib/blog-taxonomy.ts`) and are seeded via `npm run db:seed` or admin “Sync default categories”.
+Admin (`/admin/*`, guarded by `src/proxy.ts` → redirects to `/admin/login`): dashboard, leads (+ `/leads/[id]` detail, CSV export, CV download), campaigns, vacancies, blogs (Categories / Tags / Blogs tabs), offices, media, settings (admin users). Blog category images upload to `/uploads/blog-categories`. Default categories (SEO title/description, body copy, recommended tags, slugs) live in `DEFAULT_BLOG_CATEGORIES` (`src/lib/blog-taxonomy.ts`). Admin “Sync default categories” upserts them and links tags; `technology-crm` redirects to `technology`. Live-only seed: `node scripts/_seed_default_categories_live.js` (categories/tags only). Assign posts to categories on live: `node scripts/_assign_blog_categories_live.js` (updates `Blog.categoryId` only). Public blog UI shows categories, not tags; tags stay in admin.
 
 ## 5. Key conventions
 
