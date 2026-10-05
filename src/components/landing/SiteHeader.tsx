@@ -133,13 +133,9 @@ export default function SiteHeader() {
 
         >
 
-          {allLinks.map((link) => {
+          {navLinks.map((link) => {
 
             const active = isActive(pathname, link.href);
-
-            const isJoin = link.href === joinUsHref;
-
-
 
             return (
 
@@ -148,22 +144,18 @@ export default function SiteHeader() {
                 href={link.href}
                 className={cn(
                   "nav-link whitespace-nowrap rounded-full px-2.5 py-1.5 text-sm font-bold uppercase tracking-[0.08em] transition-all duration-300 xl:px-4 xl:text-base relative group",
-                  isJoin
-                    ? "btn-primary px-4 py-2 shadow-[0_0_16px_color-mix(in_srgb,var(--orange)_35%,transparent)]"
-                    : active
-                      ? "bg-orange/10 text-orange border border-orange/10 shadow-[0_0_15px_rgba(237,145,41,0.1)]"
-                      : "text-foreground/85 hover:text-orange hover:bg-orange/5"
+                  active
+                    ? "bg-orange/10 text-orange border border-orange/10 shadow-[0_0_15px_rgba(237,145,41,0.1)]"
+                    : "text-foreground/85 hover:text-orange hover:bg-orange/5"
                 )}
               >
                 {link.label}
-                {!isJoin && (
-                  <span
-                    className={cn(
-                      "absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] rounded-full bg-orange shadow-[0_0_8px_var(--orange)] transition-all duration-300 ease-out",
-                      active ? "w-1/2 opacity-100" : "w-0 opacity-0 group-hover:w-1/3 group-hover:opacity-75"
-                    )}
-                  />
-                )}
+                <span
+                  className={cn(
+                    "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 rounded-full bg-orange shadow-[0_0_8px_var(--orange)] transition-all duration-300 ease-out",
+                    active ? "w-1/2 opacity-100" : "w-0 opacity-0 group-hover:w-1/3 group-hover:opacity-75"
+                  )}
+                />
               </IntentLink>
 
             );
@@ -179,7 +171,7 @@ export default function SiteHeader() {
 
             href={joinUsHref}
 
-            className="btn-primary hidden rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider sm:inline-flex lg:hidden"
+            className="btn-primary hidden rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-[0_0_16px_color-mix(in_srgb,var(--orange)_35%,transparent)] sm:inline-flex"
 
           >
 
