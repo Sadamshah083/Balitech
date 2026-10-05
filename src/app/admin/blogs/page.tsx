@@ -1,5 +1,10 @@
 import BlogsManager from "@/components/admin/BlogsManager";
 import { requireAdmin } from "@/lib/admin";
+import {
+  prefetchBlogCategories,
+  prefetchBlogTags,
+  prefetchBlogs,
+} from "@/lib/admin-data";
 import { redirect } from "next/navigation";
 
 export default async function AdminBlogsPage() {
@@ -9,5 +14,15 @@ export default async function AdminBlogsPage() {
     redirect("/admin/leads");
   }
 
-  return <BlogsManager />;
+  const [categories, tags, blogs] = await Promise.all([
+    prefetchBlogCategories(),
+    prefetchBlogTags(),
+    prefetchBlogs(),
+  ]);
+
+  return (
+    <BlogsManager
+      initialData={{ categories, tags, blogs }}
+    />
+  );
 }

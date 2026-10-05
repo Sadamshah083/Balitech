@@ -1,5 +1,6 @@
 import SettingsManager from "@/components/admin/SettingsManager";
 import { requireAdmin } from "@/lib/admin";
+import { prefetchUsers } from "@/lib/admin-data";
 import { redirect } from "next/navigation";
 
 export default async function AdminSettingsPage() {
@@ -9,5 +10,7 @@ export default async function AdminSettingsPage() {
     redirect("/admin/leads");
   }
 
-  return <SettingsManager />;
+  const users = await prefetchUsers();
+
+  return <SettingsManager initialData={users} />;
 }

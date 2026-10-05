@@ -52,9 +52,13 @@ function sectionPosition(item: MediaItem, list: MediaItem[]) {
   };
 }
 
-export default function MediaManager() {
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function MediaManager({
+  initialData,
+}: {
+  initialData?: MediaItem[];
+}) {
+  const [media, setMedia] = useState<MediaItem[]>(initialData ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingFromCatalog, setEditingFromCatalog] = useState(false);
@@ -79,10 +83,12 @@ export default function MediaManager() {
   }
 
   useEffect(() => {
+    if (initialData) return;
     const handle = requestAnimationFrame(() => {
       fetchMedia();
     });
     return () => cancelAnimationFrame(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openCreate() {

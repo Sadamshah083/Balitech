@@ -120,15 +120,27 @@ function reviewCellTitle(lead: Lead) {
   return parts.join(" · ") || undefined;
 }
 
-export default function LeadsManager() {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    limit: PAGE_SIZE,
-    total: 0,
-    totalPages: 1,
-  });
-  const [loading, setLoading] = useState(true);
+export default function LeadsManager({
+  initialData,
+}: {
+  initialData?: {
+    leads: Lead[];
+    pagination: Pagination;
+    positions: PositionOption[];
+    totals: { leads: number; cvs: number; newLeads: number; newCvs: number };
+    branches: BranchOption[];
+  };
+}) {
+  const [leads, setLeads] = useState<Lead[]>(initialData?.leads ?? []);
+  const [pagination, setPagination] = useState<Pagination>(
+    initialData?.pagination ?? {
+      page: 1,
+      limit: PAGE_SIZE,
+      total: 0,
+      totalPages: 1,
+    }
+  );
+  const [loading, setLoading] = useState(!initialData);
   const [editingLeadId, setEditingLeadId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -138,14 +150,14 @@ export default function LeadsManager() {
   const [branchFilter, setBranchFilter] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [positions, setPositions] = useState<PositionOption[]>([]);
-  const [branches, setBranches] = useState<BranchOption[]>([]);
-  const [totalLeads, setTotalLeads] = useState(0);
-  const [totalCvs, setTotalCvs] = useState(0);
-  const [newLeads, setNewLeads] = useState(0);
-  const [newCvs, setNewCvs] = useState(0);
+  const [positions, setPositions] = useState<PositionOption[]>(initialData?.positions ?? []);
+  const [branches, setBranches] = useState<BranchOption[]>(initialData?.branches ?? []);
+  const [totalLeads, setTotalLeads] = useState(initialData?.totals?.leads ?? 0);
+  const [totalCvs, setTotalCvs] = useState(initialData?.totals?.cvs ?? 0);
+  const [newLeads, setNewLeads] = useState(initialData?.totals?.newLeads ?? 0);
+  const [newCvs, setNewCvs] = useState(initialData?.totals?.newCvs ?? 0);
   const [downloadingCvs, setDownloadingCvs] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const [initialized, setInitialized] = useState(!!initialData);
 
   const fetchLeads = useCallback(
     async (page = 1) => {
@@ -195,6 +207,7 @@ export default function LeadsManager() {
   }, []);
 
   useEffect(() => {
+    if (initialData && !positionFilter && !branchFilter && !searchQuery) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch on filter change
     void Promise.all([fetchLeads(1), fetchPositions(), fetchBranches()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps

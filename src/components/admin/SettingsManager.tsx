@@ -20,9 +20,13 @@ const emptyForm = {
   role: "agent",
 };
 
-export default function SettingsManager() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function SettingsManager({
+  initialData,
+}: {
+  initialData?: User[];
+}) {
+  const [users, setUsers] = useState<User[]>(initialData ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -39,10 +43,12 @@ export default function SettingsManager() {
   }
 
   useEffect(() => {
+    if (initialData) return;
     const handle = requestAnimationFrame(() => {
       fetchUsers();
     });
     return () => cancelAnimationFrame(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openCreate() {

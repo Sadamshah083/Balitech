@@ -41,7 +41,7 @@ type CategoryRow = {
   metaDescription: string | null;
   isActive: boolean;
   order: number;
-  tags: TagRow[];
+  tags: { id: string; name: string; slug: string }[];
   postCount: number;
 };
 
@@ -118,12 +118,20 @@ const emptyBlog = {
   newTag: "",
 };
 
-export default function BlogsManager() {
+export default function BlogsManager({
+  initialData,
+}: {
+  initialData?: {
+    categories: CategoryRow[];
+    tags: TagRow[];
+    blogs: BlogRow[];
+  };
+}) {
   const [tab, setTab] = useState<TabKey>("blogs");
-  const [categories, setCategories] = useState<CategoryRow[]>([]);
-  const [tags, setTags] = useState<TagRow[]>([]);
-  const [blogs, setBlogs] = useState<BlogRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<CategoryRow[]>(initialData?.categories ?? []);
+  const [tags, setTags] = useState<TagRow[]>(initialData?.tags ?? []);
+  const [blogs, setBlogs] = useState<BlogRow[]>(initialData?.blogs ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [listError, setListError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -188,8 +196,10 @@ export default function BlogsManager() {
   }
 
   useEffect(() => {
+    if (initialData) return;
     const handle = setTimeout(loadAll, 0);
     return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

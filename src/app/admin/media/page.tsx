@@ -1,5 +1,6 @@
 import MediaManager from "@/components/admin/MediaManager";
 import { requireAdmin } from "@/lib/admin";
+import { prefetchMedia } from "@/lib/admin-data";
 import { redirect } from "next/navigation";
 
 export default async function AdminMediaPage() {
@@ -9,5 +10,7 @@ export default async function AdminMediaPage() {
     redirect("/admin/leads");
   }
 
-  return <MediaManager />;
+  const media = await prefetchMedia();
+
+  return <MediaManager initialData={media} />;
 }

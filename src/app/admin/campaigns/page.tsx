@@ -1,5 +1,6 @@
 import CampaignsManager from "@/components/admin/CampaignsManager";
 import { requireAdmin } from "@/lib/admin";
+import { prefetchCampaigns } from "@/lib/admin-data";
 import { redirect } from "next/navigation";
 
 export default async function AdminCampaignsPage() {
@@ -9,5 +10,7 @@ export default async function AdminCampaignsPage() {
     redirect("/admin/leads");
   }
 
-  return <CampaignsManager />;
+  const campaigns = await prefetchCampaigns();
+
+  return <CampaignsManager initialData={campaigns} />;
 }

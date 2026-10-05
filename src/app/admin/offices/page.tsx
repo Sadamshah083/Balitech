@@ -1,5 +1,6 @@
 import OfficesManager from "@/components/admin/OfficesManager";
 import { requireAdmin } from "@/lib/admin";
+import { prefetchOffices } from "@/lib/admin-data";
 import { redirect } from "next/navigation";
 
 export default async function AdminOfficesPage() {
@@ -9,5 +10,7 @@ export default async function AdminOfficesPage() {
     redirect("/admin/leads");
   }
 
-  return <OfficesManager />;
+  const offices = await prefetchOffices();
+
+  return <OfficesManager initialData={offices} />;
 }

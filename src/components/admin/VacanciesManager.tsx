@@ -65,11 +65,19 @@ async function readError(res: Response, fallback: string) {
   return `${fallback} (HTTP ${res.status})`;
 }
 
-export default function VacanciesManager() {
-  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
-  const [branches, setBranches] = useState<string[]>([...campaignLocations]);
-  const [campaigns, setCampaigns] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function VacanciesManager({
+  initialData,
+}: {
+  initialData?: {
+    vacancies: Vacancy[];
+    branches: string[];
+    campaigns: string[];
+  };
+}) {
+  const [vacancies, setVacancies] = useState<Vacancy[]>(initialData?.vacancies ?? []);
+  const [branches, setBranches] = useState<string[]>(initialData?.branches ?? [...campaignLocations]);
+  const [campaigns, setCampaigns] = useState<string[]>(initialData?.campaigns ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [listError, setListError] = useState<string | null>(null);
 
   const [showForm, setShowForm] = useState(false);
@@ -103,6 +111,7 @@ export default function VacanciesManager() {
   }
 
   useEffect(() => {
+    if (initialData) return;
     const handle = setTimeout(() => {
       fetchVacancies();
       fetch("/api/offices?public=true")
@@ -121,6 +130,7 @@ export default function VacanciesManager() {
         .catch(() => {});
     }, 0);
     return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openCreate() {

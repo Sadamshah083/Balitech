@@ -54,9 +54,13 @@ async function readError(res: Response, fallback: string) {
   return `${fallback} (HTTP ${res.status})`;
 }
 
-export default function CampaignsManager() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function CampaignsManager({
+  initialData,
+}: {
+  initialData?: Campaign[];
+}) {
+  const [campaigns, setCampaigns] = useState<Campaign[]>(initialData ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [listError, setListError] = useState<string | null>(null);
 
   const [showForm, setShowForm] = useState(false);
@@ -89,11 +93,10 @@ export default function CampaignsManager() {
   }
 
   useEffect(() => {
-    /* Yields to first paint before fetching, but on a timer rather than a
-       frame: rAF is paused in a background tab, so opening the admin in one
-       left the table on "Loading campaigns..." until it was focused. */
+    if (initialData) return;
     const handle = setTimeout(fetchCampaigns, 0);
     return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openCreate() {

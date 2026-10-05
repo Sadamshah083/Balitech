@@ -47,9 +47,13 @@ function imageUnoptimized(src: string) {
   );
 }
 
-export default function OfficesManager() {
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function OfficesManager({
+  initialData,
+}: {
+  initialData?: Office[];
+}) {
+  const [offices, setOffices] = useState<Office[]>(initialData ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -68,10 +72,12 @@ export default function OfficesManager() {
   }
 
   useEffect(() => {
+    if (initialData) return;
     const handle = requestAnimationFrame(() => {
       fetchOffices();
     });
     return () => cancelAnimationFrame(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openCreate() {
