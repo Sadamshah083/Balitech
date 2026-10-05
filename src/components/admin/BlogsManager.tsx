@@ -730,7 +730,7 @@ export default function BlogsManager() {
         })}
           </div>
 
-      <div className="admin-leads-toolbar !mb-0 items-end">
+      <div className="admin-leads-toolbar mb-0! items-end">
         <div className="admin-lead-search-wrap admin-leads-toolbar__search">
           <Search className="h-4 w-4" aria-hidden />
               <input
@@ -834,7 +834,7 @@ export default function BlogsManager() {
         ) : (
           <div className="admin-surface border border-foreground/10">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[960px] text-left text-sm">
+              <table className="w-full min-w-240 text-left text-sm">
                 <thead className="bg-card text-muted">
                   <tr>
                     <th className="px-4 py-3 font-medium">Image</th>
@@ -876,13 +876,13 @@ export default function BlogsManager() {
                       </td>
                       <td className="px-4 py-3 text-muted">{category.slug}</td>
                       <td
-                        className="max-w-[220px] truncate px-4 py-3 text-muted"
+                        className="max-w-55 truncate px-4 py-3 text-muted"
                         title={category.description ?? undefined}
                       >
                         {category.description || "—"}
                       </td>
                       <td
-                        className="max-w-[180px] truncate px-4 py-3 text-muted"
+                        className="max-w-45 truncate px-4 py-3 text-muted"
                         title={category.tags.map((t) => t.name).join(", ")}
                       >
                         {category.tags.length
@@ -940,7 +940,7 @@ export default function BlogsManager() {
         ) : (
           <div className="admin-surface border border-foreground/10">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-left text-sm">
+              <table className="w-full min-w-180 text-left text-sm">
                 <thead className="bg-card text-muted">
                   <tr>
                     <th className="px-4 py-3 font-medium">Name</th>
@@ -961,7 +961,7 @@ export default function BlogsManager() {
                       </td>
                       <td className="px-4 py-3 text-muted">{tag.slug}</td>
                       <td
-                        className="max-w-[240px] truncate px-4 py-3 text-muted"
+                        className="max-w-60 truncate px-4 py-3 text-muted"
                         title={tag.categories.map((c) => c.name).join(", ")}
                       >
                         {tag.categories.length
@@ -1006,7 +1006,7 @@ export default function BlogsManager() {
       ) : (
         <div className="admin-surface border border-foreground/10">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px] text-left text-sm">
+            <table className="w-full min-w-245 text-left text-sm">
               <thead className="bg-card text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Thumbnail</th>
@@ -1048,14 +1048,14 @@ export default function BlogsManager() {
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="max-w-[260px] px-4 py-3 font-medium text-foreground">
+                      <td className="max-w-65 px-4 py-3 font-medium text-foreground">
                         <span className="line-clamp-2">{blog.title}</span>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-muted">
                         {blog.category?.name ?? "—"}
                       </td>
                       <td
-                        className="max-w-[200px] truncate px-4 py-3 text-muted"
+                        className="max-w-50 truncate px-4 py-3 text-muted"
                         title={tagNames.join(", ")}
                       >
                         {tagNames.length ? tagNames.join(", ") : "—"}

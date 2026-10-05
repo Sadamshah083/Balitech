@@ -195,16 +195,10 @@ export default function LeadsManager() {
   }, []);
 
   useEffect(() => {
-    fetchLeads(1);
-  }, [fetchLeads]);
-
-  useEffect(() => {
-    fetchPositions();
-  }, [fetchPositions]);
-
-  useEffect(() => {
-    fetchBranches();
-  }, [fetchBranches]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch on filter change
+    void Promise.all([fetchLeads(1), fetchPositions(), fetchBranches()]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [positionFilter, branchFilter, searchQuery]);
 
   /* Debounce search so typing filters without a Search button. */
   useEffect(() => {
@@ -622,7 +616,7 @@ export default function LeadsManager() {
         <>
           <div className="admin-surface border border-foreground/10">
             <div className="admin-leads-table-scroll">
-              <table className="w-full min-w-[1180px] table-fixed text-left text-sm">
+              <table className="w-full min-w-295 table-fixed text-left text-sm">
                 {/* Fixed layout keeps row height stable. Message / Review is
                     given more width and may wrap so experience and flags stay
                     readable; both scrollbars stay inside this panel. */}
@@ -729,7 +723,7 @@ export default function LeadsManager() {
                             className="px-3 py-3 text-muted align-top"
                             title={lead.message ?? undefined}
                           >
-                            <span className="line-clamp-3 whitespace-pre-wrap break-words text-sm leading-snug">
+                            <span className="line-clamp-3 whitespace-pre-wrap wrap-break-word text-sm leading-snug">
                               {lead.message ?? "—"}
                             </span>
                           </td>

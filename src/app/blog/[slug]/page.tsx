@@ -178,7 +178,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
             )}
 
             {blog.image && (
-              <div className="relative mt-8 aspect-[16/9] min-h-[18rem] overflow-hidden rounded-3xl glow-border sm:min-h-[24rem]">
+              <div className="relative mt-8 aspect-video min-h-72 overflow-hidden rounded-3xl glow-border sm:min-h-96">
                 <Image
                   src={blog.image}
                   alt={blogImageAlt(blog)}
@@ -224,7 +224,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                     href={`/blog/${item.slug}`}
                     className="group grid overflow-hidden rounded-2xl border border-foreground/10 bg-card text-inherit no-underline transition hover:border-orange/50 sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]"
                   >
-                    <div className="relative aspect-[16/10] w-full bg-[#0d1a3a] sm:aspect-auto sm:min-h-[9rem]">
+                    <div className="relative aspect-16/10 w-full bg-[#0d1a3a] sm:aspect-auto sm:min-h-36">
                       {item.image ? (
                         <Image
                           src={item.image}
