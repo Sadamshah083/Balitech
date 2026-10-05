@@ -1,5 +1,4 @@
 import Link from "next/link";
-import AdminShell from "@/components/admin/AdminShell";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import {
@@ -136,58 +135,56 @@ export default async function AdminDashboardPage() {
   const kpis = (await loadKpis()).filter((kpi) => kpi.roles.includes(admin.role));
 
   return (
-    <AdminShell adminName={admin.name} adminRole={admin.role}>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">
-            Welcome back, {admin.name.split(" ")[0]}
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            Manage Bali Tech content, leads, and site settings from one place.
-          </p>
-        </div>
-
-        <section aria-label="Key figures" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {kpis.map((kpi) => (
-            <Link
-              key={kpi.label}
-              href={kpi.href}
-              className="group admin-card rounded-lg border border-orange/25 bg-card p-5 transition hover:border-orange/50 hover:bg-orange/5"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                  {kpi.label}
-                </p>
-                <span className="inline-flex rounded-lg bg-orange/15 p-2 text-orange">
-                  <kpi.icon size={18} aria-hidden />
-                </span>
-              </div>
-              <p className="mt-3 text-3xl font-bold tabular-nums text-foreground group-hover:text-orange">
-                {kpi.value.toLocaleString("en-US")}
-              </p>
-              <p className="mt-1 text-xs text-muted">{kpi.detail}</p>
-            </Link>
-          ))}
-        </section>
-
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="group admin-card rounded-lg border border-orange/20 bg-card p-5 transition hover:border-orange/40 hover:bg-orange/5"
-            >
-              <div className="mb-3 inline-flex rounded-lg bg-orange/15 p-2 text-orange">
-                <link.icon size={20} />
-              </div>
-              <h3 className="font-bold text-foreground group-hover:text-orange">
-                {link.label}
-              </h3>
-              <p className="mt-1 text-sm text-muted">{link.description}</p>
-            </Link>
-          ))}
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">
+          Welcome back, {admin.name.split(" ")[0]}
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          Manage Bali Tech content, leads, and site settings from one place.
+        </p>
       </div>
-    </AdminShell>
+
+      <section aria-label="Key figures" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {kpis.map((kpi) => (
+          <Link
+            key={kpi.label}
+            href={kpi.href}
+            className="group admin-card rounded-lg border border-orange/25 bg-card p-5 transition hover:border-orange/50 hover:bg-orange/5"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+                {kpi.label}
+              </p>
+              <span className="inline-flex rounded-lg bg-orange/15 p-2 text-orange">
+                <kpi.icon size={18} aria-hidden />
+              </span>
+            </div>
+            <p className="mt-3 text-3xl font-bold tabular-nums text-foreground group-hover:text-orange">
+              {kpi.value.toLocaleString("en-US")}
+            </p>
+            <p className="mt-1 text-xs text-muted">{kpi.detail}</p>
+          </Link>
+        ))}
+      </section>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="group admin-card rounded-lg border border-orange/20 bg-card p-5 transition hover:border-orange/40 hover:bg-orange/5"
+          >
+            <div className="mb-3 inline-flex rounded-lg bg-orange/15 p-2 text-orange">
+              <link.icon size={20} />
+            </div>
+            <h3 className="font-bold text-foreground group-hover:text-orange">
+              {link.label}
+            </h3>
+            <p className="mt-1 text-sm text-muted">{link.description}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }

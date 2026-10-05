@@ -134,10 +134,6 @@ export default async function BlogCategoryPage({ params }: PageProps) {
                   priority
                   quality={90}
                   className="object-cover"
-                  unoptimized={
-                    category.image.startsWith("/uploads/") ||
-                    category.image.startsWith("/blogs/")
-                  }
                   sizes="(max-width: 900px) 100vw, 42vw"
                 />
               ) : (

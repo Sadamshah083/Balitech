@@ -1,4 +1,3 @@
-import AdminShell from "@/components/admin/AdminShell";
 import CampaignsManager from "@/components/admin/CampaignsManager";
 import { requireAdmin } from "@/lib/admin";
 import { redirect } from "next/navigation";
@@ -10,9 +9,5 @@ export default async function AdminCampaignsPage() {
     redirect("/admin/leads");
   }
 
-  return (
-    <AdminShell adminName={admin.name} adminRole={admin.role}>
-      <CampaignsManager />
-    </AdminShell>
-  );
+  return <CampaignsManager />;
 }

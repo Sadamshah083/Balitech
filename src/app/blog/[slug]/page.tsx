@@ -184,10 +184,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   alt={blogImageAlt(blog)}
                   fill
                   priority
-                  unoptimized={
-                    blog.image.startsWith("/blogs/") ||
-                    blog.image.startsWith("/uploads/")
-                  }
+                  quality={90}
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 52rem"
                 />
@@ -234,10 +231,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                           alt={blogImageAlt(item)}
                           fill
                           className="object-cover transition duration-300 group-hover:scale-[1.03]"
-                          unoptimized={
-                            item.image.startsWith("/blogs/") ||
-                            item.image.startsWith("/uploads/")
-                          }
+                          quality={80}
                           sizes="(max-width: 640px) 100vw, 14rem"
                         />
                       ) : (

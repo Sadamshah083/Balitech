@@ -1,4 +1,3 @@
-import AdminShell from "@/components/admin/AdminShell";
 import VacanciesManager from "@/components/admin/VacanciesManager";
 import { requireAdmin } from "@/lib/admin";
 import { redirect } from "next/navigation";
@@ -10,9 +9,5 @@ export default async function AdminVacanciesPage() {
     redirect("/admin/leads");
   }
 
-  return (
-    <AdminShell adminName={admin.name} adminRole={admin.role}>
-      <VacanciesManager />
-    </AdminShell>
-  );
+  return <VacanciesManager />;
 }

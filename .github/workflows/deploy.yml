@@ -20,8 +20,8 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /home/u296893178/domains/balitech.org/public_html
+            cd /var/www/balitech-app
             git pull origin main
             npm install
             npm run build
-            pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
+            pm2 reload balitech-app || pm2 start ecosystem.config.js --env production

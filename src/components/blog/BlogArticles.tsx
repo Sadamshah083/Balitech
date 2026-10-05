@@ -42,7 +42,7 @@ export default function BlogArticles({ blogs }: Props) {
                 alt={blogImageAlt(featured)}
                 fill
                 priority
-                unoptimized={featured.image.startsWith("/blogs/") || featured.image.startsWith("/uploads/")}
+                quality={85}
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 76rem"
               />
@@ -70,7 +70,7 @@ export default function BlogArticles({ blogs }: Props) {
                           src={blog.image}
                           alt={blogImageAlt(blog)}
                           fill
-                          unoptimized={blog.image.startsWith("/blogs/") || blog.image.startsWith("/uploads/")}
+                          quality={80}
                           className="object-cover"
                           sizes="(max-width: 720px) 100vw, 50vw"
                         />

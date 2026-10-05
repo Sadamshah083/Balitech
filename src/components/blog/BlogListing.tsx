@@ -335,10 +335,7 @@ export default function BlogListing({
                           src={blog.image}
                           alt={blogImageAlt(blog)}
                           fill
-                          unoptimized={
-                            blog.image.startsWith("/blogs/") ||
-                            blog.image.startsWith("/uploads/")
-                          }
+                          quality={80}
                           className="object-cover"
                           sizes="(max-width: 720px) 100vw, 33vw"
                         />
