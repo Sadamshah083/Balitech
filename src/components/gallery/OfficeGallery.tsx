@@ -38,7 +38,7 @@ export default function OfficeGallery({ items }: OfficeGalleryProps) {
         <div className="grid gap-4 md:grid-cols-2 md:gap-5 lg:gap-6">
           <BentoTilt className="md:row-span-2">
             <div className="office-gallery-card office-gallery-card--featured glow-border overflow-hidden rounded-2xl">
-              <div className="relative aspect-[4/5] w-full md:aspect-auto md:min-h-[min(52vw,560px)]">
+              <div className="relative aspect-4/5 w-full md:aspect-auto md:min-h-[min(52vw,560px)]">
                 <Image
                   src={featured.src}
                   alt={featured.alt ?? featured.title}
@@ -48,7 +48,7 @@ export default function OfficeGallery({ items }: OfficeGalleryProps) {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 md:p-6">
+                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/45 to-transparent p-5 md:p-6">
                   <span className="mb-2 inline-block rounded-full bg-orange/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
                     Office
                   </span>
@@ -63,7 +63,7 @@ export default function OfficeGallery({ items }: OfficeGalleryProps) {
           {rest.map((item) => (
             <BentoTilt key={item.id}>
               <div className="office-gallery-card glow-border overflow-hidden rounded-2xl">
-                <div className="relative aspect-[16/10] w-full md:aspect-[16/11]">
+                <div className="relative aspect-16/10 w-full md:aspect-16/11">
                   <Image
                     src={item.src}
                     alt={item.alt ?? item.title}
@@ -72,7 +72,7 @@ export default function OfficeGallery({ items }: OfficeGalleryProps) {
                     sizes="(max-width: 768px) 100vw, 25vw"
                     className="object-cover"
                   />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4">
+                  <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/40 to-transparent p-4">
                     <span className="mb-1.5 inline-block rounded-full bg-orange/90 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-white">
                       Office
                     </span>
