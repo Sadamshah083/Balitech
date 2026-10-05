@@ -202,13 +202,17 @@ export default function BlogsManager() {
   }
 
   async function ensureSeedCategories() {
-    const res = await adminFetch("/api/blog-categories", { method: "PUT" });
-    if (!res.ok) {
-      setListError(await readError(res, "Could not seed categories"));
-      return;
+    try {
+      const res = await adminFetch("/api/blog-categories", { method: "PUT" });
+      if (!res.ok) {
+        setListError(await readError(res, "Could not seed categories"));
+        return;
+      }
+      flash("Default categories synced.");
+      await loadAll();
+    } catch {
+      setListError("Could not reach the server. Check your connection and try again.");
     }
-    flash("Default categories synced.");
-    await loadAll();
   }
 
   const filteredCategories = useMemo(() => {
@@ -362,25 +366,30 @@ export default function BlogsManager() {
       order: categoryForm.order,
       tagIds: categoryForm.tagIds,
     };
-    const res = editingCategoryId
-      ? await adminFetch(`/api/blog-categories/${editingCategoryId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-      : await adminFetch("/api/blog-categories", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-    setSaving(false);
-    if (!res.ok) {
-      setFormError(await readError(res, "Could not save category"));
-      return;
+    try {
+      const res = editingCategoryId
+        ? await adminFetch(`/api/blog-categories/${editingCategoryId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await adminFetch("/api/blog-categories", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+      if (!res.ok) {
+        setFormError(await readError(res, "Could not save category"));
+        return;
+      }
+      setShowCategoryForm(false);
+      flash(editingCategoryId ? "Category updated." : "Category created.");
+      await loadAll();
+    } catch {
+      setFormError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
-    setShowCategoryForm(false);
-    flash(editingCategoryId ? "Category updated." : "Category created.");
-    await loadAll();
   }
 
   function openCreateTag() {
@@ -410,25 +419,30 @@ export default function BlogsManager() {
       slug: tagForm.slug || slugify(tagForm.name),
       categoryIds: tagForm.categoryIds,
     };
-    const res = editingTagId
-      ? await adminFetch(`/api/blog-tags/${editingTagId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-      : await adminFetch("/api/blog-tags", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-    setSaving(false);
-    if (!res.ok) {
-      setFormError(await readError(res, "Could not save tag"));
-      return;
+    try {
+      const res = editingTagId
+        ? await adminFetch(`/api/blog-tags/${editingTagId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await adminFetch("/api/blog-tags", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+      if (!res.ok) {
+        setFormError(await readError(res, "Could not save tag"));
+        return;
+      }
+      setShowTagForm(false);
+      flash(editingTagId ? "Tag updated." : "Tag created.");
+      await loadAll();
+    } catch {
+      setFormError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
-    setShowTagForm(false);
-    flash(editingTagId ? "Tag updated." : "Tag created.");
-    await loadAll();
   }
 
   function openCreateBlog() {
@@ -542,6 +556,11 @@ export default function BlogsManager() {
       setSaving(false);
       return;
     }
+    if (!blogForm.content.trim()) {
+      setFormError("Content is required.");
+      setSaving(false);
+      return;
+    }
     const payload = {
       title: blogForm.title,
       slug: blogForm.slug || slugify(blogForm.title),
@@ -558,82 +577,102 @@ export default function BlogsManager() {
       categoryId: blogForm.categoryId,
       tagIds: blogForm.tagIds,
     };
-    const res = editingBlogId
-      ? await adminFetch(`/api/blogs/${editingBlogId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-      : await adminFetch("/api/blogs", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-    setSaving(false);
-    if (!res.ok) {
-      setFormError(await readError(res, "Could not save blog"));
-      return;
+    try {
+      const res = editingBlogId
+        ? await adminFetch(`/api/blogs/${editingBlogId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await adminFetch("/api/blogs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+      if (!res.ok) {
+        setFormError(await readError(res, "Could not save blog"));
+        return;
+      }
+      setShowBlogForm(false);
+      flash(editingBlogId ? "Blog updated." : "Blog created.");
+      await loadAll();
+    } catch {
+      setFormError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
-    setShowBlogForm(false);
-    flash(editingBlogId ? "Blog updated." : "Blog created.");
-    await loadAll();
   }
 
   async function confirmDeleteCategory() {
     if (!pendingDeleteCategory) return;
     setDeleting(true);
     setDeleteError(null);
-    const qs =
-      pendingDeleteCategory.postCount > 0 && reassignTo
-        ? `?reassignTo=${encodeURIComponent(reassignTo)}`
-        : "";
-    const res = await adminFetch(
-      `/api/blog-categories/${pendingDeleteCategory.id}${qs}`,
-      { method: "DELETE" }
-    );
-    setDeleting(false);
-    if (!res.ok) {
-      setDeleteError(await readError(res, "Could not delete category"));
-      return;
+    try {
+      const qs =
+        pendingDeleteCategory.postCount > 0 && reassignTo
+          ? `?reassignTo=${encodeURIComponent(reassignTo)}`
+          : "";
+      const res = await adminFetch(
+        `/api/blog-categories/${pendingDeleteCategory.id}${qs}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) {
+        setDeleteError(await readError(res, "Could not delete category"));
+        return;
+      }
+      setPendingDeleteCategory(null);
+      setReassignTo("");
+      flash("Category deleted.");
+      await loadAll();
+    } catch {
+      setDeleteError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setDeleting(false);
     }
-    setPendingDeleteCategory(null);
-    setReassignTo("");
-    flash("Category deleted.");
-    await loadAll();
   }
 
   async function confirmDeleteTag() {
     if (!pendingDeleteTag) return;
     setDeleting(true);
     setDeleteError(null);
-    const res = await adminFetch(`/api/blog-tags/${pendingDeleteTag.id}`, {
-      method: "DELETE",
-    });
-    setDeleting(false);
-    if (!res.ok) {
-      setDeleteError(await readError(res, "Could not delete tag"));
-      return;
+    try {
+      const res = await adminFetch(`/api/blog-tags/${pendingDeleteTag.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        setDeleteError(await readError(res, "Could not delete tag"));
+        return;
+      }
+      setPendingDeleteTag(null);
+      flash("Tag deleted. Posts were kept.");
+      await loadAll();
+    } catch {
+      setDeleteError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setDeleting(false);
     }
-    setPendingDeleteTag(null);
-    flash("Tag deleted. Posts were kept.");
-    await loadAll();
   }
 
   async function confirmDeleteBlog() {
     if (!pendingDeleteBlog) return;
     setDeleting(true);
     setDeleteError(null);
-    const res = await adminFetch(`/api/blogs/${pendingDeleteBlog.id}`, {
-      method: "DELETE",
-    });
-    setDeleting(false);
-    if (!res.ok) {
-      setDeleteError(await readError(res, "Could not delete blog"));
-      return;
+    try {
+      const res = await adminFetch(`/api/blogs/${pendingDeleteBlog.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        setDeleteError(await readError(res, "Could not delete blog"));
+        return;
+      }
+      setPendingDeleteBlog(null);
+      flash("Blog deleted.");
+      await loadAll();
+    } catch {
+      setDeleteError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setDeleting(false);
     }
-    setPendingDeleteBlog(null);
-    flash("Blog deleted.");
-    await loadAll();
   }
 
   const tabs: { key: TabKey; label: string }[] = [

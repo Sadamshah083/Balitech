@@ -82,6 +82,10 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
+    if (body.content !== undefined && !String(body.content).trim()) {
+      return NextResponse.json({ error: "Content is required" }, { status: 400 });
+    }
+
     let nextSlug = existing.slug;
     if (body.slug !== undefined || body.title !== undefined) {
       nextSlug = await uniqueBlogSlug(
