@@ -233,7 +233,7 @@ export default function SettingsManager({
       ) : (
         <div className="admin-surface border border-foreground/10">
           <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-left text-sm">
+          <table className="w-full min-w-200 text-left text-sm">
             <thead className="bg-card text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">User ID</th>
@@ -251,7 +251,7 @@ export default function SettingsManager({
                   key={user.id}
                   className="border-t border-foreground/8 hover:bg-surface"
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-muted max-w-[120px] truncate">
+                  <td className="px-4 py-3 font-mono text-xs text-muted max-w-30 truncate">
                     {user.id}
                   </td>
                   <td className="px-4 py-3 font-medium text-foreground">

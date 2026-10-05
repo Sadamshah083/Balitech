@@ -439,7 +439,7 @@ export default function CampaignsManager({
       ) : (
         <div className="admin-surface border border-foreground/10">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-sm">
+            <table className="w-full min-w-225 text-left text-sm">
               <thead className="bg-card text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Icon</th>
@@ -474,12 +474,12 @@ export default function CampaignsManager({
                           not stand a row taller than the rest; the full list is
                           on hover and in the edit dialog. */}
                       <td
-                        className="max-w-[260px] truncate px-4 py-3 text-muted"
+                        className="max-w-65 truncate px-4 py-3 text-muted"
                         title={branches.join(", ")}
                       >
                         {branches.join(", ")}
                       </td>
-                      <td className="max-w-[260px] truncate px-4 py-3 text-muted">
+                      <td className="max-w-65 truncate px-4 py-3 text-muted">
                         {campaign.description ?? "—"}
                       </td>
                       <td className="px-4 py-3 text-muted">{campaign.order}</td>

@@ -614,7 +614,7 @@ export default function VacanciesManager({
       {vacancies.length > 0 && (
         <div className="admin-surface border border-foreground/10">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[960px] text-left text-sm">
+            <table className="w-full min-w-240 text-left text-sm">
               <thead className="bg-card text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Position</th>
@@ -641,10 +641,10 @@ export default function VacanciesManager({
                         )}
                       </td>
                       <td className="px-4 py-3 text-muted">{departmentLabel(vacancy.department)}</td>
-                      <td className="max-w-[220px] truncate px-4 py-3 text-muted" title={where}>
+                      <td className="max-w-55 truncate px-4 py-3 text-muted" title={where}>
                         {where || "—"}
                       </td>
-                      <td className="max-w-[200px] truncate px-4 py-3 text-muted">
+                      <td className="max-w-50 truncate px-4 py-3 text-muted">
                         {[vacancy.workingDays, vacancy.workingHours].filter(Boolean).join(" · ") || "—"}
                       </td>
                       <td className="px-4 py-3 text-muted">{vacancy.cvRequired ? "Required" : "Optional"}</td>
