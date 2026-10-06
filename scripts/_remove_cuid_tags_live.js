@@ -54,7 +54,7 @@ const prisma = new PrismaClient();
 async function main() {
   const where = { OR: [{ id: { in: GARBAGE } }, { name: { in: GARBAGE } }] };
 
-  const matches = await prisma.blogTag.findMany({
+  const found = await prisma.blogTag.findMany({
     where,
     select: {
       id: true,
@@ -63,7 +63,13 @@ async function main() {
     },
   });
 
+  /* Only tags whose name is itself a CUID are garbage. A real tag is never
+     deleted just because its id appears in the list. */
+  const matches = found.filter((tag) => /^c[a-z0-9]{20,}$/.test(tag.name));
+  const skipped = found.length - matches.length;
+
   console.log(`Matched ${matches.length} of ${GARBAGE.length} listed values:`);
+  if (skipped > 0) console.log(`Skipped ${skipped} real tag(s) whose name is not a CUID.`);
   for (const tag of matches) {
     console.log(
       `  ${tag.id}  name="${tag.name}"  blogs=${tag._count.blogs}  categories=${tag._count.categories}`
@@ -75,7 +81,9 @@ async function main() {
     return;
   }
 
-  const result = await prisma.blogTag.deleteMany({ where });
+  const result = await prisma.blogTag.deleteMany({
+    where: { id: { in: matches.map((tag) => tag.id) } },
+  });
   console.log(`\nDeleted ${result.count} tags.`);
 }
 
