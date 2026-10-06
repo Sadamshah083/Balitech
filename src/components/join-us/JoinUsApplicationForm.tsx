@@ -638,6 +638,35 @@ export default function JoinUsApplicationForm() {
               )}
 
               <Field
+                id={fid("cnic")}
+                label="CNIC number"
+                required
+                hint="Your 13-digit national identity card number."
+                error={errors.cnic}
+              >
+                <input
+                  {...inputProps(fid("cnic"), errors.cnic)}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="e.g. 35202-1234567-1"
+                  maxLength={15}
+                  value={answers.cnic}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/[^\d-]/g, "");
+                    const digits = value.replace(/\D/g, "");
+                    if (digits.length <= 13) {
+                      if (digits.length > 5 && digits.length <= 12)
+                        value = `${digits.slice(0, 5)}-${digits.slice(5)}`;
+                      else if (digits.length > 12)
+                        value = `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12, 13)}`;
+                    }
+                    update({ cnic: value });
+                  }}
+                  className="join-us-form__input"
+                />
+              </Field>
+
+              <Field
                 id={fid("email")}
                 label="Email"
                 required

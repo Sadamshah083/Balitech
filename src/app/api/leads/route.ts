@@ -33,6 +33,7 @@ export async function GET(request: Request) {
         id: true,
         name: true,
         email: true,
+        cnic: true,
         phone: true,
         company: true,
         position: true,

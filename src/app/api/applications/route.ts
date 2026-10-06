@@ -20,6 +20,7 @@ import {
   formatPhone,
   hasKnownSource,
   isGeneralApplication,
+  normalizeCnic,
   pruneAnswers,
   validateApplication,
   type ApplicationContext,
@@ -139,6 +140,28 @@ export async function POST(request: Request) {
       }
     }
 
+    const cnic = normalizeCnic(answers.cnic);
+    if (cnic) {
+      const existingByCnic = await prisma.lead.findFirst({
+        where: { cnic },
+        orderBy: { createdAt: "desc" },
+        select: { referenceId: true, createdAt: true },
+      });
+      if (existingByCnic) {
+        if (savedCvPath) await unlink(resolveCvAbsolutePath(savedCvPath)).catch(() => {});
+        return NextResponse.json(
+          {
+            error:
+              "An application with this CNIC has already been submitted. If you believe this is an error, please contact our HR team.",
+            fieldErrors: {
+              cnic: "An application with this CNIC already exists.",
+            },
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     const phone = formatPhone(answers.mobile);
     const email = answers.email.trim().toLowerCase();
     const since = new Date(Date.now() - DUPLICATE_WINDOW_DAYS * 86_400_000);
@@ -208,6 +231,7 @@ export async function POST(request: Request) {
           data: {
             name: answers.fullName.trim(),
             email,
+            cnic: cnic || null,
             phone,
             company: branchName,
             position: positionTitle,

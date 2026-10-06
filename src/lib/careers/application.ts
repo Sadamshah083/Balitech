@@ -58,6 +58,7 @@ export type ApplicationAnswers = {
   mobile: PhoneValue;
   whatsappSame: boolean;
   whatsapp: PhoneValue;
+  cnic: string;
   email: string;
   city: string;
   locality: string;
@@ -111,6 +112,7 @@ export const emptyAnswers: ApplicationAnswers = {
   mobile: { code: "+92", number: "" },
   whatsappSame: true,
   whatsapp: { code: "+92", number: "" },
+  cnic: "",
   email: "",
   city: "",
   locality: "",
@@ -201,6 +203,7 @@ const STEP_FIELDS: FieldKey[][] = [
     "fullName",
     "mobile",
     "whatsapp",
+    "cnic",
     "email",
     "city",
     "locality",
@@ -371,6 +374,13 @@ export function specialistQuestion(vacancy: PublicVacancy | null) {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const CNIC_RE = /^\d{5}-\d{7}-\d$/;
+
+export function normalizeCnic(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length !== 13) return "";
+  return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12)}`;
+}
 
 export function phoneDigits(phone: PhoneValue) {
   let digits = phone.number.replace(/\D/g, "");
@@ -454,6 +464,11 @@ export function validateApplication(
     set("mobile", "Enter a valid mobile number for the selected country code.");
   if (v.whatsapp && answers.whatsapp.number.trim() && !isValidPhone(answers.whatsapp)) {
     set("whatsapp", "Enter a valid WhatsApp number or leave it blank.");
+  }
+  if (!answers.cnic.trim()) {
+    set("cnic", "Enter your CNIC number.");
+  } else if (!CNIC_RE.test(normalizeCnic(answers.cnic))) {
+    set("cnic", "Enter a valid 13-digit CNIC number (e.g. 35202-1234567-1).");
   }
   if (!answers.email.trim()) {
     set("email", "Enter your email address.");
@@ -617,6 +632,7 @@ export function pruneAnswers(answers: ApplicationAnswers, ctx: ApplicationContex
     fullName: t(answers.fullName),
     mobile: formatPhone(answers.mobile),
     whatsappSame: answers.whatsappSame,
+    cnic: normalizeCnic(answers.cnic),
     email: t(answers.email).toLowerCase(),
     city: t(answers.city),
     locality: t(answers.locality),
@@ -728,6 +744,7 @@ export function buildSummary(
         ? formatPhone(answers.whatsapp)
         : "Not provided"
   );
+  add(details, "CNIC", normalizeCnic(answers.cnic) || "Not provided");
   add(details, "Email", answers.email || "Not provided");
   add(details, "City and area", [answers.city.trim(), answers.locality.trim()].filter(Boolean).join(", "));
   add(details, "Highest qualification", optionLabel(QUALIFICATION_OPTIONS, answers.qualification) || "Not provided");
@@ -838,6 +855,7 @@ export function coerceAnswers(input: unknown): ApplicationAnswers {
     mobile: phone("mobile"),
     whatsappSame: src.whatsappSame !== false,
     whatsapp: phone("whatsapp"),
+    cnic: str("cnic", 15),
     email: str("email", 200),
     city: str("city"),
     locality: str("locality"),

@@ -45,6 +45,7 @@ export async function GET(request: Request) {
   const headers = [
     "S.No",
     "Name",
+    "CNIC",
     "Email",
     "Phone",
     "Company",
@@ -61,6 +62,7 @@ export async function GET(request: Request) {
   const rows = leads.map((lead, index) => [
     index + 1,
     lead.name,
+    lead.cnic ?? "",
     lead.email,
     lead.phone ?? "",
     lead.company ?? "",
