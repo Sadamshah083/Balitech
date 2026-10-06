@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarClock, CheckCircle2, MapPin, Pencil } from "lucide-react";
+import { CheckCircle2, MapPin, Pencil } from "lucide-react";
 import { thankYouHref } from "@/lib/thank-you";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
@@ -17,7 +17,6 @@ import {
   EMPLOYEE_HISTORY_OPTIONS,
   EMPLOYMENT_END_OPTIONS,
   ENGLISH_OPTIONS,
-  EXAMPLE_CAMPAIGNS,
   EXPERIENCE_OPTIONS,
   GENERAL_APPLICATION,
   HEARD_ABOUT_OPTIONS,
@@ -27,7 +26,6 @@ import {
   OPEN_CAMPAIGN,
   OPEN_CAMPAIGN_LABEL,
   QUALIFICATION_OPTIONS,
-  SCHEDULE_OPTIONS,
   type Option,
 } from "@/lib/careers/catalog";
 import {
@@ -494,22 +492,6 @@ export default function JoinUsApplicationForm() {
   const selectedBranchAddress =
     offices.find((o) => o.name === answers.branch)?.address?.trim() || null;
 
-  const scheduleFacts = vacancy
-    ? [
-        vacancy.workingDays && { label: "Working days", value: vacancy.workingDays },
-        vacancy.workingHours && { label: "Hours", value: vacancy.workingHours },
-        vacancy.workArrangement && { label: "Work arrangement", value: vacancy.workArrangement },
-      ].filter((x): x is { label: string; value: string } => Boolean(x))
-    : [];
-
-  const campaignsWorkedOptions: Option[] = [
-    ...(campaigns.length ? campaigns.map((c) => c.title) : EXAMPLE_CAMPAIGNS).map((title) => ({
-      value: title,
-      label: title,
-    })),
-    { value: "other", label: "Other" },
-  ];
-
   const years = yearOptions();
   const [lastYear = "", lastMonth = ""] = answers.lastWorkedMonth.split("-");
   const setLastWorked = (year: string, month: string) =>
@@ -684,38 +666,18 @@ export default function JoinUsApplicationForm() {
                 />
               </Field>
 
-              <fieldset className="join-us-form__fieldset">
-                <legend className="join-us-form__label">
-                  Current city and area
-                  <RequiredMark />
-                </legend>
-                <div className="join-us-form__grid join-us-form__grid--two join-us-form__grid--flush">
-                  <Field id={fid("city")} label="City" required error={errors.city}>
-                    <input
-                      {...inputProps(fid("city"), errors.city)}
-                      type="text"
-                      autoComplete="address-level2"
-                      placeholder="e.g. Rawalpindi"
-                      maxLength={80}
-                      value={answers.city}
-                      onChange={(e) => update({ city: e.target.value })}
-                      className="join-us-form__input"
-                    />
-                  </Field>
-                  <Field id={fid("locality")} label="Area or locality" required error={errors.locality}>
-                    <input
-                      {...inputProps(fid("locality"), errors.locality)}
-                      type="text"
-                      autoComplete="address-level3"
-                      placeholder="e.g. Satellite Town"
-                      maxLength={80}
-                      value={answers.locality}
-                      onChange={(e) => update({ locality: e.target.value })}
-                      className="join-us-form__input"
-                    />
-                  </Field>
-                </div>
-              </fieldset>
+              <Field id={fid("city")} label="Current city" required error={errors.city}>
+                <input
+                  {...inputProps(fid("city"), errors.city)}
+                  type="text"
+                  autoComplete="address-level2"
+                  placeholder="e.g. Rawalpindi"
+                  maxLength={80}
+                  value={answers.city}
+                  onChange={(e) => update({ city: e.target.value })}
+                  className="join-us-form__input"
+                />
+              </Field>
 
               <Field id={fid("qualification")} label="Highest completed qualification" error={errors.qualification}>
                 <select
@@ -981,43 +943,6 @@ export default function JoinUsApplicationForm() {
                 </select>
               </Field>
 
-              {v.recentRole && (
-                <CountedTextarea
-                  id={fid("recentRole")}
-                  label={QUESTIONS.recentRole}
-                  required
-                  value={answers.recentRole}
-                  error={errors.recentRole}
-                  onChange={(recentRole) => update({ recentRole })}
-                />
-              )}
-
-              {v.scheduleFit && (
-                <div className="join-us-form__field">
-                  {scheduleFacts.length > 0 && (
-                    <div className="join-us-form__schedule">
-                      <CalendarClock size={16} aria-hidden />
-                      <dl>
-                        {scheduleFacts.map((fact) => (
-                          <div key={fact.label}>
-                            <dt>{fact.label}</dt>
-                            <dd>{fact.value}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </div>
-                  )}
-                  <ChoiceGroup
-                    id={fid("scheduleFit")}
-                    legend={scheduleFacts.length ? "Can you work this schedule?" : "Can you work the schedule for this role?"}
-                    required
-                    options={SCHEDULE_OPTIONS}
-                    value={answers.scheduleFit}
-                    error={errors.scheduleFit}
-                    onChange={(scheduleFit) => update({ scheduleFit })}
-                  />
-                </div>
-              )}
               {v.availabilityNote && (
                 <CountedTextarea
                   id={fid("availabilityNote")}
@@ -1080,33 +1005,6 @@ export default function JoinUsApplicationForm() {
                 </Field>
               )}
 
-              <Field
-                id={fid("salary")}
-                label="Expected monthly basic salary (PKR)"
-                hint="Enter basic salary only, excluding commissions and bonuses."
-                error={errors.salary}
-              >
-                <input
-                  {...inputProps(fid("salary"), errors.salary, true)}
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="e.g. 45000"
-                  maxLength={12}
-                  disabled={answers.salaryOpen}
-                  value={answers.salaryOpen ? "" : answers.salary}
-                  onChange={(e) => update({ salary: e.target.value.replace(/[^\d,]/g, "") })}
-                  className="join-us-form__input"
-                />
-                <label className="join-us-form__check">
-                  <input
-                    type="checkbox"
-                    checked={answers.salaryOpen}
-                    onChange={(e) => update({ salaryOpen: e.target.checked, salary: e.target.checked ? "" : answers.salary })}
-                  />
-                  <span>Open to discussion</span>
-                </label>
-              </Field>
-
               {v.campaignInterest && (
                 <Field id={fid("campaignInterest")} label={QUESTIONS.campaignInterest} required error={errors.campaignInterest}>
                   <select
@@ -1123,29 +1021,6 @@ export default function JoinUsApplicationForm() {
                     ))}
                     <option value={OPEN_CAMPAIGN}>{OPEN_CAMPAIGN_LABEL}</option>
                   </select>
-                </Field>
-              )}
-              {v.campaignsWorked && (
-                <MultiChoiceGroup
-                  id={fid("campaignsWorked")}
-                  legend={QUESTIONS.campaignsWorked}
-                  required
-                  options={campaignsWorkedOptions}
-                  values={answers.campaignsWorked}
-                  error={errors.campaignsWorked}
-                  onChange={(campaignsWorked) => update({ campaignsWorked })}
-                />
-              )}
-              {v.campaignsWorkedOther && (
-                <Field id={fid("campaignsWorkedOther")} label="Other campaigns" required error={errors.campaignsWorkedOther}>
-                  <input
-                    {...inputProps(fid("campaignsWorkedOther"), errors.campaignsWorkedOther)}
-                    type="text"
-                    maxLength={120}
-                    value={answers.campaignsWorkedOther}
-                    onChange={(e) => update({ campaignsWorkedOther: e.target.value })}
-                    className="join-us-form__input"
-                  />
                 </Field>
               )}
               {v.english && (

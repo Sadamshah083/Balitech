@@ -23,7 +23,6 @@ import {
   QUALIFICATION_OPTIONS,
   REMOTE_BRANCH,
   REMOTE_BRANCH_LABEL,
-  SCHEDULE_OPTIONS,
   TEXT_LIMIT,
   departmentLabel,
   isMedicalBillingCampaign,
@@ -61,7 +60,6 @@ export type ApplicationAnswers = {
   cnic: string;
   email: string;
   city: string;
-  locality: string;
   qualification: string;
   employeeHistory: string;
   formerBranch: string;
@@ -76,16 +74,10 @@ export type ApplicationAnswers = {
   vacancyId: string;
   branch: string;
   experience: string;
-  recentRole: string;
-  scheduleFit: string;
   availabilityNote: string;
   joinTiming: string;
   earliestDate: string;
-  salary: string;
-  salaryOpen: boolean;
   campaignInterest: string;
-  campaignsWorked: string[];
-  campaignsWorkedOther: string;
   englishLevel: string;
   supervisedCount: string;
   teamIssue: string;
@@ -115,7 +107,6 @@ export const emptyAnswers: ApplicationAnswers = {
   cnic: "",
   email: "",
   city: "",
-  locality: "",
   qualification: "",
   employeeHistory: "",
   formerBranch: "",
@@ -129,16 +120,10 @@ export const emptyAnswers: ApplicationAnswers = {
   vacancyId: "",
   branch: "",
   experience: "",
-  recentRole: "",
-  scheduleFit: "",
   availabilityNote: "",
   joinTiming: "",
   earliestDate: "",
-  salary: "",
-  salaryOpen: false,
   campaignInterest: "",
-  campaignsWorked: [],
-  campaignsWorkedOther: "",
   englishLevel: "",
   supervisedCount: "",
   teamIssue: "",
@@ -176,15 +161,12 @@ export const STEPS = [
 ] as const;
 
 export const QUESTIONS = {
-  recentRole:
-    "Tell us about your most recent relevant role, including your job title, employer and how long you worked there.",
   formerBranch: "Which branch did you work at?",
   formerPosition: "What was your position?",
   lastWorked: "When did you last work here?",
   employmentEnd: "How did your employment end?",
   availabilityNote: "What availability should we consider?",
   campaignInterest: "Which campaign or project are you interested in?",
-  campaignsWorked: "Which campaigns have you worked on?",
   englishLevel: "How comfortable are you communicating in English?",
   supervisedCount: "How many people have you directly supervised?",
   teamIssue:
@@ -206,7 +188,6 @@ const STEP_FIELDS: FieldKey[][] = [
     "cnic",
     "email",
     "city",
-    "locality",
     "qualification",
     "employeeHistory",
     "formerBranch",
@@ -221,16 +202,11 @@ const STEP_FIELDS: FieldKey[][] = [
     "vacancyId",
     "branch",
     "experience",
-    "recentRole",
-    "scheduleFit",
     "availabilityNote",
     "heardAbout",
     "joinTiming",
     "earliestDate",
-    "salary",
     "campaignInterest",
-    "campaignsWorked",
-    "campaignsWorkedOther",
     "englishLevel",
     "supervisedCount",
     "teamIssue",
@@ -321,7 +297,6 @@ export function getVisibility(
   const groups = new Set<RoleGroup>(
     !general && ctx.vacancy ? ctx.vacancy.roleGroups : []
   );
-  const experienced = hasExperience(answers);
   const employee = isFormerEmployee(answers);
   const previous = answers.employeeHistory === "previous";
 
@@ -329,19 +304,12 @@ export function getVisibility(
     general,
     groups,
     whatsapp: !answers.whatsappSame,
-    recentRole: experienced,
     employee,
     formerBranchOther: employee && answers.formerBranch === "other",
     previous,
-    scheduleFit: !general && Boolean(ctx.vacancy),
     availabilityNote: false,
     earliestDate: answers.joinTiming === "30d+",
     campaignInterest: groups.has("campaign") && !ctx.vacancy?.campaign,
-    campaignsWorked: groups.has("campaign") && experienced,
-    campaignsWorkedOther:
-      groups.has("campaign") &&
-      experienced &&
-      answers.campaignsWorked.includes("other"),
     english: groups.has("english"),
     leadership: groups.has("leadership"),
     hr: groups.has("hr"),
@@ -476,7 +444,6 @@ export function validateApplication(
     set("email", "Enter a valid email address.");
   }
   requireText("city", answers.city, "Enter your current city.", 80);
-  requireText("locality", answers.locality, "Enter your area or locality.", 80);
   if (answers.qualification && !inOptions(QUALIFICATION_OPTIONS, answers.qualification)) {
     set("qualification", "Choose a qualification from the list.");
   }
@@ -529,22 +496,6 @@ export function validateApplication(
     answers.experience,
     "Choose your experience."
   );
-  if (v.recentRole) {
-    requireText("recentRole", answers.recentRole, "Tell us about your most recent relevant role.");
-  }
-
-  if (v.scheduleFit) {
-    requireOption(
-      "scheduleFit",
-      SCHEDULE_OPTIONS,
-      answers.scheduleFit,
-      "Tell us whether you can work this schedule."
-    );
-    if (v.availabilityNote) {
-      requireText("availabilityNote", answers.availabilityNote, "Tell us what availability we should consider.");
-    }
-  }
-
   requireOption("joinTiming", JOIN_OPTIONS, answers.joinTiming, "Tell us when you can join.");
   if (v.earliestDate) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(answers.earliestDate)) {
@@ -554,24 +505,11 @@ export function validateApplication(
     }
   }
 
-  if (!answers.salaryOpen && answers.salary.trim()) {
-    const amount = Number(answers.salary.replace(/,/g, ""));
-    if (!Number.isFinite(amount) || amount <= 0 || amount > 10_000_000 || !Number.isInteger(amount)) {
-      set("salary", "Enter a whole amount in PKR, or choose “Open to discussion”.");
-    }
-  }
-
   if (v.campaignInterest) {
     const allowed = [...ctx.campaigns, OPEN_CAMPAIGN];
     if (!allowed.includes(answers.campaignInterest)) {
       set("campaignInterest", "Choose a campaign or “Open to a suitable campaign”.");
     }
-  }
-  if (v.campaignsWorked && answers.campaignsWorked.length === 0) {
-    set("campaignsWorked", "Choose at least one campaign, or Other.");
-  }
-  if (v.campaignsWorkedOther) {
-    requireText("campaignsWorkedOther", answers.campaignsWorkedOther, "Enter the other campaigns.", 120);
   }
   if (v.english) {
     requireOption("englishLevel", ENGLISH_OPTIONS, answers.englishLevel, "Choose your English level.");
@@ -637,15 +575,12 @@ export function pruneAnswers(answers: ApplicationAnswers, ctx: ApplicationContex
     cnic: normalizeCnic(answers.cnic),
     email: t(answers.email).toLowerCase(),
     city: t(answers.city),
-    locality: t(answers.locality),
     qualification: answers.qualification,
     employeeHistory: answers.employeeHistory,
     vacancyId: answers.vacancyId,
     branch: answers.branch,
     experience: answers.experience,
     joinTiming: answers.joinTiming,
-    salary: answers.salaryOpen ? "" : t(answers.salary).replace(/,/g, ""),
-    salaryOpen: answers.salaryOpen,
     anythingElse: t(answers.anythingElse),
     confirmAccurate: answers.confirmAccurate,
     consentRecruitment: answers.consentRecruitment,
@@ -664,13 +599,9 @@ export function pruneAnswers(answers: ApplicationAnswers, ctx: ApplicationContex
     out.employmentEnd = answers.employmentEnd;
     out.employmentEndNote = t(answers.employmentEndNote);
   }
-  if (v.recentRole) out.recentRole = t(answers.recentRole);
-  if (v.scheduleFit) out.scheduleFit = answers.scheduleFit;
   if (v.availabilityNote) out.availabilityNote = t(answers.availabilityNote);
   if (v.earliestDate) out.earliestDate = answers.earliestDate;
   if (v.campaignInterest) out.campaignInterest = answers.campaignInterest;
-  if (v.campaignsWorked) out.campaignsWorked = answers.campaignsWorked;
-  if (v.campaignsWorkedOther) out.campaignsWorkedOther = t(answers.campaignsWorkedOther);
   if (v.english) out.englishLevel = answers.englishLevel;
   if (v.leadership) {
     out.supervisedCount = Number(answers.supervisedCount.trim());
@@ -748,7 +679,7 @@ export function buildSummary(
   );
   add(details, "CNIC", normalizeCnic(answers.cnic) || "Not provided");
   add(details, "Email", answers.email || "Not provided");
-  add(details, "City and area", [answers.city.trim(), answers.locality.trim()].filter(Boolean).join(", "));
+  add(details, "City", answers.city);
   add(details, "Highest qualification", optionLabel(QUALIFICATION_OPTIONS, answers.qualification) || "Not provided");
   add(details, "Worked for Balitech", optionLabel(EMPLOYEE_HISTORY_OPTIONS, answers.employeeHistory));
   if (v.employee) {
@@ -779,20 +710,9 @@ export function buildSummary(
     experienceQuestion(v.general, ctx.vacancy),
     optionLabel(EXPERIENCE_OPTIONS, answers.experience)
   );
-  if (v.recentRole) add(role, "Most recent relevant role", answers.recentRole);
-  if (v.scheduleFit) add(role, "Can work this schedule", optionLabel(SCHEDULE_OPTIONS, answers.scheduleFit));
   if (v.availabilityNote) add(role, QUESTIONS.availabilityNote, answers.availabilityNote);
   add(role, "Available to join", optionLabel(JOIN_OPTIONS, answers.joinTiming));
   if (v.earliestDate) add(role, "Earliest available date", answers.earliestDate);
-  add(
-    role,
-    "Expected monthly basic salary",
-    answers.salaryOpen
-      ? "Open to discussion"
-      : answers.salary.trim()
-        ? `PKR ${Number(answers.salary.replace(/,/g, "")).toLocaleString("en-US")}`
-        : "Not provided"
-  );
   if (v.campaignInterest) {
     add(
       role,
@@ -801,15 +721,6 @@ export function buildSummary(
     );
   }
   if (vacancy?.campaign && !v.general) add(role, "Campaign", vacancy.campaign);
-  if (v.campaignsWorked) {
-    add(
-      role,
-      QUESTIONS.campaignsWorked,
-      answers.campaignsWorked
-        .map((c) => (c === "other" ? `Other: ${answers.campaignsWorkedOther.trim()}` : c))
-        .join(", ")
-    );
-  }
   if (v.english) add(role, QUESTIONS.englishLevel, optionLabel(ENGLISH_OPTIONS, answers.englishLevel));
   if (v.leadership) {
     add(role, QUESTIONS.supervisedCount, answers.supervisedCount);
@@ -860,7 +771,6 @@ export function coerceAnswers(input: unknown): ApplicationAnswers {
     cnic: str("cnic", 15),
     email: str("email", 200),
     city: str("city"),
-    locality: str("locality"),
     qualification: str("qualification"),
     employeeHistory: str("employeeHistory"),
     formerBranch: str("formerBranch"),
@@ -874,16 +784,10 @@ export function coerceAnswers(input: unknown): ApplicationAnswers {
     vacancyId: str("vacancyId", 64),
     branch: str("branch"),
     experience: str("experience"),
-    recentRole: str("recentRole"),
-    scheduleFit: str("scheduleFit"),
     availabilityNote: str("availabilityNote"),
     joinTiming: str("joinTiming"),
     earliestDate: str("earliestDate", 10),
-    salary: str("salary", 20),
-    salaryOpen: bool("salaryOpen"),
     campaignInterest: str("campaignInterest"),
-    campaignsWorked: list("campaignsWorked"),
-    campaignsWorkedOther: str("campaignsWorkedOther"),
     englishLevel: str("englishLevel"),
     supervisedCount: str("supervisedCount", 10),
     teamIssue: str("teamIssue"),
