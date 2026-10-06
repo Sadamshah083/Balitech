@@ -48,6 +48,7 @@ export async function GET(request: Request) {
         details: true,
         exportedAt: true,
         cvDownloadedAt: true,
+        source: true,
       },
     }),
     prisma.lead.count({ where }),

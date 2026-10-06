@@ -200,6 +200,8 @@ export async function prefetchLeads() {
         details: true,
         exportedAt: true,
         cvDownloadedAt: true,
+        cnic: true,
+        source: true,
       },
     }),
     prisma.lead.count({ where }),

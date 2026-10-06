@@ -14,13 +14,14 @@ import {
   Trash2,
 } from "lucide-react";
 import { FLAG_LABELS, parseFlags, queueLabel } from "@/lib/careers/review";
-import { EXPERIENCE_OPTIONS, optionLabel } from "@/lib/careers/catalog";
+import { EXPERIENCE_OPTIONS, HEARD_ABOUT_OPTIONS, optionLabel } from "@/lib/careers/catalog";
 import { officeCodeFromBranch } from "@/lib/application-reference";
 
 type Lead = {
   id: string;
   name: string;
   email: string;
+  cnic?: string | null;
   phone: string | null;
   company: string | null;
   position: string | null;
@@ -28,6 +29,7 @@ type Lead = {
   status: string;
   createdAt: string;
   referenceId?: string | null;
+  source?: string | null;
   queue?: string | null;
   flags?: string | null;
   details?: string | null;
@@ -88,6 +90,19 @@ function extractPositionFromMessage(message: string | null) {
 
 function leadPosition(lead: Lead) {
   return lead.position?.trim() || extractPositionFromMessage(lead.message);
+}
+
+function leadHeardAbout(lead: Lead) {
+  let source: { heardAbout?: string; channel?: string } = {};
+  try {
+    source = lead.source ? JSON.parse(lead.source) : {};
+  } catch {
+    source = {};
+  }
+  if (source.heardAbout) {
+    return optionLabel(HEARD_ABOUT_OPTIONS, source.heardAbout) || source.heardAbout;
+  }
+  return source.channel?.trim() || null;
 }
 
 function formatDownloadDate(value: string) {
@@ -629,19 +644,21 @@ export default function LeadsManager({
         <>
           <div className="admin-surface border border-foreground/10">
             <div className="admin-leads-table-scroll">
-              <table className="w-full min-w-295 table-fixed text-left text-sm">
+              <table className="w-full min-w-275 table-fixed text-left text-sm">
                 {/* Fixed layout keeps row height stable. Message / Review is
                     given more width and may wrap so experience and flags stay
                     readable; both scrollbars stay inside this panel. */}
                 <colgroup>
+                  <col className="w-[10%]" />
                   <col className="w-[11%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[11%]" />
-                  <col className="w-[11%]" />
-                  <col className="w-[18%]" />
-                  <col className="w-[11%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[9%]" />
                   <col className="w-[8%]" />
+                  <col className="w-[14%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[7%]" />
                   <col className="w-[6%]" />
                 </colgroup>
                 <thead className="sticky top-0 z-10 bg-card text-muted">
@@ -649,8 +666,10 @@ export default function LeadsManager({
                     <th className="px-3 py-3 font-medium">Name</th>
                     <th className="px-3 py-3 font-medium">Email</th>
                     <th className="px-3 py-3 font-medium">Phone</th>
+                    <th className="px-3 py-3 font-medium">CNIC</th>
                     <th className="px-3 py-3 font-medium">Company / Branch</th>
                     <th className="px-3 py-3 font-medium">Job Applied</th>
+                    <th className="px-3 py-3 font-medium">Heard About</th>
                     <th className="px-3 py-3 font-medium">Message / Review</th>
                     <th className="px-3 py-3 font-medium">Downloaded</th>
                     <th className="px-3 py-3 font-medium">Date</th>
@@ -660,7 +679,7 @@ export default function LeadsManager({
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-8 text-center text-muted">
+                      <td colSpan={11} className="px-4 py-8 text-center text-muted">
                         Loading...
                       </td>
                     </tr>
@@ -693,6 +712,9 @@ export default function LeadsManager({
                         >
                           {lead.phone ?? "—"}
                         </td>
+                        <td className="truncate px-3 py-3 font-mono text-xs text-muted" title={lead.cnic ?? undefined}>
+                          {lead.cnic || "—"}
+                        </td>
                         <td
                           className="truncate px-3 py-3 text-muted"
                           title={lead.company ?? undefined}
@@ -704,6 +726,9 @@ export default function LeadsManager({
                           title={leadPosition(lead) ?? undefined}
                         >
                           {leadPosition(lead) ?? "—"}
+                        </td>
+                        <td className="truncate px-3 py-3 text-muted" title={leadHeardAbout(lead) ?? undefined}>
+                          {leadHeardAbout(lead) ?? "—"}
                         </td>
                         {lead.referenceId ? (
                           <td
