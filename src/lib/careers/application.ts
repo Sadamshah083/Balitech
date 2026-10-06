@@ -224,6 +224,7 @@ const STEP_FIELDS: FieldKey[][] = [
     "recentRole",
     "scheduleFit",
     "availabilityNote",
+    "heardAbout",
     "joinTiming",
     "earliestDate",
     "salary",
@@ -243,7 +244,6 @@ const STEP_FIELDS: FieldKey[][] = [
     "anythingElse",
   ],
   [
-    "heardAbout",
     "heardAboutOther",
     "referrerName",
     "confirmAccurate",
@@ -610,7 +610,9 @@ export function validateApplication(
   limitText("anythingElse", answers.anythingElse);
 
   if (v.heardAbout) {
-    if (answers.heardAbout && !inOptions(HEARD_ABOUT_OPTIONS, answers.heardAbout)) {
+    if (!answers.heardAbout) {
+      set("heardAbout", "Tell us how you heard about this opportunity.");
+    } else if (!inOptions(HEARD_ABOUT_OPTIONS, answers.heardAbout)) {
       set("heardAbout", "Choose an option from the list.");
     }
     limitText("heardAboutOther", answers.heardAboutOther, 120);

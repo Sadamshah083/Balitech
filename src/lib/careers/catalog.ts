@@ -263,13 +263,9 @@ export const HR_TASK_OPTIONS: Option[] = [
 ];
 
 export const HEARD_ABOUT_OPTIONS: Option[] = [
-  { value: "facebook", label: "Facebook" },
-  { value: "instagram", label: "Instagram" },
-  { value: "linkedin", label: "LinkedIn" },
-  { value: "job-board", label: "Job board" },
-  { value: "referral", label: "Employee referral" },
-  { value: "website", label: "Website or search" },
-  { value: "other", label: "Other" },
+  { value: "walk-in", label: "Walk In" },
+  { value: "social-media", label: "Social Media" },
+  { value: "website", label: "Website" },
 ];
 
 export const WORK_ARRANGEMENTS = ["On-site", "Remote", "Hybrid"];

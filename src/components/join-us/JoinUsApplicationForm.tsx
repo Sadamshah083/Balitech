@@ -1029,6 +1029,24 @@ export default function JoinUsApplicationForm() {
                 />
               )}
 
+              {v.heardAbout && (
+                <Field id={fid("heardAbout")} label={QUESTIONS.heardAbout} required error={errors.heardAbout}>
+                  <select
+                    {...inputProps(fid("heardAbout"), errors.heardAbout)}
+                    value={answers.heardAbout}
+                    onChange={(e) => update({ heardAbout: e.target.value })}
+                    className="join-us-form__select"
+                  >
+                    <option value="">Select an option</option>
+                    {HEARD_ABOUT_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              )}
+
               <Field
                 id={fid("joinTiming")}
                 label="When are you available to join?"
@@ -1314,21 +1332,6 @@ export default function JoinUsApplicationForm() {
 
               {v.heardAbout && (
                 <>
-                  <Field id={fid("heardAbout")} label={QUESTIONS.heardAbout} error={errors.heardAbout}>
-                    <select
-                      {...inputProps(fid("heardAbout"), errors.heardAbout)}
-                      value={answers.heardAbout}
-                      onChange={(e) => update({ heardAbout: e.target.value })}
-                      className="join-us-form__select"
-                    >
-                      <option value="">Select an option</option>
-                      {HEARD_ABOUT_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
                   {v.heardAboutOther && (
                     <Field id={fid("heardAboutOther")} label="Where did you hear about it?" error={errors.heardAboutOther}>
                       <input
