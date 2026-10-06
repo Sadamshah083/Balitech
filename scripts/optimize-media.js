@@ -72,7 +72,7 @@ const BANNER_QUALITY = 72;
  * kept as PNG because that is also what the download button hands over.
  */
 const QR = {
-  url: "https://balitech.org",
+  url: "https://balitech.org/join-us",
   out: "balitech-website-qr.png",
   width: 448,
   margin: 2,
