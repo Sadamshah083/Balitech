@@ -48,6 +48,28 @@ type ApplicationDetails = {
   duplicates?: { id: string; referenceId: string | null; position: string | null; createdAt: string }[];
 };
 
+/* Applications saved before these questions were removed still hold their
+   answers, so the detail page drops those rows rather than rewriting the record. */
+const RETIRED_SUMMARY_LABELS = new Set([
+  "Most recent relevant role",
+  "Can work this schedule",
+  "Expected monthly basic salary",
+  "Which campaigns have you worked on?",
+]);
+
+function currentSummary(sections: SummarySection[]): SummarySection[] {
+  return sections.map((section) => ({
+    ...section,
+    items: section.items.flatMap((item) => {
+      if (RETIRED_SUMMARY_LABELS.has(item.label)) return [];
+      if (item.label === "City and area") {
+        return [{ label: "City", value: item.value.split(",")[0].trim() || "—" }];
+      }
+      return [item];
+    }),
+  }));
+}
+
 function parseJsonObject<T>(value: string | null | undefined): T | null {
   if (!value) return null;
   try {
@@ -373,7 +395,7 @@ export default function LeadDetail({ leadId }: { leadId: string }) {
           </div>
         </div>
 
-        {application?.summary?.map((section) => (
+        {application?.summary && currentSummary(application.summary).map((section) => (
           <div key={section.title} className="mt-6">
             <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
               <ClipboardList size={14} /> {section.title}
