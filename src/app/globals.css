@@ -2271,6 +2271,7 @@ select.admin-leads-toolbar__control {
   position: relative;
   display: flex;
   width: 100%;
+  min-height: 0;
   max-height: calc(100dvh - 2rem);
   flex-direction: column;
   overflow: hidden;
@@ -2339,7 +2340,8 @@ select.admin-leads-toolbar__control {
 /* The form scrolls, the header and the actions stay put, so Save is reachable
    without hunting for it on a short viewport. */
 .admin-modal__body {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   padding: 1.5rem;
 }
