@@ -1502,7 +1502,7 @@ export default function BlogsManager({
                 return (
                   <label
                     key={tag.id}
-                    className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+                    className={`relative inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
                       checked
                         ? "border-orange bg-orange/20 text-orange"
                         : "border-foreground/15 text-muted hover:border-orange/50"
