@@ -142,8 +142,9 @@ export async function POST(request: Request) {
 
     const cnic = normalizeCnic(answers.cnic);
     if (cnic) {
+      const cnicCooloff = new Date(Date.now() - 30 * 86_400_000);
       const existingByCnic = await prisma.lead.findFirst({
-        where: { cnic },
+        where: { cnic, createdAt: { gte: cnicCooloff } },
         orderBy: { createdAt: "desc" },
         select: { referenceId: true, createdAt: true },
       });
@@ -152,9 +153,9 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error:
-              "An application with this CNIC has already been submitted. If you believe this is an error, please contact our HR team.",
+              "An application with this CNIC has been submitted in the last 30 days. You can apply again after one month.",
             fieldErrors: {
-              cnic: "An application with this CNIC already exists.",
+              cnic: "You already applied within the last 30 days. Please try again after one month.",
             },
           },
           { status: 400 }
