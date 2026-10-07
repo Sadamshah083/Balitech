@@ -84,6 +84,8 @@ There are **two deploy paths, and they disagree:**
 
 `ecosystem.config.js` hardcodes `cwd: /var/www/balitech-app`, while the CI workflow runs from the Hostinger `public_html` path. Confirm which server is actually production before changing either. `server.js` (custom HTTP server) is not used by pm2, which runs `next start`.
 
+**The VPS has 4 GB RAM**, which an uncapped `next build` can exhaust badly enough to swap-thrash and never finish; two swap files (`/swapfile` 2G, `/swapfile2` 4G, both in `/etc/fstab`) make headroom but don't fix the root cause. Running two builds at once (e.g. a stray background job left over from a previous attempt) corrupts `.next` — the HTML references chunk files the build never finished writing, which serves as 500s on specific JS chunks even though the page itself returns 200. **Building directly on the VPS should go through `bash scripts/deploy-server.sh`** (run on the server, not from the client): it refuses to start if a build is already running, resets to `origin/main`, builds with `NODE_OPTIONS=--max-old-space-size=1536` in the foreground (no backgrounding, so the script can't return before the build is actually done), and only restarts pm2 if `.next/BUILD_ID` exists — leaving the previous build serving traffic if the new one fails.
+
 CI runs **no lint, type-check or build verification** before deploying. A broken build is only discovered on the server.
 
 ## 8. Known issues / tech debt (keep updated)
