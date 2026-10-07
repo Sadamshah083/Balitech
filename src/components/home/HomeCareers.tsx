@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { getPublicCampaigns } from "@/lib/campaigns";
 import { getCampaignApplyHref } from "@/lib/apply";
 import { companyContent } from "@/lib/content";
-import { joinUsHref } from "@/lib/navigation";
+import { careerHref, joinUsHref } from "@/lib/navigation";
 import HomeCareersRail, { type HomeCareersSlide } from "./HomeCareersRail";
 
 const { career, programs } = companyContent;
@@ -51,7 +51,7 @@ export default async function HomeCareers() {
               {career.cta}
               <ArrowRight size={16} aria-hidden />
             </IntentLink>
-            <IntentLink href={joinUsHref} className="ent-btn ent-btn--ghost">
+            <IntentLink href={careerHref} className="ent-btn ent-btn--ghost">
               All Openings
             </IntentLink>
           </div>

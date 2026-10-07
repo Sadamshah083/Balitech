@@ -19,7 +19,8 @@ const staticRoutes = [
   { path: "/blog", changeFrequency: "weekly" as const, priority: 0.9 },
   { path: "/ceo-words", changeFrequency: "monthly" as const, priority: 0.8 },
   { path: "/our-offices", changeFrequency: "monthly" as const, priority: 0.8 },
-  { path: "/join-us", changeFrequency: "monthly" as const, priority: 0.9 },
+  { path: "/career", changeFrequency: "weekly" as const, priority: 0.9 },
+  { path: "/join-us", changeFrequency: "monthly" as const, priority: 0.85 },
   { path: "/privacy-policy", changeFrequency: "yearly" as const, priority: 0.3 },
   { path: "/recruitment-privacy-notice", changeFrequency: "yearly" as const, priority: 0.3 },
 ];

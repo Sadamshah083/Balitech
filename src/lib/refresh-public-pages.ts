@@ -13,6 +13,8 @@ import { revalidatePath } from "next/cache";
 export function refreshPublicPages() {
   revalidatePath("/", "layout");
   revalidatePath("/blog");
+  revalidatePath("/career");
+  revalidatePath("/career", "layout");
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");
 }

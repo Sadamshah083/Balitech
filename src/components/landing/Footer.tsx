@@ -4,7 +4,7 @@ import BrandLogo from "@/components/brand/BrandLogo";
 import SocialPlatformIcon from "@/components/brand/SocialPlatformIcon";
 import FooterWebsiteQr from "@/components/landing/FooterWebsiteQr";
 import { companyContent } from "@/lib/content";
-import { applyNowLabel, joinUsHref, navLinks } from "@/lib/navigation";
+import { applyNowLabel, careerHref, navLinks } from "@/lib/navigation";
 import { getPublicOffices, officePhoneLinks } from "@/lib/offices";
 import { serviceHref } from "@/lib/service-pages";
 
@@ -120,7 +120,7 @@ export default async function Footer() {
             ))}
             <li>
               <Link
-                href={joinUsHref}
+                href={careerHref}
                 prefetch={false}
                 className="btn-primary inline-flex rounded-lg px-4 py-1.5 text-sm font-bold uppercase tracking-wider"
               >

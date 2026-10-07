@@ -52,11 +52,13 @@ model Lead {
   cvDownloadedAt  DateTime?
 }
 
-// A role HR is currently hiring for. Only active rows are listed on the careers
-// form; list columns hold JSON arrays like Campaign.locations.
+// A role HR is currently hiring for. Active rows appear on /career and the
+// join-us application form; list columns hold JSON arrays like Campaign.locations.
 model Vacancy {
   id              String   @id @default(cuid())
   title           String
+  /// SEO path segment for /career/[slug] and ?position= on join-us.
+  slug            String   @unique
   department      String
   roleGroups      String   @default("[]")
   branches        String   @default("[]")

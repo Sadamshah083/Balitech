@@ -78,12 +78,13 @@ function slug(value: string) {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-/** Ad links may name a vacancy by id or by title, and a branch by name or slug. */
+/** Ad links may name a vacancy by SEO slug, id, or title. */
 function matchVacancy(vacancies: PublicVacancy[], wanted: string | null) {
   if (!wanted) return "";
   if (slug(wanted) === GENERAL_APPLICATION) return GENERAL_APPLICATION;
   const key = slug(wanted);
   return (
+    vacancies.find((v) => v.slug === wanted || slug(v.slug) === key)?.id ??
     vacancies.find((v) => v.id === wanted)?.id ??
     vacancies.find((v) => slug(v.title) === key)?.id ??
     ""

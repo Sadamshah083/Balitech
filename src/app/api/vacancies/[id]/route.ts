@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
-import { toAdminVacancy, toVacancyData } from "@/lib/careers/vacancies";
+import {
+  allocateVacancySlug,
+  toAdminVacancy,
+  toVacancyData,
+} from "@/lib/careers/vacancies";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -23,9 +27,29 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   try {
     const { id } = await context.params;
-    const parsed = toVacancyData(await request.json(), true);
+    const body = await request.json();
+    const parsed = toVacancyData(body, true);
     if ("error" in parsed) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
+    }
+    const current = await prisma.vacancy.findUnique({ where: { id } });
+    if (!current) {
+      return NextResponse.json({ error: "Vacancy not found" }, { status: 404 });
+    }
+    const nextTitle =
+      typeof parsed.data.title === "string" ? parsed.data.title : current.title;
+    const titleChanged = nextTitle !== current.title;
+    const slugProvided =
+      typeof parsed.data.slug === "string" && parsed.data.slug.trim();
+    if (slugProvided || titleChanged || !current.slug) {
+      parsed.data.slug = await allocateVacancySlug(nextTitle, {
+        excludeId: id,
+        preferred: slugProvided
+          ? String(parsed.data.slug)
+          : titleChanged
+            ? nextTitle
+            : current.slug || nextTitle,
+      });
     }
     const row = await prisma.vacancy.update({ where: { id }, data: parsed.data });
     refreshPublicPages();

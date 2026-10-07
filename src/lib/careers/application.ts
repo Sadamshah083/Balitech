@@ -34,6 +34,8 @@ import {
 export type PublicVacancy = {
   id: string;
   title: string;
+  /** SEO slug for /career/[slug] and join-us ?position= */
+  slug: string;
   department: string;
   roleGroups: RoleGroup[];
   /** Office names. Empty means every branch. */

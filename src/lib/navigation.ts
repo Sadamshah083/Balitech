@@ -10,4 +10,6 @@ export const navLinks = [
 ] as const;
 
 export const joinUsHref = "/join-us";
+/** Public job board — header/footer Careers CTA. Join-us stays the application form. */
+export const careerHref = "/career";
 export const applyNowLabel = "Careers";

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
 import {
+  allocateVacancySlug,
   fallbackVacancies,
   listPublicVacancies,
   toAdminVacancy,
@@ -40,10 +41,20 @@ export async function POST(request: Request) {
   }
 
   try {
-    const parsed = toVacancyData(await request.json(), false);
+    const body = await request.json();
+    const parsed = toVacancyData(body, false);
     if ("error" in parsed) {
       return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
+    const title = String(parsed.data.title ?? "");
+    parsed.data.slug = await allocateVacancySlug(title, {
+      preferred:
+        typeof parsed.data.slug === "string"
+          ? parsed.data.slug
+          : typeof body.slug === "string"
+            ? body.slug
+            : title,
+    });
     const row = await prisma.vacancy.create({
       data: parsed.data as Parameters<typeof prisma.vacancy.create>[0]["data"],
     });

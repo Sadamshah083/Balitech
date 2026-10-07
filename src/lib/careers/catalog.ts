@@ -45,6 +45,7 @@ export const DEPARTMENTS: Department[] = [
       { title: "Team Lead", groups: ["leadership", "campaign", "english"], cvRequired: true },
       { title: "Floor Manager", groups: ["leadership", "english"], cvRequired: true },
       { title: "Project Manager", groups: ["leadership", "english"], cvRequired: true },
+      { title: "Operations Manager", groups: ["leadership", "english"], cvRequired: true },
       { title: "Operations Manager or HOD", groups: ["leadership", "english"], cvRequired: true },
     ],
   },
@@ -64,6 +65,7 @@ export const DEPARTMENTS: Department[] = [
     label: "Quality and training",
     positions: [
       { title: "QA Executive", groups: ["specialist", "english"] },
+      { title: "QA Manager", groups: ["leadership", "specialist", "english"], cvRequired: true },
       { title: "QA Team Lead", groups: ["leadership", "specialist", "english"], cvRequired: true },
       { title: "Trainer", groups: ["specialist", "english"], cvRequired: true },
       { title: "Training Manager", groups: ["leadership", "specialist", "english"], cvRequired: true },
@@ -73,8 +75,10 @@ export const DEPARTMENTS: Department[] = [
     value: "hr",
     label: "HR and recruitment",
     positions: [
+      { title: "HR Recruiter", groups: ["hr"] },
       { title: "Recruitment Executive", groups: ["hr"] },
       { title: "HR Executive", groups: ["hr"] },
+      { title: "HR Receptionist", groups: ["hr", "specialist"] },
       { title: "HR Manager", groups: ["hr", "leadership"], cvRequired: true },
     ],
   },
@@ -84,6 +88,8 @@ export const DEPARTMENTS: Department[] = [
     positions: [
       { title: "IT Support", groups: ["it"] },
       { title: "Dialer Support", groups: ["it"] },
+      { title: "Dialer Executive", groups: ["it", "english"] },
+      { title: "Dialer Manager", groups: ["it", "leadership", "english"], cvRequired: true },
       { title: "Dialer Administrator", groups: ["it"], cvRequired: true },
     ],
   },

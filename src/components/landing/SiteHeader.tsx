@@ -12,7 +12,7 @@ import BrandLogo from "@/components/brand/BrandLogo";
 
 import IntentLink from "@/components/navigation/IntentLink";
 
-import { applyNowLabel, joinUsHref, navLinks } from "@/lib/navigation";
+import { applyNowLabel, careerHref, navLinks } from "@/lib/navigation";
 
 import { cn } from "@/lib/cn";
 
@@ -30,7 +30,7 @@ function isActive(pathname: string, href: string) {
 
 
 
-const allLinks = [...navLinks, { href: joinUsHref, label: applyNowLabel }] as const;
+const allLinks = [...navLinks, { href: careerHref, label: applyNowLabel }] as const;
 
 
 
@@ -169,7 +169,7 @@ export default function SiteHeader() {
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <IntentLink
 
-            href={joinUsHref}
+            href={careerHref}
 
             className="btn-primary hidden rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider shadow-[0_0_16px_color-mix(in_srgb,var(--orange)_35%,transparent)] sm:inline-flex"
 
@@ -233,7 +233,7 @@ export default function SiteHeader() {
 
                   const active = isActive(pathname, link.href);
 
-                  const isJoin = link.href === joinUsHref;
+                  const isJoin = link.href === careerHref;
 
 
 

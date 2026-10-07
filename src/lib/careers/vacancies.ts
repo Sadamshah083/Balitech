@@ -28,10 +28,28 @@ function parseList(value: string | null | undefined): string[] {
   }
 }
 
+/** URL-safe slug from a vacancy title (SEO paths + apply query params). */
+export function slugifyVacancyTitle(title: string) {
+  const base = title
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-")
+    .slice(0, 80);
+  return base || "role";
+}
+
 export function toPublicVacancy(row: Vacancy): PublicVacancy {
+  const slug =
+    (row as Vacancy & { slug?: string | null }).slug?.trim() ||
+    slugifyVacancyTitle(row.title);
   return {
     id: row.id,
     title: row.title,
+    slug,
     department: row.department,
     roleGroups: parseList(row.roleGroups).filter(isRoleGroup),
     branches: parseList(row.branches),
@@ -44,6 +62,29 @@ export function toPublicVacancy(row: Vacancy): PublicVacancy {
     customQuestion: row.customQuestion?.trim() || null,
     description: row.description?.trim() || null,
   };
+}
+
+/** Unique slug for create/update; keeps current slug when title is unchanged. */
+export async function allocateVacancySlug(
+  title: string,
+  options?: { excludeId?: string; preferred?: string | null }
+) {
+  const preferred = options?.preferred?.trim();
+  let base = preferred ? slugifyVacancyTitle(preferred) : slugifyVacancyTitle(title);
+  if (!base) base = "role";
+
+  for (let i = 0; i < 50; i++) {
+    const candidate = i === 0 ? base : `${base}-${i + 1}`;
+    const existing = await prisma.vacancy.findFirst({
+      where: {
+        slug: candidate,
+        ...(options?.excludeId ? { NOT: { id: options.excludeId } } : {}),
+      },
+      select: { id: true },
+    });
+    if (!existing) return candidate;
+  }
+  return `${base}-${Date.now().toString(36)}`;
 }
 
 export type AdminVacancy = PublicVacancy & { order: number; isActive: boolean };
@@ -84,6 +125,7 @@ function toCampaignVacancy(row: Campaign): PublicVacancy {
   return {
     id: `${CAMPAIGN_VACANCY_PREFIX}${row.id}`,
     title,
+    slug: slugifyVacancyTitle(title),
     ...campaignRole(title),
     branches: parseCampaignLocations(row.locations, row.location),
     remoteAllowed: false,
@@ -106,6 +148,7 @@ function toCampaignVacancies(row: Campaign): PublicVacancy[] {
     ...base,
     id: `${base.id}${CAMPAIGN_POSITION_SEPARATOR}${position.key}`,
     title: position.title,
+    slug: slugifyVacancyTitle(`${base.title}-${position.title}`),
     ...campaignRole(position.title),
     customQuestion: MEDICAL_BILLING_SKILLS_QUESTION,
   }));
@@ -173,22 +216,29 @@ export async function listPublicVacancies(): Promise<{
 }
 
 /** An open vacancy by id, or null when it is closed or never existed. */
-export async function findOpenVacancy(id: string): Promise<PublicVacancy | null> {
-  if (isCampaignVacancyId(id)) {
-    const [campaignId] = id
+export async function findOpenVacancy(idOrSlug: string): Promise<PublicVacancy | null> {
+  if (isCampaignVacancyId(idOrSlug)) {
+    const [campaignId] = idOrSlug
       .slice(CAMPAIGN_VACANCY_PREFIX.length)
       .split(CAMPAIGN_POSITION_SEPARATOR);
     const row = await prisma.campaign.findFirst({
       where: { id: campaignId, isActive: true },
     });
-    return row ? (toCampaignVacancies(row).find((v) => v.id === id) ?? null) : null;
+    return row
+      ? (toCampaignVacancies(row).find((v) => v.id === idOrSlug) ?? null)
+      : null;
   }
-  if (id.startsWith("fallback-")) {
+  if (idOrSlug.startsWith("fallback-")) {
     const total = await prisma.vacancy.count();
     if (total > 0) return null;
-    return fallbackVacancies.find((v) => v.id === id) ?? null;
+    return fallbackVacancies.find((v) => v.id === idOrSlug) ?? null;
   }
-  const row = await prisma.vacancy.findFirst({ where: { id, isActive: true } });
+  const row = await prisma.vacancy.findFirst({
+    where: {
+      isActive: true,
+      OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+    },
+  });
   return row ? toPublicVacancy(row) : null;
 }
 
@@ -212,6 +262,10 @@ export function toVacancyData(
     const title = text(body.title, 120);
     if (!title) return { error: "Title is required." };
     data.title = title;
+  }
+  if (!partial || has("slug")) {
+    const slug = text(body.slug, 80);
+    if (slug) data.slug = slugifyVacancyTitle(slug);
   }
   if (!partial || has("department")) {
     const department = String(body.department ?? "");
@@ -240,7 +294,7 @@ export function toVacancyData(
   if (!partial || has("workArrangement")) data.workArrangement = text(body.workArrangement, 60);
   if (!partial || has("cvRequired")) data.cvRequired = body.cvRequired === true;
   if (!partial || has("customQuestion")) data.customQuestion = text(body.customQuestion, 300);
-  if (!partial || has("description")) data.description = text(body.description, 2000);
+  if (!partial || has("description")) data.description = text(body.description, 10000);
   if (!partial || has("order")) data.order = Number.isFinite(Number(body.order)) ? Number(body.order) : 0;
   if (!partial || has("isActive")) data.isActive = body.isActive !== false;
 
