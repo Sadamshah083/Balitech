@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { DEPARTMENTS } from "@/lib/careers/catalog";
 import { thankYouHref } from "@/lib/thank-you";
+
+export type InquiryVariant = "business" | "job";
 
 const SERVICE_OPTIONS = [
   "Customer Support",
@@ -15,11 +18,23 @@ const SERVICE_OPTIONS = [
   "Not sure yet",
 ];
 
+/** Job roles from the careers catalog — used on the blog Inquiry card. */
+const JOB_OPTIONS = [
+  ...DEPARTMENTS.flatMap((dept) => dept.positions.map((p) => p.title)),
+  "Other / Not sure yet",
+];
+
+type Props = {
+  /** `business` = home closer; `job` = blog sidebar career inquiry. */
+  variant?: InquiryVariant;
+};
+
 /**
- * Interactive half of the home closer — deferred until near the viewport so
- * form state and the router stay out of the initial client graph.
+ * Interactive inquiry form. Deferred until near the viewport so form state
+ * and the router stay out of the initial client graph.
  */
-export default function BusinessInquiryForm() {
+export default function BusinessInquiryForm({ variant = "business" }: Props) {
+  const isJob = variant === "job";
   const router = useRouter();
   const [form, setForm] = useState({
     name: "",
@@ -37,12 +52,12 @@ export default function BusinessInquiryForm() {
     e.preventDefault();
     setStatus("loading");
 
-    const details = [
-      form.service ? `Service of interest: ${form.service}` : "",
-      form.message,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const interestLine = form.service
+      ? isJob
+        ? `Role of interest: ${form.service}`
+        : `Service of interest: ${form.service}`
+      : "";
+    const details = [interestLine, form.message].filter(Boolean).join("\n\n");
 
     try {
       const res = await fetch("/api/leads", {
@@ -53,6 +68,7 @@ export default function BusinessInquiryForm() {
           email: form.email,
           phone: form.phone,
           company: form.company,
+          position: isJob && form.service ? form.service : undefined,
           message: details,
         }),
       });
@@ -74,6 +90,8 @@ export default function BusinessInquiryForm() {
     }
   }
 
+  const options = isJob ? JOB_OPTIONS : SERVICE_OPTIONS;
+
   return (
     <form onSubmit={handleSubmit} className="closer__form">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -89,24 +107,28 @@ export default function BusinessInquiryForm() {
           />
         </label>
         <label className="block">
-          <span className="business-inquiry__label">Work email *</span>
+          <span className="business-inquiry__label">
+            {isJob ? "Email *" : "Work email *"}
+          </span>
           <input
             type="email"
             required
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="brand-input mt-2 w-full"
-            placeholder="jane@company.com"
+            placeholder={isJob ? "jane@email.com" : "jane@company.com"}
           />
         </label>
         <label className="block">
-          <span className="business-inquiry__label">Company</span>
+          <span className="business-inquiry__label">
+            {isJob ? "Current company" : "Company"}
+          </span>
           <input
             type="text"
             value={form.company}
             onChange={(e) => setForm({ ...form, company: e.target.value })}
             className="brand-input mt-2 w-full"
-            placeholder="Company name"
+            placeholder={isJob ? "Optional" : "Company name"}
           />
         </label>
         <label className="block">
@@ -122,14 +144,16 @@ export default function BusinessInquiryForm() {
       </div>
 
       <label className="mt-4 block">
-        <span className="business-inquiry__label">What do you need to run?</span>
+        <span className="business-inquiry__label">
+          {isJob ? "Which role are you interested in?" : "What do you need to run?"}
+        </span>
         <select
           value={form.service}
           onChange={(e) => setForm({ ...form, service: e.target.value })}
           className="brand-input mt-2 w-full"
         >
-          <option value="">Select a service</option>
-          {SERVICE_OPTIONS.map((option) => (
+          <option value="">{isJob ? "Select a role" : "Select a service"}</option>
+          {options.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -139,14 +163,18 @@ export default function BusinessInquiryForm() {
 
       <label className="mt-4 block">
         <span className="business-inquiry__label">
-          Tell us about the campaign
+          {isJob ? "Tell us about your experience" : "Tell us about the campaign"}
         </span>
         <textarea
           rows={4}
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           className="brand-input mt-2 w-full resize-none"
-          placeholder="Volume, target market, hours you need covered, and anything else that matters."
+          placeholder={
+            isJob
+              ? "Experience, preferred branch, shift availability, and anything else that helps HR."
+              : "Volume, target market, hours you need covered, and anything else that matters."
+          }
         />
       </label>
 
@@ -163,10 +191,14 @@ export default function BusinessInquiryForm() {
 
       <p className="mt-4 text-center text-xs text-muted" aria-live="polite">
         {status === "success"
-          ? "Thank you — our operations team will be in touch."
+          ? isJob
+            ? "Thank you — our HR team will be in touch."
+            : "Thank you — our operations team will be in touch."
           : status === "error"
             ? "Something went wrong. Please email us directly."
-            : "We reply to business inquiries within one working day."}
+            : isJob
+              ? "We reply to job inquiries within one working day."
+              : "We reply to business inquiries within one working day."}
       </p>
     </form>
   );

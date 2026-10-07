@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Search, X } from "lucide-react";
 import { HeadingBrush } from "@/components/brand/HeadingLastWord";
+import DeferredBusinessInquiryForm from "@/components/home/DeferredBusinessInquiryForm";
 import { formatBlogDate } from "@/lib/blog";
 import {
   blogImageAlt,
@@ -256,69 +257,75 @@ export default function BlogListing({
   }
 
   const filterBox = (
-    <div className="blog-filter-card">
-      <form
-        className="blog-filter-card__search"
-        role="search"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setPage(1);
-        }}
-      >
-        <label className="sr-only" htmlFor="blog-search">
-          Search blog
-        </label>
-        <div className="relative min-w-0 flex-1">
-          <Search
-            className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted"
-            aria-hidden
-          />
-          <input
-            id="blog-search"
-            className="blog-filter-card__input"
-            placeholder="Search…"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-        {hasFilters && (
-          <button
-            type="button"
-            className="blog-filter-card__reset"
-            onClick={resetFilters}
-            aria-label="Reset filters"
-          >
-            <X className="h-3.5 w-3.5" aria-hidden />
-          </button>
-        )}
-      </form>
+    <div className="blog-filter-stack">
+      {/* Inquiry card above categories — same home form → POST /api/leads. */}
+      <div className="blog-filter-card blog-filter-card--inquiry">
+        <p className="blog-filter-card__label">Inquiry</p>
+        <DeferredBusinessInquiryForm variant="job" />
+      </div>
 
-      {categories.length > 0 && (
-        <div className="blog-filter-card__group">
-          <p className="blog-filter-card__label">Categories</p>
-          <div className="blog-filter-card__chips" role="group" aria-label="Categories">
-            {categories.map((category) => {
-              const active = categorySlug === category.slug;
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => applyCategory(category.slug)}
-                  className={`blog-filter-card__chip${active ? " is-active" : ""}`}
-                >
-                  {category.name}
-                </button>
-              );
-            })}
+      <div className="blog-filter-card blog-filter-card--categories">
+        <form
+          className="blog-filter-card__search"
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setPage(1);
+          }}
+        >
+          <label className="sr-only" htmlFor="blog-search">
+            Search blog
+          </label>
+          <div className="relative min-w-0 flex-1">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted"
+              aria-hidden
+            />
+            <input
+              id="blog-search"
+              className="blog-filter-card__input"
+              placeholder="Search…"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
+            />
           </div>
-        </div>
-      )}
+          {hasFilters && (
+            <button
+              type="button"
+              className="blog-filter-card__reset"
+              onClick={resetFilters}
+              aria-label="Reset filters"
+            >
+              <X className="h-3.5 w-3.5" aria-hidden />
+            </button>
+          )}
+        </form>
 
-      {/* Recommended tags stay in admin/CMS; public listing shows categories only. */}
+        {categories.length > 0 && (
+          <div className="blog-filter-card__group">
+            <p className="blog-filter-card__label">Categories</p>
+            <div className="blog-filter-card__chips" role="group" aria-label="Categories">
+              {categories.map((category) => {
+                const active = categorySlug === category.slug;
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => applyCategory(category.slug)}
+                    className={`blog-filter-card__chip${active ? " is-active" : ""}`}
+                  >
+                    {category.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 

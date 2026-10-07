@@ -592,15 +592,15 @@ export default function BlogsManager({
     try {
       const res = editingBlogId
         ? await adminFetch(`/api/blogs/${editingBlogId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          })
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
         : await adminFetch("/api/blogs", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
       if (!res.ok) {
         setFormError(await readError(res, "Could not save blog"));
         return;
@@ -1162,14 +1162,14 @@ export default function BlogsManager({
                           >
                             <Trash2 size={16} aria-hidden="true" />
                 </button>
-              </div>
+                </div>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-            </div>
+              </div>
         </div>
       )}
 
@@ -1180,14 +1180,14 @@ export default function BlogsManager({
           </p>
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
-              <button
-                type="button"
+                <button
+                  type="button"
                 className="btn-secondary inline-flex items-center gap-1 px-2.5"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => p - 1)}
-              >
+                >
                 <ChevronLeft size={16} /> Prev
-              </button>
+                </button>
               {(() => {
                 const pages: (number | "...")[] = [];
                 if (totalPages <= 7) {
@@ -1203,9 +1203,9 @@ export default function BlogsManager({
                   n === "..." ? (
                     <span key={`dot-${idx}`} className="px-1 text-muted">...</span>
                   ) : (
-                    <button
+                <button
                       key={n}
-                      type="button"
+                  type="button"
                       onClick={() => setPage(n)}
                       className={`min-w-9 rounded-lg px-2.5 py-1.5 text-sm font-medium transition ${
                         n === page
@@ -1225,10 +1225,10 @@ export default function BlogsManager({
                 onClick={() => setPage((p) => p + 1)}
               >
                 Next <ChevronRight size={16} />
-              </button>
-            </div>
+                </button>
+              </div>
           )}
-        </div>
+            </div>
       )}
 
       <AdminModal

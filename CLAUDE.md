@@ -77,16 +77,18 @@ New join-us applications email the candidate a confirmation (branch contact + HR
 
 ## 7. Deployment and CI
 
-There are **two deploy paths, and they disagree:**
+**Current production target (Oct 2026):** KVM guest reached via `ssh -p 2233 ubuntu@203.215.164.70` (see `scripts/deploy-config.js`). App path `/var/www/balitech-app`, pm2 `balitech-app` on port **3005**, nginx on guest port **80** proxies to it. Guest LAN IP is typically `192.168.122.30` — the public IP’s ports 80/443 currently hit the **host** (not this guest) unless the hypervisor DNAT forwards them. After DNS A records for `balitech.org` / `www` point at `203.215.164.70`, the host must forward **80→guest:80** and **443→guest:443**, then run certbot on the guest.
 
-1. **GitHub Actions** (`.github/workflows/deploy.yml`): on every push to `main`, it SSHes (password auth) into Hostinger, `cd /home/u296893178/domains/balitech.org/public_html`, then `git pull && npm install && npm run build && pm2 reload ecosystem.config.js`. Secrets: `SERVER_HOST`, `SERVER_USERNAME`, `SERVER_PASSWORD`, `SERVER_PORT`. **Pushing to main deploys to production.**
-2. **Manual VPS scripts:** `npm run build:live` builds locally against the live DB through an SSH tunnel and writes `BUILD_SOURCE.json`. `deploy:live` then calls `scripts/deploy_live.js`, which is **git-ignored and local-only**. Target: `/var/www/balitech-app`, pm2 app `balitech-app`, port 3005 (see `scripts/deploy-config.js`).
+Live MySQL on the guest: database `balitech_db`, user `balitech_user` (credentials in remote `.env` only). Deploy scripts must never copy the local XAMPP database onto this server.
 
-`ecosystem.config.js` hardcodes `cwd: /var/www/balitech-app`, while the CI workflow runs from the Hostinger `public_html` path. Confirm which server is actually production before changing either. `server.js` (custom HTTP server) is not used by pm2, which runs `next start`.
+There are still **two older deploy paths** that may disagree with the above:
 
-**The VPS has 4 GB RAM**, which an uncapped `next build` can exhaust badly enough to swap-thrash and never finish; two swap files (`/swapfile` 2G, `/swapfile2` 4G, both in `/etc/fstab`) make headroom but don't fix the root cause. Running two builds at once (e.g. a stray background job left over from a previous attempt) corrupts `.next` — the HTML references chunk files the build never finished writing, which serves as 500s on specific JS chunks even though the page itself returns 200. **Building directly on the VPS should go through `bash scripts/deploy-server.sh`** (run on the server, not from the client): it refuses to start if a build is already running, resets to `origin/main`, builds with `NODE_OPTIONS=--max-old-space-size=1536` in the foreground (no backgrounding, so the script can't return before the build is actually done), and only restarts pm2 if `.next/BUILD_ID` exists — leaving the previous build serving traffic if the new one fails.
+1. **GitHub Actions** (`.github/workflows/deploy.yml`): on every push to `main`, it SSHes into Hostinger `public_html`. Secrets: `SERVER_HOST`, `SERVER_USERNAME`, `SERVER_PASSWORD`, `SERVER_PORT`. Update those secrets if Actions should target the new server.
+2. **Manual scripts:** `npm run build:live` + `deploy:live` use `scripts/deploy-config.js` (new server host/port/user). Prefer building on the server against its own DB when the SSH tunnel is flaky.
 
-CI runs **no lint, type-check or build verification** before deploying. A broken build is only discovered on the server.
+`ecosystem.config.js` hardcodes `cwd: /var/www/balitech-app`. `server.js` is not used by pm2 (`next start`).
+
+Avoid concurrent `next build` runs on the server (corrupts `.next`). Cap Node heap if RAM is tight (`NODE_OPTIONS=--max-old-space-size=3072` works on the ~6 GB guest).
 
 ## 8. Known issues / tech debt (keep updated)
 

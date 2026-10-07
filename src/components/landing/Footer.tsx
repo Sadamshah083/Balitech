@@ -13,6 +13,8 @@ const { footer, tagline } = companyContent;
 const legalLinks = [
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/recruitment-privacy-notice", label: "Recruitment Privacy Notice" },
+  { href: "/sitemap.xml", label: "Sitemap" },
+  { href: "/llms.txt", label: "llms.txt" },
 ] as const;
 
 type SocialLink = (typeof footer.socialBranches)[number]["links"][number];
