@@ -124,18 +124,58 @@ export function careerApplyHref(
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
-/** Split admin description into paragraphs / bullet lines for the detail page. */
+export type JobDescriptionBlock =
+  | { type: "h"; lines: string[] }
+  | { type: "p"; lines: string[] }
+  | { type: "ul"; lines: string[] };
+
+const JD_HEADING_RE =
+  /^(role overview|overview|key responsibilities|responsibilities|requirements|what we offer|benefits|about the role|about this role|qualifications|nice to have|must have)$/i;
+
+/** Known heading stuck on the same line as body copy, e.g. "Role overview Support dialer…". */
+function splitLeadingHeading(line: string): { heading: string | null; rest: string } {
+  const match = line.match(
+    /^(role overview|overview|key responsibilities|responsibilities|requirements|what we offer|benefits|about the role|about this role|qualifications)\b[:\s—–-]*(.*)$/i
+  );
+  if (!match) return { heading: null, rest: line };
+  const heading = match[1].trim();
+  const rest = match[2].trim();
+  if (!JD_HEADING_RE.test(heading) && !/^role overview$/i.test(heading)) {
+    return { heading: null, rest: line };
+  }
+  return { heading, rest };
+}
+
+function isListSectionHeading(heading: string) {
+  return /responsibilit|requirement|qualification|benefit|offer|must have|nice to have/i.test(
+    heading
+  );
+}
+
+function looksLikeBulletLine(line: string) {
+  return /^[•\-\*]\s+/.test(line) || /^\d+[\.)]\s+/.test(line);
+}
+
+function stripBullet(line: string) {
+  return line.replace(/^[•\-\*]\s+/, "").replace(/^\d+[\.)]\s+/, "").trim();
+}
+
+/**
+ * Split admin description into HTML-ready blocks (headings, paragraphs, lists)
+ * for the public /career/[slug] job page.
+ */
 export function formatJobDescription(description: string | null): {
   paragraphs: string[];
-  blocks: { type: "p" | "ul"; lines: string[] }[];
+  blocks: JobDescriptionBlock[];
 } {
   const raw = description?.replace(/\r\n/g, "\n").trim() ?? "";
   if (!raw) return { paragraphs: [], blocks: [] };
 
   const lines = raw.split("\n");
-  const blocks: { type: "p" | "ul"; lines: string[] }[] = [];
+  const blocks: JobDescriptionBlock[] = [];
   let para: string[] = [];
   let bullets: string[] = [];
+  let listMode = false;
 
   const flushPara = () => {
     if (!para.length) return;
@@ -147,6 +187,12 @@ export function formatJobDescription(description: string | null): {
     blocks.push({ type: "ul", lines: bullets });
     bullets = [];
   };
+  const pushHeading = (heading: string) => {
+    flushPara();
+    flushBullets();
+    blocks.push({ type: "h", lines: [heading] });
+    listMode = isListSectionHeading(heading);
+  };
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -155,12 +201,34 @@ export function formatJobDescription(description: string | null): {
       flushBullets();
       continue;
     }
-    if (/^[•\-\*]\s+/.test(trimmed) || /^\d+[\.)]\s+/.test(trimmed)) {
-      flushPara();
-      bullets.push(trimmed.replace(/^[•\-\*]\s+/, "").replace(/^\d+[\.)]\s+/, ""));
+
+    if (JD_HEADING_RE.test(trimmed) && trimmed.length <= 48) {
+      pushHeading(trimmed);
       continue;
     }
+
+    const split = splitLeadingHeading(trimmed);
+    if (split.heading) {
+      pushHeading(split.heading);
+      if (!split.rest) continue;
+      if (listMode || looksLikeBulletLine(split.rest)) {
+        flushPara();
+        bullets.push(stripBullet(split.rest));
+      } else {
+        flushBullets();
+        para.push(split.rest);
+      }
+      continue;
+    }
+
+    if (looksLikeBulletLine(trimmed) || listMode) {
+      flushPara();
+      bullets.push(stripBullet(trimmed));
+      continue;
+    }
+
     flushBullets();
+    listMode = false;
     para.push(trimmed);
   }
   flushPara();

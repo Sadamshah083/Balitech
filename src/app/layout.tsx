@@ -213,6 +213,7 @@ export default function RootLayout({
       lang="en"
       className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} h-full antialiased`}
       data-theme="dark"
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <body

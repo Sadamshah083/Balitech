@@ -15,6 +15,9 @@ export const metadata = pageMetadata({
   path: "/blog",
 });
 
+/* Backup for admin publish → refreshPublicPages(); listing never stays stale long. */
+export const revalidate = 60;
+
 export default async function BlogPage() {
   const [blogs, categories] = await Promise.all([
     getPublicBlogs(),

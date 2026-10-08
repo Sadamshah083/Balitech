@@ -59,21 +59,25 @@ const BANNER_WIDTH = 1920;
 const BANNER_QUALITY = 72;
 
 /**
- * The footer QR code, which encodes one URL that never changes.
+ * Footer join-us QR codes (static PNGs — no client qrcode bundle).
  *
- * This used to be generated in the browser: the `qrcode` library was a 59 KB
- * client chunk, and drawing the code to a canvas cost 579 ms of main thread on
- * a throttled phone — 26% of all the JavaScript the home page ran, for
- * something 15,000px below the fold that is identical on every visit. Built
- * here instead, the footer needs no script at all and the download button is a
- * plain link.
+ * - With survey: /join-us → shows “How did you hear about this opportunity?”
+ * - Direct: /join-us?source=qr → hides that question (sourceKnown via channel)
  *
- * Drawn at 4x the 112px display size so it stays crisp on dense screens, and
- * kept as PNG because that is also what the download button hands over.
+ * Drawn at 4x the 112px display size so it stays crisp on dense screens.
  */
-const QR = {
-  url: "https://balitech.org/join-us",
-  out: "balitech-website-qr.png",
+const QR_CODES = [
+  {
+    url: "https://balitech.org/join-us",
+    out: "balitech-website-qr.png",
+  },
+  {
+    url: "https://balitech.org/join-us?source=qr",
+    out: "balitech-join-us-direct-qr.png",
+  },
+];
+
+const QR_STYLE = {
   width: 448,
   margin: 2,
   dark: "#0b1220",
@@ -231,15 +235,17 @@ async function buildBanners() {
 }
 
 async function buildQr() {
-  if (!FORCE && fs.existsSync(abs(QR.out))) return;
-
-  await require("qrcode").toFile(abs(QR.out), QR.url, {
-    width: QR.width,
-    margin: QR.margin,
-    color: { dark: QR.dark, light: QR.light },
-    errorCorrectionLevel: "M",
-  });
-  console.log(`  ${QR.out}\n    ${kb(fs.statSync(abs(QR.out)).size)}  ${QR.url}`);
+  const qrcode = require("qrcode");
+  for (const qr of QR_CODES) {
+    if (!FORCE && fs.existsSync(abs(qr.out))) continue;
+    await qrcode.toFile(abs(qr.out), qr.url, {
+      width: QR_STYLE.width,
+      margin: QR_STYLE.margin,
+      color: { dark: QR_STYLE.dark, light: QR_STYLE.light },
+      errorCorrectionLevel: "M",
+    });
+    console.log(`  ${qr.out}\n    ${kb(fs.statSync(abs(qr.out)).size)}  ${qr.url}`);
+  }
 }
 
 async function buildScriptFont() {

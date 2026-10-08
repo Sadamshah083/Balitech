@@ -76,6 +76,7 @@ const emptyForm = {
   name: "",
   email: "",
   phone: "",
+  cnic: "",
   company: "",
   position: "",
   message: "",
@@ -105,8 +106,20 @@ function leadHeardAbout(lead: Lead) {
   return source.channel?.trim() || null;
 }
 
+/** Stable across SSR and the browser (avoids React hydration #418). */
+function formatAdminDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Asia/Karachi",
+  }).format(date);
+}
+
 function formatDownloadDate(value: string) {
-  return new Date(value).toLocaleDateString();
+  return formatAdminDate(value);
 }
 
 function leadExperience(lead: Lead) {
@@ -242,6 +255,7 @@ export default function LeadsManager({
       name: lead.name,
       email: lead.email,
       phone: lead.phone || "",
+      cnic: lead.cnic || "",
       company: lead.company || "",
       position: leadPosition(lead) || "",
       message: lead.message || "",
@@ -258,12 +272,13 @@ export default function LeadsManager({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: editingLeadId,
-        name: form.name,
-        email: form.email,
-        phone: form.phone || null,
-        company: form.company || null,
-        position: form.position || null,
-        message: form.message || null,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || null,
+        cnic: form.cnic.trim() || null,
+        company: form.company.trim() || null,
+        position: form.position.trim() || null,
+        message: form.message.trim() || null,
         status: form.status,
       }),
     });
@@ -271,20 +286,38 @@ export default function LeadsManager({
       setShowForm(false);
       setEditingLeadId(null);
       setForm(emptyForm);
-      await Promise.all([fetchLeads(pagination.page), fetchPositions()]);
+      await Promise.all([
+        fetchLeads(pagination.page),
+        fetchPositions(),
+        fetchBranches(),
+      ]);
+    } else {
+      alert("Could not save changes. Please try again.");
     }
     setSaving(false);
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this lead?")) return;
+    if (
+      !confirm(
+        "Delete this lead permanently? Name, CNIC, phone, CV file, and all related data will be removed."
+      )
+    ) {
+      return;
+    }
     const res = await adminFetch(`/api/leads?id=${id}`, { method: "DELETE" });
     if (res.ok) {
       const nextPage =
         leads.length === 1 && pagination.page > 1
           ? pagination.page - 1
           : pagination.page;
-      await Promise.all([fetchLeads(nextPage), fetchPositions()]);
+      await Promise.all([
+        fetchLeads(nextPage),
+        fetchPositions(),
+        fetchBranches(),
+      ]);
+    } else {
+      alert("Could not delete this lead. Please try again.");
     }
   }
 
@@ -408,9 +441,10 @@ export default function LeadsManager({
               type="search"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Name, email, reference, COM / ISM…"
+              placeholder="Name, email, CNIC, phone, reference…"
               className="brand-input admin-leads-toolbar__control w-full"
               autoComplete="off"
+              inputMode="search"
             />
           </div>
         </div>
@@ -474,9 +508,9 @@ export default function LeadsManager({
                 setSearchInput("");
                 setSearchQuery("");
               }}
-              className="admin-leads-toolbar__control rounded-lg border border-foreground/15 px-3 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
+              className="admin-leads-toolbar__control admin-leads-toolbar__clear rounded-lg border border-foreground/15 px-3 text-sm text-muted transition hover:border-orange/40 hover:text-foreground"
             >
-              Clear
+              Clear filters
             </button>
           )}
           <button
@@ -510,7 +544,14 @@ export default function LeadsManager({
             title="Download every matching lead again (does not mark as new)"
           >
             <Download size={15} />
-            {exporting ? "…" : "Download All leads again"}
+            {exporting ? (
+              "…"
+            ) : (
+              <>
+                <span className="admin-leads-btn-full">Download All leads again</span>
+                <span className="admin-leads-btn-short">All leads</span>
+              </>
+            )}
           </button>
           <button
             type="button"
@@ -520,7 +561,14 @@ export default function LeadsManager({
             title="Download every matching CV again (does not mark as new)"
           >
             <FileArchive size={15} />
-            {downloadingCvs ? "…" : "Download ALL CV again"}
+            {downloadingCvs ? (
+              "…"
+            ) : (
+              <>
+                <span className="admin-leads-btn-full">Download ALL CV again</span>
+                <span className="admin-leads-btn-short">All CVs</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -558,15 +606,29 @@ export default function LeadsManager({
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 className="brand-input w-full"
+                placeholder="Clear to remove"
               />
             </div>
             <div>
-              <label className="brand-label mb-2 block">Company</label>
+              <label className="brand-label mb-2 block">CNIC</label>
+              <input
+                type="text"
+                value={form.cnic}
+                onChange={(e) => setForm({ ...form, cnic: e.target.value })}
+                className="brand-input w-full"
+                placeholder="Clear to remove (e.g. 37405-4445073-1)"
+                inputMode="numeric"
+                autoComplete="off"
+              />
+            </div>
+            <div>
+              <label className="brand-label mb-2 block">Company / Branch</label>
               <input
                 type="text"
                 value={form.company}
                 onChange={(e) => setForm({ ...form, company: e.target.value })}
                 className="brand-input w-full"
+                placeholder="Clear to remove"
               />
             </div>
             <div>
@@ -642,9 +704,9 @@ export default function LeadsManager({
         </div>
       ) : (
         <>
-          <div className="admin-surface border border-foreground/10">
+          <div className="admin-leads-table-panel admin-surface border border-foreground/10">
             <div className="admin-leads-table-scroll">
-              <table className="w-full min-w-275 table-fixed text-left text-sm">
+              <table className="admin-leads-table text-left text-sm">
                 {/* Fixed layout keeps row height stable. Message / Review is
                     given more width and may wrap so experience and flags stay
                     readable; both scrollbars stay inside this panel. */}
@@ -791,7 +853,7 @@ export default function LeadsManager({
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 text-muted">
-                          {new Date(lead.createdAt).toLocaleDateString()}
+                          {formatAdminDate(lead.createdAt)}
                         </td>
                         <td className="px-2 py-3 text-center">
                           <div className="flex justify-center gap-1">
@@ -828,11 +890,127 @@ export default function LeadsManager({
             </div>
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="admin-leads-cards" aria-label="Leads list">
+            {loading ? (
+              <p className="rounded-lg border border-foreground/10 px-4 py-8 text-center text-sm text-muted">
+                Loading...
+              </p>
+            ) : (
+              leads.map((lead) => (
+                <article key={lead.id} className="admin-leads-card">
+                  <div className="admin-leads-card__top">
+                    <div className="min-w-0">
+                      <h3 className="admin-leads-card__name">{lead.name}</h3>
+                      {lead.referenceId ? (
+                        <p className="admin-leads-card__ref">{lead.referenceId}</p>
+                      ) : null}
+                    </div>
+                    <div className="admin-leads-card__actions">
+                      <Link
+                        href={`/admin/leads/${lead.id}`}
+                        className="rounded-lg p-2 text-muted transition hover:bg-white/10 hover:text-orange"
+                        title="View"
+                      >
+                        <Eye size={16} />
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(lead)}
+                        className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-orange"
+                        title="Edit"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(lead.id)}
+                        className="rounded-lg p-2 text-muted hover:bg-white/10 hover:text-red-400"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="admin-leads-card__meta">
+                    <div className="admin-leads-card__row">
+                      <span className="admin-leads-card__label">Phone</span>
+                      <span className="admin-leads-card__value">{lead.phone || "—"}</span>
+                    </div>
+                    <div className="admin-leads-card__row">
+                      <span className="admin-leads-card__label">Email</span>
+                      <span className="admin-leads-card__value">{lead.email || "—"}</span>
+                    </div>
+                    <div className="admin-leads-card__row">
+                      <span className="admin-leads-card__label">CNIC</span>
+                      <span className="admin-leads-card__value font-mono text-xs">
+                        {lead.cnic || "—"}
+                      </span>
+                    </div>
+                    <div className="admin-leads-card__row">
+                      <span className="admin-leads-card__label">Branch</span>
+                      <span className="admin-leads-card__value">{lead.company || "—"}</span>
+                    </div>
+                    <div className="admin-leads-card__row">
+                      <span className="admin-leads-card__label">Job</span>
+                      <span className="admin-leads-card__value">
+                        {leadPosition(lead) || "—"}
+                      </span>
+                    </div>
+                    <div className="admin-leads-card__row">
+                      <span className="admin-leads-card__label">Heard</span>
+                      <span className="admin-leads-card__value">
+                        {leadHeardAbout(lead) || "—"}
+                      </span>
+                    </div>
+                    <div className="admin-leads-card__row">
+                      <span className="admin-leads-card__label">Date</span>
+                      <span className="admin-leads-card__value">
+                        {formatAdminDate(lead.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="admin-leads-card__badges">
+                    {lead.exportedAt ? (
+                      <span className="text-xs text-muted">
+                        Lead ✓ {formatDownloadDate(lead.exportedAt)}
+                      </span>
+                    ) : (
+                      <span className="inline-flex rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange">
+                        New Lead
+                      </span>
+                    )}
+                    {lead.cvPath ? (
+                      lead.cvDownloadedAt ? (
+                        <span className="text-xs text-muted">
+                          CV ✓ {formatDownloadDate(lead.cvDownloadedAt)}
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange">
+                          New CV
+                        </span>
+                      )
+                    ) : null}
+                    {parseFlags(lead.flags).map((flag) => (
+                      <span
+                        key={flag}
+                        className="inline-flex rounded bg-orange/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange"
+                      >
+                        {FLAG_LABELS[flag] ?? flag}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+
+          <div className="admin-leads-pagination mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted">
               Showing {rangeStart}–{rangeEnd} of {pagination.total} leads
             </p>
-            <div className="flex items-center gap-2">
+            <div className="admin-leads-pagination__nav flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => goToPage(pagination.page - 1)}

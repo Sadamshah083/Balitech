@@ -2,6 +2,7 @@ import { unlink } from "fs/promises";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
+import { normalizeCnic } from "@/lib/careers/application";
 import { MAX_CV_BYTES, resolveCvAbsolutePath, saveLeadCv } from "@/lib/cv-upload";
 import { buildLeadWhere } from "@/lib/lead-filters";
 import { extractPositionFromMessage } from "@/lib/lead-position";
@@ -9,6 +10,67 @@ import { notifyNewLead } from "@/lib/mail";
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 50;
+
+type LeadFieldUpdates = {
+  name?: string;
+  email?: string;
+  phone?: string | null;
+  cnic?: string | null;
+};
+
+/** Keep application details JSON in sync when admin clears/edits identity fields. */
+function syncLeadDetailsJson(
+  detailsRaw: string | null,
+  updates: LeadFieldUpdates
+): string | undefined {
+  if (!detailsRaw) return undefined;
+  try {
+    const details = JSON.parse(detailsRaw) as {
+      answers?: Record<string, unknown>;
+      summary?: { items?: { label?: string; value?: string }[] }[];
+    };
+    if (!details || typeof details !== "object") return undefined;
+
+    if (details.answers && typeof details.answers === "object") {
+      if (updates.name !== undefined) details.answers.fullName = updates.name;
+      if (updates.email !== undefined) details.answers.email = updates.email;
+      if (updates.cnic !== undefined) details.answers.cnic = updates.cnic ?? "";
+      if (updates.phone !== undefined) {
+        const mobile = details.answers.mobile;
+        if (mobile && typeof mobile === "object") {
+          (mobile as { number?: string }).number = updates.phone
+            ? String(updates.phone).replace(/^\+92\s*/, "").trim()
+            : "";
+        }
+      }
+    }
+
+    if (Array.isArray(details.summary)) {
+      for (const section of details.summary) {
+        if (!Array.isArray(section?.items)) continue;
+        for (const item of section.items) {
+          if (!item || typeof item !== "object") continue;
+          if (item.label === "Full name" && updates.name !== undefined) {
+            item.value = updates.name || "Not provided";
+          }
+          if (item.label === "Email" && updates.email !== undefined) {
+            item.value = updates.email || "Not provided";
+          }
+          if (item.label === "CNIC" && updates.cnic !== undefined) {
+            item.value = updates.cnic || "Not provided";
+          }
+          if (item.label === "Mobile number" && updates.phone !== undefined) {
+            item.value = updates.phone || "";
+          }
+        }
+      }
+    }
+
+    return JSON.stringify(details);
+  } catch {
+    return undefined;
+  }
+}
 
 export async function GET(request: Request) {
   const auth = await requireApiAuth(request);
@@ -188,7 +250,8 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, name, email, phone, company, position, message, status } = body;
+    const { id, name, email, phone, company, position, message, status, cnic } =
+      body;
 
     if (!id) {
       return NextResponse.json(
@@ -197,16 +260,45 @@ export async function PATCH(request: Request) {
       );
     }
 
+    const existing = await prisma.lead.findUnique({
+      where: { id },
+      select: { details: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+    }
+
+    const nextName =
+      name !== undefined ? String(name).trim() : undefined;
+    const nextEmail =
+      email !== undefined ? String(email).trim().toLowerCase() : undefined;
+    const nextPhone =
+      phone !== undefined ? (phone ? String(phone).trim() : null) : undefined;
+    let nextCnic: string | null | undefined;
+    if (cnic !== undefined) {
+      const raw = String(cnic ?? "").trim();
+      if (!raw) {
+        nextCnic = null;
+      } else {
+        const normalized = normalizeCnic(raw);
+        nextCnic = normalized || raw;
+      }
+    }
+
+    const syncedDetails = syncLeadDetailsJson(existing.details, {
+      ...(nextName !== undefined && { name: nextName }),
+      ...(nextEmail !== undefined && { email: nextEmail }),
+      ...(nextPhone !== undefined && { phone: nextPhone }),
+      ...(nextCnic !== undefined && { cnic: nextCnic }),
+    });
+
     const lead = await prisma.lead.update({
       where: { id },
       data: {
-        ...(name !== undefined && { name: String(name).trim() }),
-        ...(email !== undefined && {
-          email: String(email).trim().toLowerCase(),
-        }),
-        ...(phone !== undefined && {
-          phone: phone ? String(phone).trim() : null,
-        }),
+        ...(nextName !== undefined && { name: nextName }),
+        ...(nextEmail !== undefined && { email: nextEmail }),
+        ...(nextPhone !== undefined && { phone: nextPhone }),
+        ...(nextCnic !== undefined && { cnic: nextCnic }),
         ...(company !== undefined && {
           company: company ? String(company).trim() : null,
         }),
@@ -217,6 +309,7 @@ export async function PATCH(request: Request) {
           message: message ? String(message).trim() : null,
         }),
         ...(status !== undefined && { status: String(status).trim() }),
+        ...(syncedDetails !== undefined && { details: syncedDetails }),
       },
     });
 

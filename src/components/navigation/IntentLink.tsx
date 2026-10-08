@@ -9,19 +9,16 @@ type IntentLinkProps = Omit<ComponentProps<typeof Link>, "prefetch">;
  * A `<Link>` that waits for a sign of interest before prefetching its route.
  *
  * Next prefetches every link in the viewport, which is normally what you want.
- * The header, though, carries eight links and is on screen from the first
- * frame, so a cold visit downloaded eight routes' worth of chunks — around
- * 237 KB, none of it executed — while the page it was on was still trying to
- * paint.
+ * Dense chrome (footer, cards) can otherwise download many routes at once.
  *
- * Hover, touch and focus all count, so navigation is still warm by the time
- * anything is clicked: `prefetch={null}` restores Next's own behaviour rather
- * than reimplementing it, and once armed it stays armed.
+ * Arm on pointerdown (before click) so the first tap still navigates warmly.
+ * `prefetch={true}` once armed; until then stay at `false`.
  */
 export default function IntentLink({
   onMouseEnter,
   onTouchStart,
   onFocus,
+  onPointerDown,
   ...rest
 }: IntentLinkProps) {
   const [armed, setArmed] = useState(false);
@@ -30,7 +27,11 @@ export default function IntentLink({
   return (
     <Link
       {...rest}
-      prefetch={armed ? null : false}
+      prefetch={armed}
+      onPointerDown={(event) => {
+        arm();
+        onPointerDown?.(event);
+      }}
       onMouseEnter={(event) => {
         arm();
         onMouseEnter?.(event);

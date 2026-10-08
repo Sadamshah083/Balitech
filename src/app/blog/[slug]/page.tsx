@@ -69,6 +69,11 @@ export async function generateStaticParams() {
   return blogs.map((blog) => ({ slug: blog.slug }));
 }
 
+/* New slugs still render on demand (dynamicParams default). ISR keeps published
+   posts current even if a single revalidatePath call is missed. */
+export const revalidate = 60;
+export const dynamicParams = true;
+
 export default async function BlogDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const blog = await getBlogBySlug(slug);

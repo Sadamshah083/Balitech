@@ -66,6 +66,9 @@ export async function generateStaticParams() {
   return categories.map((category) => ({ slug: category.slug }));
 }
 
+export const revalidate = 60;
+export const dynamicParams = true;
+
 export default async function BlogCategoryPage({ params }: PageProps) {
   const { slug } = await params;
   let category = await getBlogCategoryBySlug(slug);

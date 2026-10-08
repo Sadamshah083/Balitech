@@ -48,7 +48,15 @@ export default function ScrollToTopOnNavigate() {
       return;
     }
     if (window.location.hash) return;
+
+    /* Force an instant jump even if CSS smooth-scroll is still active — a
+       lingering smooth scroll during App Router transitions feels like the
+       navbar click "stuck" and never finished. */
+    const root = document.documentElement;
+    const previous = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    root.style.scrollBehavior = previous;
   }, [pathname]);
 
   return null;

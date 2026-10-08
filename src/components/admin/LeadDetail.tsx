@@ -164,13 +164,21 @@ export default function LeadDetail({ leadId }: { leadId: string }) {
 
   async function handleDelete() {
     if (!lead) return;
-    if (!confirm("Delete this lead permanently?")) return;
+    if (
+      !confirm(
+        "Delete this lead permanently? Name, CNIC, phone, CV file, and all related data will be removed."
+      )
+    ) {
+      return;
+    }
     const res = await adminFetch(`/api/leads?id=${lead.id}`, {
       method: "DELETE",
     });
     if (res.ok) {
       router.push("/admin/leads");
       router.refresh();
+    } else {
+      alert("Could not delete this lead. Please try again.");
     }
   }
 

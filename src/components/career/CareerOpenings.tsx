@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, MapPin, Search } from "lucide-react";
+import { ArrowRight, Clock, MapPin, Search } from "lucide-react";
 import IntentLink from "@/components/navigation/IntentLink";
 import {
   CAREER_CATEGORIES,
@@ -160,32 +160,64 @@ export default function CareerOpenings({ openings }: Props) {
                       href={careerDetailHref(opening)}
                       className="career-job career-job--link"
                     >
-                      <div className="career-job__meta">
-                        <span className="career-job__category">{opening.categoryLabel}</span>
-                        {opening.campaign && (
-                          <span className="career-job__campaign">{opening.campaign}</span>
-                        )}
+                      <div className="career-job__top">
+                        <div className="career-job__meta">
+                          <span className="career-job__category">{opening.categoryLabel}</span>
+                          {opening.campaign && (
+                            <span className="career-job__campaign">{opening.campaign}</span>
+                          )}
+                        </div>
                       </div>
-                      <h3 className="career-job__title">{opening.title}</h3>
-                      <p className="career-job__location">
-                        <MapPin size={14} aria-hidden />
-                        {opening.workArrangement || "On-site"}
-                        {opening.workingHours ? ` · ${opening.workingHours}` : ""}
-                      </p>
-                      {opening.branchLabels.length > 0 && (
-                        <ul className="career-job__branches" aria-label="Branches">
-                          {opening.branchLabels.map((b) => (
-                            <li key={b} className="career-job__branch">
-                              {b}
-                            </li>
-                          ))}
-                        </ul>
+
+                      {(opening.workingDays || opening.workingHours) && (
+                        <p className="career-job__timing">
+                          <Clock size={13} aria-hidden />
+                          <span>
+                            {[opening.workingDays, opening.workingHours]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </span>
+                        </p>
                       )}
+
+                      <h3 className="career-job__title">{opening.title}</h3>
+
                       <p className="career-job__excerpt">{opening.excerpt}</p>
-                      <span className="career-job__cta">
-                        View job details
-                        <ArrowRight size={15} strokeWidth={2.25} aria-hidden />
-                      </span>
+
+                      <div className="career-job__footer">
+                        <span className="career-job__cta">
+                          View job details
+                          <ArrowRight size={15} strokeWidth={2.25} aria-hidden />
+                        </span>
+
+                        <div className="career-job__bottom-right">
+                          <span className="career-job__category">
+                            {opening.workArrangement?.trim() || "On-site"}
+                          </span>
+
+                          {opening.branchLabels.length > 1 && (
+                            <span className="career-job__category">
+                              {opening.branchLabels.length} branches
+                            </span>
+                          )}
+
+                          {opening.branchLabels.length > 0 ? (
+                            <ul className="career-job__branches" aria-label="Branches">
+                              {opening.branchLabels.map((b) => (
+                                <li key={b} className="career-job__branch">
+                                  <MapPin size={11} aria-hidden />
+                                  {b}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span className="career-job__branch">
+                              <MapPin size={11} aria-hidden />
+                              {opening.remoteAllowed ? "Remote" : "BALITECH offices"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </IntentLink>
                   </li>
                 ))}

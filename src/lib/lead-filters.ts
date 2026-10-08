@@ -3,19 +3,58 @@ import { officeSearchFromQuery } from "@/lib/application-reference";
 import { buildBranchWhere } from "@/lib/lead-branch";
 import { buildPositionWhere } from "@/lib/lead-position";
 
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+/** Pakistan CNIC shape: 37405-4445073-1 */
+function formatCnic(digits: string) {
+  if (digits.length !== 13) return null;
+  return `${digits.slice(0, 5)}-${digits.slice(5, 12)}-${digits.slice(12)}`;
+}
+
+/**
+ * Search variants so CNIC/phone match with or without dashes/spaces
+ * (e.g. 37405-4445073-1 and 3740544450731).
+ */
+function identitySearchVariants(query: string): string[] {
+  const variants = new Set<string>();
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  variants.add(trimmed);
+
+  const dashed = trimmed.replace(/[\s_]+/g, "-").replace(/-+/g, "-");
+  if (dashed !== trimmed) variants.add(dashed);
+
+  const digits = digitsOnly(trimmed);
+  if (digits) {
+    variants.add(digits);
+    const cnic = formatCnic(digits);
+    if (cnic) variants.add(cnic);
+  }
+
+  return [...variants];
+}
+
 function buildSearchWhere(query: string | null | undefined): Prisma.LeadWhereInput {
   const q = query?.trim();
   if (!q) return {};
 
   const office = officeSearchFromQuery(q);
+  const identityVariants = identitySearchVariants(q);
   const clauses: Prisma.LeadWhereInput[] = [
     { referenceId: { contains: q } },
     { name: { contains: q } },
     { email: { contains: q } },
-    { phone: { contains: q } },
     { company: { contains: q } },
     { position: { contains: q } },
   ];
+
+  for (const variant of identityVariants) {
+    clauses.push({ phone: { contains: variant } });
+    clauses.push({ cnic: { contains: variant } });
+  }
 
   if (office.code) {
     clauses.push({ referenceId: { contains: `BT-${office.code}-` } });

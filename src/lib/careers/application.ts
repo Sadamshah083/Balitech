@@ -817,6 +817,12 @@ export type ApplicationSource = {
   landing: string;
 };
 
+/**
+ * When the visitor arrived with a tracked channel (ads, poster QR with
+ * `?source=qr`, etc.), the “How did you hear about this opportunity?” field
+ * is hidden — the link already answers that. Plain `/join-us` (footer survey
+ * QR) keeps the question.
+ */
 export function hasKnownSource(source: ApplicationSource) {
   return Boolean(source.channel.trim());
 }
