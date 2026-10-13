@@ -14,7 +14,13 @@ import {
   Trash2,
 } from "lucide-react";
 import { FLAG_LABELS, parseFlags, queueLabel } from "@/lib/careers/review";
-import { EXPERIENCE_OPTIONS, HEARD_ABOUT_OPTIONS, optionLabel } from "@/lib/careers/catalog";
+import {
+  EXPERIENCE_OPTIONS,
+  HEARD_ABOUT_OPTIONS,
+  LEAD_SOURCE_FILTERS,
+  TRAFFIC_CHANNEL_LABELS,
+  optionLabel,
+} from "@/lib/careers/catalog";
 import { officeCodeFromBranch } from "@/lib/application-reference";
 
 type Lead = {
@@ -100,10 +106,21 @@ function leadHeardAbout(lead: Lead) {
   } catch {
     source = {};
   }
-  if (source.heardAbout) {
-    return optionLabel(HEARD_ABOUT_OPTIONS, source.heardAbout) || source.heardAbout;
+  const channel = source.channel?.trim() || "";
+  const heard = source.heardAbout?.trim() || "";
+  if (channel && TRAFFIC_CHANNEL_LABELS[channel]) {
+    /* Prefer the precise traffic channel (Facebook, Walk In QR, …). */
+    if (channel !== "social-media" || !heard) {
+      return TRAFFIC_CHANNEL_LABELS[channel];
+    }
   }
-  return source.channel?.trim() || null;
+  if (heard) {
+    return optionLabel(HEARD_ABOUT_OPTIONS, heard) || heard;
+  }
+  if (channel) {
+    return TRAFFIC_CHANNEL_LABELS[channel] || channel;
+  }
+  return null;
 }
 
 /** Stable across SSR and the browser (avoids React hydration #418). */
@@ -176,6 +193,7 @@ export default function LeadsManager({
   const [exporting, setExporting] = useState(false);
   const [positionFilter, setPositionFilter] = useState("");
   const [branchFilter, setBranchFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [positions, setPositions] = useState<PositionOption[]>(initialData?.positions ?? []);
@@ -196,6 +214,7 @@ export default function LeadsManager({
       });
       if (positionFilter) query.set("position", positionFilter);
       if (branchFilter) query.set("branch", branchFilter);
+      if (sourceFilter) query.set("source", sourceFilter);
       if (searchQuery) query.set("q", searchQuery);
 
       const res = await adminFetch(`/api/leads?${query.toString()}`);
@@ -207,12 +226,13 @@ export default function LeadsManager({
       setLoading(false);
       setInitialized(true);
     },
-    [positionFilter, branchFilter, searchQuery]
+    [positionFilter, branchFilter, sourceFilter, searchQuery]
   );
 
   const fetchPositions = useCallback(async () => {
     const query = new URLSearchParams();
     if (branchFilter) query.set("branch", branchFilter);
+    if (sourceFilter) query.set("source", sourceFilter);
     if (searchQuery) query.set("q", searchQuery);
     const qs = query.toString();
     const res = await adminFetch(`/api/leads/positions${qs ? `?${qs}` : ""}`);
@@ -224,7 +244,7 @@ export default function LeadsManager({
       setNewLeads(data.totals?.newLeads ?? 0);
       setNewCvs(data.totals?.newCvs ?? 0);
     }
-  }, [branchFilter, searchQuery]);
+  }, [branchFilter, sourceFilter, searchQuery]);
 
   const fetchBranches = useCallback(async () => {
     const res = await adminFetch("/api/leads/branches");
@@ -235,11 +255,19 @@ export default function LeadsManager({
   }, []);
 
   useEffect(() => {
-    if (initialData && !positionFilter && !branchFilter && !searchQuery) return;
+    if (
+      initialData &&
+      !positionFilter &&
+      !branchFilter &&
+      !sourceFilter &&
+      !searchQuery
+    ) {
+      return;
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch on filter change
     void Promise.all([fetchLeads(1), fetchPositions(), fetchBranches()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [positionFilter, branchFilter, searchQuery]);
+  }, [positionFilter, branchFilter, sourceFilter, searchQuery]);
 
   /* Debounce search so typing filters without a Search button. */
   useEffect(() => {
@@ -328,6 +356,7 @@ export default function LeadsManager({
       if (all) query.set("all", "1");
       if (positionFilter) query.set("position", positionFilter);
       if (branchFilter) query.set("branch", branchFilter);
+      if (sourceFilter) query.set("source", sourceFilter);
       if (searchQuery) query.set("q", searchQuery);
       const qs = query.toString();
       const res = await adminFetch(`/api/leads/export${qs ? `?${qs}` : ""}`);
@@ -359,6 +388,7 @@ export default function LeadsManager({
       if (all) query.set("all", "1");
       if (positionFilter) query.set("position", positionFilter);
       if (branchFilter) query.set("branch", branchFilter);
+      if (sourceFilter) query.set("source", sourceFilter);
       if (searchQuery) query.set("q", searchQuery);
       const qs = query.toString();
       const res = await adminFetch(`/api/leads/cvs${qs ? `?${qs}` : ""}`);
@@ -420,11 +450,38 @@ export default function LeadsManager({
 
   return (
     <div>
+      <div className="admin-walkin-qr glow-border mb-4 rounded-lg admin-card bg-card p-4">
+        <div className="admin-walkin-qr__copy">
+          <p className="admin-walkin-qr__eyebrow">Reception</p>
+          <h3 className="admin-walkin-qr__title">Walk-in QR code</h3>
+          <p className="admin-walkin-qr__hint">
+            Print for reception. Candidates scan → apply form with Walk In already
+            set (no “how did you hear” dropdown). Filter leads with Source → Walk In.
+          </p>
+          <a
+            href="/balitech-walk-in-qr.png"
+            download="balitech-walk-in-qr.png"
+            className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold"
+          >
+            <Download size={15} />
+            Download Walk-in QR
+          </a>
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element -- static admin print asset */}
+        <img
+          src="/balitech-walk-in-qr.png"
+          alt="Walk-in reception QR for join-us?source=walk-in"
+          width={112}
+          height={112}
+          className="admin-walkin-qr__image"
+        />
+      </div>
+
       <div className="admin-leads-toolbar">
         <div className="admin-leads-toolbar__title">
           <h2>Leads</h2>
           <p>
-            {positionFilter || branchFilter || searchQuery
+            {positionFilter || branchFilter || sourceFilter || searchQuery
               ? `${pagination.total} of ${totalLeads} match`
               : `${pagination.total} total`}
           </p>
@@ -498,13 +555,33 @@ export default function LeadsManager({
           </select>
         </div>
 
+        <div className="admin-leads-toolbar__select">
+          <label htmlFor="lead-source-filter" className="brand-label mb-1 block">
+            Source
+          </label>
+          <select
+            id="lead-source-filter"
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="brand-input admin-leads-toolbar__control w-full"
+          >
+            <option value="">All sources</option>
+            {LEAD_SOURCE_FILTERS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="admin-leads-toolbar__actions">
-          {(positionFilter || branchFilter || searchQuery) && (
+          {(positionFilter || branchFilter || sourceFilter || searchQuery) && (
             <button
               type="button"
               onClick={() => {
                 setPositionFilter("");
                 setBranchFilter("");
+                setSourceFilter("");
                 setSearchInput("");
                 setSearchQuery("");
               }}

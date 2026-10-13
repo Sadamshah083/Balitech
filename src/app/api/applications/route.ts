@@ -19,6 +19,7 @@ import {
   coerceSource,
   formatPhone,
   hasKnownSource,
+  heardAboutFromChannel,
   isGeneralApplication,
   normalizeCnic,
   pruneAnswers,
@@ -215,7 +216,11 @@ export async function POST(request: Request) {
     });
     const sourceJson = JSON.stringify({
       ...source,
-      heardAbout: ctx.sourceKnown ? "" : answers.heardAbout,
+      /* Keep heardAbout filled when traffic was auto-tracked (walk-in QR,
+         Facebook referrer, etc.) so admin Source filters still match. */
+      heardAbout: ctx.sourceKnown
+        ? heardAboutFromChannel(source.channel) || source.channel
+        : answers.heardAbout,
       heardAboutOther: ctx.sourceKnown ? "" : answers.heardAboutOther.trim(),
       referrer: ctx.sourceKnown ? "" : answers.referrerName.trim(),
     });

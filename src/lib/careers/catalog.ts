@@ -268,11 +268,45 @@ export const HR_TASK_OPTIONS: Option[] = [
   { value: "other", label: "Other" },
 ];
 
+/**
+ * Public join-us survey options. Walk In is second-last so candidates do not
+ * pick it by default — reception uses the admin Walk-in QR instead.
+ * Other is always last (free-text follow-up).
+ */
 export const HEARD_ABOUT_OPTIONS: Option[] = [
+  { value: "social-media", label: "Social Media" },
+  { value: "website", label: "Website" },
+  { value: "walk-in", label: "Walk In" },
+  { value: "other", label: "Other" },
+];
+
+/** Admin leads “Source” filter values (heardAbout + tracked channel). */
+export const LEAD_SOURCE_FILTERS: Option[] = [
   { value: "walk-in", label: "Walk In" },
   { value: "social-media", label: "Social Media" },
   { value: "website", label: "Website" },
+  { value: "facebook", label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "google", label: "Google" },
+  { value: "qr", label: "QR (direct apply)" },
+  { value: "other", label: "Other" },
 ];
+
+/** Human labels for auto-tracked channels (ads, referrer, QR params). */
+export const TRAFFIC_CHANNEL_LABELS: Record<string, string> = {
+  "walk-in": "Walk In",
+  "social-media": "Social Media",
+  website: "Website",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  google: "Google",
+  linkedin: "LinkedIn",
+  youtube: "YouTube",
+  qr: "QR (direct apply)",
+  other: "Other",
+};
 
 export const WORK_ARRANGEMENTS = ["On-site", "Remote", "Hybrid"];
 

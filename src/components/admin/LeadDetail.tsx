@@ -81,7 +81,7 @@ function parseJsonObject<T>(value: string | null | undefined): T | null {
 }
 
 const sourceLabels: [string, string][] = [
-  ["channel", "Channel"],
+  ["channel", "Traffic source"],
   ["campaign", "Ad campaign"],
   ["adId", "Ad ID"],
   ["medium", "Medium"],

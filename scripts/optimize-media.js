@@ -75,6 +75,11 @@ const QR_CODES = [
     url: "https://balitech.org/join-us?source=qr",
     out: "balitech-join-us-direct-qr.png",
   },
+  {
+    /* Reception desk — hides heard-about and stamps Walk In on the lead. */
+    url: "https://balitech.org/join-us?source=walk-in",
+    out: "balitech-walk-in-qr.png",
+  },
 ];
 
 const QR_STYLE = {

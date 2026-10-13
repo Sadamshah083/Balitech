@@ -1908,6 +1908,58 @@ select.brand-input {
   }
 }
 
+/* Admin Leads: printable walk-in reception QR */
+.admin-walkin-qr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.25rem;
+}
+
+.admin-walkin-qr__copy {
+  flex: 1 1 14rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.admin-walkin-qr__eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+.admin-walkin-qr__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.admin-walkin-qr__hint {
+  margin: 0 0 0.35rem;
+  max-width: 36rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.admin-walkin-qr__image {
+  width: 7rem;
+  height: 7rem;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  padding: 0.35rem;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--orange) 35%, transparent);
+}
+
 .footer-website-qr {
   margin-top: 1.15rem;
   display: flex;

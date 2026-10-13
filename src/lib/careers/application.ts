@@ -818,17 +818,65 @@ export type ApplicationSource = {
 };
 
 /**
- * When the visitor arrived with a tracked channel (ads, poster QR with
- * `?source=qr`, etc.), the “How did you hear about this opportunity?” field
- * is hidden — the link already answers that. Plain `/join-us` (footer survey
- * QR) keeps the question.
+ * When the visitor arrived with a tracked channel (ads, walk-in QR
+ * `?source=walk-in`, direct QR `?source=qr`, or a known social referrer),
+ * the “How did you hear about this opportunity?” field is hidden.
+ * Plain `/join-us` with no params/referrer keeps the question.
  */
 export function hasKnownSource(source: ApplicationSource) {
   return Boolean(source.channel.trim());
 }
 
-/** Reads ad-link parameters. `utm_*` and short names are both accepted. */
-export function readSource(search: string): ApplicationSource {
+/** Map document.referrer host → channel. Same public /join-us link works for
+ * Facebook/Instagram/Google shares; reception still uses ?source=walk-in. */
+export function channelFromReferrer(referrer: string): string {
+  const raw = referrer?.trim();
+  if (!raw) return "";
+  try {
+    const host = new URL(raw).hostname.replace(/^www\./, "").toLowerCase();
+    if (!host || host.endsWith("balitech.org") || host === "localhost" || host === "127.0.0.1") {
+      return "";
+    }
+    if (host.includes("facebook.com") || host.includes("fb.com") || host.includes("fb.me")) {
+      return "facebook";
+    }
+    if (host.includes("instagram.com")) return "instagram";
+    if (host.includes("tiktok.com")) return "tiktok";
+    if (host.includes("linkedin.com") || host.includes("lnkd.in")) return "linkedin";
+    if (host.includes("youtube.com") || host.includes("youtu.be")) return "youtube";
+    if (host.includes("google.") || host === "google.com" || host.endsWith(".google")) {
+      return "google";
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+
+/** Normalize channel aliases from ads / QR query strings. */
+export function normalizeTrafficChannel(raw: string): string {
+  const key = raw.trim().toLowerCase().replace(/[\s_]+/g, "-");
+  if (!key) return "";
+  const aliases: Record<string, string> = {
+    fb: "facebook",
+    "meta-ads": "facebook",
+    meta: "facebook",
+    ig: "instagram",
+    insta: "instagram",
+    "walkin": "walk-in",
+    "walk_in": "walk-in",
+    reception: "walk-in",
+    "direct-qr": "qr",
+    poster: "qr",
+  };
+  return aliases[key] || key;
+}
+
+/**
+ * Reads tracking from the URL, then optional document.referrer.
+ * Query/click ids win over referrer so reception/walk-in QRs stay authoritative.
+ */
+export function readSource(search: string, pageReferrer = ""): ApplicationSource {
   const params = new URLSearchParams(search);
   const pick = (...keys: string[]) => {
     for (const key of keys) {
@@ -837,16 +885,47 @@ export function readSource(search: string): ApplicationSource {
     }
     return "";
   };
-  const channel =
+  const fromQuery =
     pick("source", "utm_source", "channel", "src") ||
-    (params.get("fbclid") ? "facebook" : params.get("gclid") ? "google" : "");
+    (params.get("fbclid") ? "facebook" : "") ||
+    (params.get("igshid") || params.get("igsh") ? "instagram" : "") ||
+    (params.get("ttclid") ? "tiktok" : "") ||
+    (params.get("gclid") || params.get("gbraid") || params.get("wbraid")
+      ? "google"
+      : "");
+  const channel = normalizeTrafficChannel(fromQuery) || channelFromReferrer(pageReferrer);
+  const medium =
+    pick("utm_medium", "medium") ||
+    (channel === "walk-in" ? "reception-qr" : "") ||
+    (channel === "qr" ? "qr" : "") ||
+    (fromQuery ? "campaign" : pageReferrer ? "referral" : "");
   return {
     channel,
     campaign: pick("utm_campaign", "ad_campaign"),
     adId: pick("ad_id", "adid", "utm_content", "ad"),
-    medium: pick("utm_medium", "medium"),
+    medium,
     landing: "",
   };
+}
+
+/** When the form hides heard-about, still stamp a matching heardAbout for filters. */
+export function heardAboutFromChannel(channel: string): string {
+  const key = normalizeTrafficChannel(channel);
+  if (key === "walk-in") return "walk-in";
+  if (key === "website") return "website";
+  if (key === "qr") return "website";
+  if (
+    key === "facebook" ||
+    key === "instagram" ||
+    key === "tiktok" ||
+    key === "linkedin" ||
+    key === "youtube" ||
+    key === "social-media"
+  ) {
+    return "social-media";
+  }
+  if (key === "other") return "other";
+  return "";
 }
 
 export function coerceSource(input: unknown): ApplicationSource {
@@ -854,7 +933,7 @@ export function coerceSource(input: unknown): ApplicationSource {
   const s = (key: string, max = 120) =>
     typeof src[key] === "string" ? (src[key] as string).trim().slice(0, max) : "";
   return {
-    channel: s("channel"),
+    channel: normalizeTrafficChannel(s("channel")),
     campaign: s("campaign"),
     adId: s("adId", 200),
     medium: s("medium"),

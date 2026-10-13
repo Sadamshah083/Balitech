@@ -3,6 +3,37 @@ import { officeSearchFromQuery } from "@/lib/application-reference";
 import { buildBranchWhere } from "@/lib/lead-branch";
 import { buildPositionWhere } from "@/lib/lead-position";
 
+/** Fragments matched inside Lead.source JSON (heardAbout + channel). */
+const SOURCE_FILTER_FRAGMENTS: Record<string, string[]> = {
+  "walk-in": ['"heardAbout":"walk-in"', '"channel":"walk-in"'],
+  "social-media": [
+    '"heardAbout":"social-media"',
+    '"channel":"social-media"',
+    '"channel":"facebook"',
+    '"channel":"instagram"',
+    '"channel":"tiktok"',
+    '"channel":"linkedin"',
+    '"channel":"youtube"',
+  ],
+  website: ['"heardAbout":"website"', '"channel":"website"'],
+  facebook: ['"channel":"facebook"'],
+  instagram: ['"channel":"instagram"'],
+  tiktok: ['"channel":"tiktok"'],
+  google: ['"channel":"google"'],
+  qr: ['"channel":"qr"'],
+  other: ['"heardAbout":"other"', '"channel":"other"'],
+};
+
+function buildSourceWhere(source: string | null | undefined): Prisma.LeadWhereInput {
+  const key = source?.trim().toLowerCase();
+  if (!key) return {};
+  const fragments = SOURCE_FILTER_FRAGMENTS[key] ?? [
+    `"channel":"${key}"`,
+    `"heardAbout":"${key}"`,
+  ];
+  return { OR: fragments.map((fragment) => ({ source: { contains: fragment } })) };
+}
+
 function digitsOnly(value: string) {
   return value.replace(/\D/g, "");
 }
@@ -79,6 +110,7 @@ export function buildLeadWhere(params: URLSearchParams): Prisma.LeadWhereInput {
     AND: [
       buildPositionWhere(params.get("position")),
       buildBranchWhere(params.get("branch")),
+      buildSourceWhere(params.get("source") ?? params.get("heard")),
       buildSearchWhere(params.get("q") ?? params.get("search")),
       ...(queue ? [{ queue }] : []),
     ],
@@ -86,7 +118,7 @@ export function buildLeadWhere(params: URLSearchParams): Prisma.LeadWhereInput {
 }
 
 export function hasLeadFilters(params: URLSearchParams) {
-  return ["position", "queue", "branch", "q", "search"].some((key) =>
-    params.get(key)?.trim()
+  return ["position", "queue", "branch", "source", "heard", "q", "search"].some(
+    (key) => params.get(key)?.trim()
   );
 }

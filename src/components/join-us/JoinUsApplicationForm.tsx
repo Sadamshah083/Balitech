@@ -174,7 +174,9 @@ export default function JoinUsApplicationForm() {
 
       const search = window.location.search;
       const params = new URLSearchParams(search);
-      const tracked = readSource(search);
+      /* Same /join-us URL: query params (walk-in QR, ads) win; otherwise
+         document.referrer detects Facebook / Instagram / Google, etc. */
+      const tracked = readSource(search, document.referrer || "");
       tracked.landing = `${window.location.pathname}${search}`.slice(0, 300);
       setSource(tracked);
 
