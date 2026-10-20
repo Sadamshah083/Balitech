@@ -28,7 +28,9 @@ export async function uniqueTagSlug(base: string, excludeId?: string) {
 }
 
 export async function uniqueBlogSlug(base: string, excludeId?: string) {
-  let slug = base || "post";
+  // Blog.slug is a VARCHAR(191); leave room for the "-n" suffix.
+  base = (base || "post").slice(0, 180).replace(/-+$/, "") || "post";
+  let slug = base;
   let n = 2;
   while (true) {
     const existing = await prisma.blog.findUnique({ where: { slug } });
@@ -90,6 +92,20 @@ export async function resolveTagIds(
   return ids;
 }
 
+/**
+ * Legacy Blog.tags is a VARCHAR(191) JSON string. The relational links hold the
+ * full set, so keep only as many whole tags as fit in the column.
+ */
+export function legacyTagsJson(names: string[]) {
+  const list = [...names];
+  let json = stringifyTags(list);
+  while (json.length > 191 && list.length) {
+    list.pop();
+    json = stringifyTags(list);
+  }
+  return json;
+}
+
 export async function syncBlogTagLinks(blogId: string, tagIds: string[]) {
   await prisma.blogTagOnBlog.deleteMany({ where: { blogId } });
   if (tagIds.length) {
@@ -104,7 +120,7 @@ export async function syncBlogTagLinks(blogId: string, tagIds: string[]) {
   });
   await prisma.blog.update({
     where: { id: blogId },
-    data: { tags: stringifyTags(tags.map((t) => t.name)) },
+    data: { tags: legacyTagsJson(tags.map((t) => t.name)) },
   });
 }
 

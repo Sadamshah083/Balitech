@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireApiAuth } from "@/lib/auth";
 import { normalizeTagName, tagSlugFromName } from "@/lib/blog-taxonomy";
-import { uniqueTagSlug } from "@/lib/blog-admin";
+import { legacyTagsJson, uniqueTagSlug } from "@/lib/blog-admin";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
-import { stringifyTags } from "@/lib/blog";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -68,7 +67,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       });
       await prisma.blog.update({
         where: { id: row.blogId },
-        data: { tags: stringifyTags(tags.map((t) => t.name)) },
+        data: { tags: legacyTagsJson(tags.map((t) => t.name)) },
       });
     }
 
@@ -105,7 +104,7 @@ export async function DELETE(request: Request, context: RouteContext) {
       });
       await prisma.blog.update({
         where: { id: row.blogId },
-        data: { tags: stringifyTags(tags.map((t) => t.name)) },
+        data: { tags: legacyTagsJson(tags.map((t) => t.name)) },
       });
     }
 

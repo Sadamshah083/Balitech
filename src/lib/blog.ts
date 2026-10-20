@@ -61,6 +61,7 @@ export function formatBlogDate(date: Date | string) {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "Asia/Karachi",
   });
 }
 

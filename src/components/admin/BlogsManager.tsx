@@ -102,6 +102,31 @@ const emptyTag = {
   categoryIds: [] as string[],
 };
 
+const BLOG_TZ = "Asia/Karachi";
+
+/** YYYY-MM-DD of an instant as seen in Pakistan time. */
+function karachiDateInput(value?: string | Date | null) {
+  const d = value ? new Date(value) : new Date();
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: BLOG_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
+/** Chosen Pakistan date + the time of day of `base` (or now) -> ISO instant. */
+function karachiDateToIso(date: string, base?: string | null) {
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone: BLOG_TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).format(base ? new Date(base) : new Date());
+  return new Date(`${date}T${time}+05:00`).toISOString();
+}
+
 const emptyBlog = {
   title: "",
   slug: "",
@@ -115,6 +140,8 @@ const emptyBlog = {
   order: 0,
   status: "published",
   scheduledAt: "",
+  publishedDate: "",
+  publishedAtOriginal: "",
   categoryId: "",
   tagIds: [] as string[],
   newTag: "",
@@ -461,6 +488,7 @@ export default function BlogsManager({
     setEditingBlogId(null);
     setBlogForm({
       ...emptyBlog,
+      publishedDate: karachiDateInput(),
       order: blogs.length + 1,
       categoryId: categories.find((c) => c.isActive)?.id ?? "",
     });
@@ -486,6 +514,8 @@ export default function BlogsManager({
       scheduledAt: blog.scheduledAt
         ? new Date(blog.scheduledAt).toISOString().slice(0, 16)
         : "",
+      publishedDate: karachiDateInput(blog.publishedAt || blog.createdAt),
+      publishedAtOriginal: blog.publishedAt ?? "",
       categoryId: blog.category?.id ?? "",
       tagIds: (blog.tagList ?? []).map((t) => t.id),
       newTag: "",
@@ -518,6 +548,8 @@ export default function BlogsManager({
         scheduledAt: full.scheduledAt
           ? new Date(full.scheduledAt).toISOString().slice(0, 16)
           : "",
+        publishedDate: karachiDateInput(full.publishedAt || full.createdAt),
+        publishedAtOriginal: full.publishedAt ?? "",
         categoryId: full.category?.id ?? "",
         tagIds: (full.tagList ?? []).map((t) => t.id),
         newTag: "",
@@ -586,6 +618,18 @@ export default function BlogsManager({
       order: blogForm.order,
       status: blogForm.status,
       scheduledAt: blogForm.status === "scheduled" ? blogForm.scheduledAt : null,
+      ...(blogForm.status === "published" && blogForm.publishedDate
+        ? {
+            publishedAt:
+              blogForm.publishedAtOriginal &&
+              karachiDateInput(blogForm.publishedAtOriginal) === blogForm.publishedDate
+                ? blogForm.publishedAtOriginal
+                : karachiDateToIso(
+                    blogForm.publishedDate,
+                    blogForm.publishedAtOriginal || null
+                  ),
+          }
+        : {}),
       categoryId: blogForm.categoryId,
       tagIds: blogForm.tagIds,
     };
@@ -1554,6 +1598,12 @@ export default function BlogsManager({
               <option value="scheduled">Scheduled</option>
             </select>
           </label>
+          {blogForm.status === "published" && (
+            <label className="sm:col-span-2 grid gap-1 text-sm">
+              Publish date
+              <input type="date" className="brand-input" required value={blogForm.publishedDate} onChange={(e) => setBlogForm((f) => ({ ...f, publishedDate: e.target.value }))} />
+            </label>
+          )}
           {blogForm.status === "scheduled" && (
             <label className="sm:col-span-2 grid gap-1 text-sm">
               Schedule for
