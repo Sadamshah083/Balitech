@@ -11,6 +11,7 @@ const FILES = [
   "src/lib/blog.ts",
   "src/components/admin/BlogsManager.tsx",
   "src/lib/blog-admin.ts",
+  "src/app/api/blogs/route.ts",
   "src/app/api/blog-tags/[id]/route.ts",
 ];
 

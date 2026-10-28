@@ -179,7 +179,11 @@ export async function POST(request: Request) {
         excerpt: excerpt ? String(excerpt).trim() : null,
         content: String(content).trim(),
         image: image ? String(image).trim() : null,
-        imageAlt: imageAlt ? String(imageAlt).trim().slice(0, 180) : null,
+        imageAlt: imageAlt
+          ? String(imageAlt).trim().slice(0, 180)
+          : image
+            ? String(title).trim().slice(0, 180)
+            : null,
         tags: "[]",
         format: format ? String(format) : "standard",
         metaTitle: metaTitle ? String(metaTitle).trim().slice(0, 120) : null,

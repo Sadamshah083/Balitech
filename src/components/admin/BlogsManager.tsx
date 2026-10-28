@@ -605,6 +605,21 @@ export default function BlogsManager({
       setSaving(false);
       return;
     }
+    if (blogForm.image && !blogForm.imageAlt.trim()) {
+      setFormError("Cover image alt text is required. Describe what the picture shows.");
+      setSaving(false);
+      return;
+    }
+    const contentImgsWithoutAlt = (blogForm.content.match(/<img[^>]*>/gi) ?? []).filter(
+      (tag) => !/alt\s*=\s*("[^"]+"|'[^']+')/i.test(tag)
+    ).length;
+    if (contentImgsWithoutAlt) {
+      setFormError(
+        `${contentImgsWithoutAlt} image${contentImgsWithoutAlt > 1 ? "s" : ""} in the content ${contentImgsWithoutAlt > 1 ? "have" : "has"} no alt text. Add alt="describe the picture" to each <img> tag.`
+      );
+      setSaving(false);
+      return;
+    }
     const payload = {
       title: blogForm.title,
       slug: blogForm.slug || slugify(blogForm.title),
@@ -1530,12 +1545,14 @@ export default function BlogsManager({
             {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
           </div>
           <label className="sm:col-span-2 grid gap-1 text-sm">
-            Cover image alt text
+            Cover image alt text{blogForm.image ? " *" : ""}
             <input
               className="brand-input"
+              required={Boolean(blogForm.image)}
+              maxLength={180}
               value={blogForm.imageAlt}
               onChange={(e) => setBlogForm((f) => ({ ...f, imageAlt: e.target.value }))}
-              placeholder="Describe the cover for accessibility & SEO (defaults to meta description / title)"
+              placeholder="Describe what the cover picture shows, e.g. BaliTech agents on a call in the Rawalpindi office"
             />
           </label>
           <fieldset className="sm:col-span-2 grid gap-2">
