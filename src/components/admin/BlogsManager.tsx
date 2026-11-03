@@ -1057,6 +1057,7 @@ export default function BlogsManager({
                     <th className="px-4 py-3 font-medium">Slug</th>
                     <th className="px-4 py-3 font-medium">Categories</th>
                     <th className="px-4 py-3 font-medium">Posts</th>
+                    <th className="px-4 py-3 font-medium">Used</th>
                     <th className="px-4 py-3 text-center font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -1079,6 +1080,17 @@ export default function BlogsManager({
                           : "—"}
                       </td>
                       <td className="px-4 py-3 text-muted">{tag.postCount}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                            tag.postCount > 0
+                              ? "bg-emerald-500/15 text-emerald-400"
+                              : "bg-foreground/10 text-muted"
+                          }`}
+                        >
+                          {tag.postCount > 0 ? "Used" : "Not used"}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex justify-center gap-1">
                           <button
