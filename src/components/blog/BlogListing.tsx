@@ -228,6 +228,15 @@ export default function BlogListing({
     });
   }, [blogs, query, categorySlug, tagSlug]);
 
+  // Only tags that are actually used by a published post in this listing.
+  const usedTags = useMemo(() => {
+    const map = new Map<string, PublicBlogTag>();
+    for (const blog of blogs) {
+      for (const tag of blog.tagList) map.set(tag.slug, tag);
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }, [blogs]);
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const hasFilters = Boolean(query.trim() || categorySlug || tagSlug);
@@ -251,6 +260,14 @@ export default function BlogListing({
   function applyCategory(slug: string) {
     startTransition(() => {
       setCategorySlug((current) => (current === slug ? "" : slug));
+      setPage(1);
+    });
+    scrollToResults();
+  }
+
+  function applyTag(slug: string) {
+    startTransition(() => {
+      setTagSlug((current) => (current === slug ? "" : slug));
       setPage(1);
     });
     scrollToResults();
@@ -325,6 +342,28 @@ export default function BlogListing({
             </div>
           </div>
         )}
+
+        {usedTags.length > 0 && (
+          <div className="blog-filter-card__group">
+            <p className="blog-filter-card__label">Tags</p>
+            <div className="blog-filter-card__chips" role="group" aria-label="Tags">
+              {usedTags.map((tag) => {
+                const active = tagSlug === tag.slug;
+                return (
+                  <button
+                    key={tag.slug}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => applyTag(tag.slug)}
+                    className={`blog-filter-card__chip blog-filter-card__chip--tag${active ? " is-active" : ""}`}
+                  >
+                    {tag.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -337,7 +376,7 @@ export default function BlogListing({
       >
         {pageItems.length === 0 ? (
           <p className="blog-articles__empty">
-            No published articles match these filters. Try resetting or choosing another category.
+            No published articles match these filters. Try resetting or choosing another category or tag.
           </p>
         ) : (
           <ul className="blog-articles__grid blog-articles__grid--listing">

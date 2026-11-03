@@ -275,10 +275,11 @@ export default async function BlogDetailPage({ params }: PageProps) {
             </aside>
           </div>
 
-          <aside className="blog-post-layout__aside" aria-label="Blog categories">
+          <aside className="blog-post-layout__aside" aria-label="Blog categories and tags">
             <BlogPostCategories
               categories={categories}
               activeSlug={blog.category?.slug}
+              tags={blog.tagList}
             />
           </aside>
         </div>

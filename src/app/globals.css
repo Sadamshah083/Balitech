@@ -4486,6 +4486,44 @@ article.section-with-net:has(.blog-post-layout) {
   background: color-mix(in srgb, var(--orange) 10%, transparent);
 }
 
+.blog-post-cats__tags {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.blog-post-cats__tags .blog-post-cats__label {
+  margin-bottom: 0.5rem;
+}
+
+.blog-post-cats__tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blog-post-cats__tag {
+  display: inline-flex;
+  border-radius: 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent);
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  padding: 0.3rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.blog-post-cats__tag:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
 .blog-post-cats__all {
   display: inline-flex;
   margin-top: 0.85rem;

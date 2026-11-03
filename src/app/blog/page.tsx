@@ -30,11 +30,6 @@ export default async function BlogPage() {
       tagMap.set(tag.slug, tag);
     }
   }
-  for (const category of categories) {
-    for (const tag of category.tags) {
-      tagMap.set(tag.slug, tag);
-    }
-  }
 
   return (
     <SitePage>
