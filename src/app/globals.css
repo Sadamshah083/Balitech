@@ -11409,6 +11409,8 @@ button.join-us-form__step-btn {
 
 .home-vacancy-card__actions {
   display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
   margin-top: auto;
   padding-top: 1.25rem;
 }

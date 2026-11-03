@@ -112,6 +112,14 @@ export default async function HomeOpenVacancies() {
                     </ul>
 
                     <div className="home-vacancy-card__actions">
+                      <IntentLink
+                        href={careerDetailHref(opening)}
+                        className="ent-btn ent-btn--ghost"
+                        aria-label={`View details for ${opening.title}`}
+                      >
+                        View details
+                        <ArrowRight size={16} aria-hidden />
+                      </IntentLink>
                       <IntentLink href={careerApplyHref(opening)} className="ent-btn">
                         Apply for this role
                         <ArrowRight size={16} aria-hidden />
