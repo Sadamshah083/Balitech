@@ -893,10 +893,6 @@ export default function JoinUsApplicationForm() {
                 </button>
               )}
 
-              {vacancy?.description && !general && (
-                <p className="join-us-form__vacancy-note">{vacancy.description}</p>
-              )}
-
               <Field
                 id={fid("branch")}
                 label="Branch preference"
