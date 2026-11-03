@@ -274,6 +274,31 @@ function factCell(text: string) {
   return `<li><strong>${escapeJdHtml(m[1])}</strong><span>${escapeJdHtml(m[2])}</span></li>`;
 }
 
+const HTML_FACT_P = String.raw`<p[^>]*>\s*<(?:strong|b)>\s*([^<]{1,40}?)\s*:?\s*</(?:strong|b)>\s*:?\s*([\s\S]*?)</p>\s*`;
+const HTML_FACT_RUN_RE = new RegExp(`(?:${HTML_FACT_P}){2,}`, "gi");
+const HTML_FACT_ONE_RE = new RegExp(HTML_FACT_P, "gi");
+
+/**
+ * Admin HTML: a run of "<p><strong>Label:</strong> value</p>" lines becomes the
+ * fact-card grid, so any labels the admin types (Salary, Shift, ...) show as cards.
+ * A leading <h1> that repeats the job title is dropped (the page already has it).
+ */
+function factsFromHtml(html: string, title: string) {
+  let out = html.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, (_m, inner: string) =>
+    inner.replace(/<[^>]*>/g, "").trim().toLowerCase() === title.trim().toLowerCase()
+      ? ""
+      : `<h2>${inner}</h2>`
+  );
+  out = out.replace(HTML_FACT_RUN_RE, (run) => {
+    const cells: string[] = [];
+    for (const m of run.matchAll(HTML_FACT_ONE_RE)) {
+      cells.push(`<li><strong>${m[1].trim()}</strong><span>${m[2].trim()}</span></li>`);
+    }
+    return `<ul class="career-detail__jd-facts">${cells.join("")}</ul>`;
+  });
+  return out;
+}
+
 /**
  * Job description as safe HTML for the public job page. Admin text that is
  * already HTML is sanitized and kept; plain text gets headings, lists and
@@ -283,7 +308,7 @@ function factCell(text: string) {
 export function jobDescriptionToHtml(description: string | null, title = ""): string {
   const raw = description?.trim() ?? "";
   if (!raw) return "";
-  if (looksLikeHtml(raw)) return sanitizeBlogHtml(raw);
+  if (looksLikeHtml(raw)) return factsFromHtml(sanitizeBlogHtml(raw), title);
 
   const out: string[] = [];
   const { blocks } = formatJobDescription(raw);
