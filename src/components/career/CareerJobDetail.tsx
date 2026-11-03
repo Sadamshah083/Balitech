@@ -9,7 +9,7 @@ import {
 import IntentLink from "@/components/navigation/IntentLink";
 import {
   careerApplyHref,
-  formatJobDescription,
+  jobDescriptionToHtml,
   type CareerOpening,
 } from "@/lib/careers/career-board";
 
@@ -18,7 +18,7 @@ type Props = {
 };
 
 export default function CareerJobDetail({ opening }: Props) {
-  const { blocks } = formatJobDescription(opening.description);
+  const descriptionHtml = jobDescriptionToHtml(opening.description, opening.title);
   const applyHref = careerApplyHref(opening);
 
   return (
@@ -84,40 +84,15 @@ export default function CareerJobDetail({ opening }: Props) {
             Job description
           </h2>
 
-          {blocks.length === 0 ? (
+          {!descriptionHtml ? (
             <p className="career-detail__empty-jd">
               {opening.excerpt}
             </p>
           ) : (
-            <div className="career-detail__jd">
-              {blocks.map((block, i) => {
-                // Skip a leading line that only repeats the job title.
-                if (
-                  block.type === "p" &&
-                  i === 0 &&
-                  block.lines[0]?.trim().toLowerCase() === opening.title.trim().toLowerCase()
-                ) {
-                  return null;
-                }
-                if (block.type === "h") {
-                  return (
-                    <h3 key={i} className="career-detail__jd-heading">
-                      {block.lines[0]}
-                    </h3>
-                  );
-                }
-                if (block.type === "ul") {
-                  return (
-                    <ul key={i}>
-                      {block.lines.map((line, j) => (
-                        <li key={j}>{line}</li>
-                      ))}
-                    </ul>
-                  );
-                }
-                return <p key={i}>{block.lines[0]}</p>;
-              })}
-            </div>
+            <div
+              className="career-detail__jd"
+              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+            />
           )}
 
           {opening.customQuestion && (

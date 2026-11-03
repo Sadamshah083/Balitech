@@ -4,6 +4,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { joinUsHref } from "@/lib/navigation";
+import { looksLikeHtml, sanitizeBlogHtml } from "@/lib/blog";
 import { DEPARTMENTS, departmentLabel } from "./catalog";
 import { toPublicVacancy } from "./vacancies";
 import type { PublicVacancy } from "./application";
@@ -238,6 +239,72 @@ export function formatJobDescription(description: string | null): {
     paragraphs: blocks.filter((b) => b.type === "p").flatMap((b) => b.lines),
     blocks,
   };
+}
+
+const JD_LABELS =
+  "Company|Location|Employment Type|Job Type|Work Arrangement|Experience|Position|Salary|Working Hours|Working Days|Shift|Department|Description|Responsibilities|Requirements|Qualifications|Benefits";
+const JD_LABEL_SPLIT_RE = new RegExp(`(?:^|\\s)(?=(?:${JD_LABELS})\\s*:)`, "g");
+const JD_LABEL_RE = new RegExp(`^(${JD_LABELS})\\s*:\\s*([\\s\\S]*)$`);
+
+function escapeJdHtml(text: string) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** "Label: value" with the label in bold (any short leading label, not just known ones). */
+function boldLead(text: string) {
+  const known = text.match(JD_LABEL_RE);
+  if (known) {
+    return `<strong>${escapeJdHtml(known[1])}:</strong> ${escapeJdHtml(known[2])}`;
+  }
+  const generic = text.match(/^([A-Z][^:]{1,40}):\s+([\s\S]+)$/);
+  if (generic) {
+    return `<strong>${escapeJdHtml(generic[1])}:</strong> ${escapeJdHtml(generic[2])}`;
+  }
+  return escapeJdHtml(text);
+}
+
+/**
+ * Job description as safe HTML for the public job page. Admin text that is
+ * already HTML is sanitized and kept; plain text gets headings, lists and
+ * bold labels (Company:, Location:, Salary: ...), and run-together label
+ * lines become a bold-label list.
+ */
+export function jobDescriptionToHtml(description: string | null, title = ""): string {
+  const raw = description?.trim() ?? "";
+  if (!raw) return "";
+  if (looksLikeHtml(raw)) return sanitizeBlogHtml(raw);
+
+  const out: string[] = [];
+  const { blocks } = formatJobDescription(raw);
+  blocks.forEach((block, i) => {
+    const first = block.lines[0] ?? "";
+    if (block.type === "p" && i === 0 && first.trim().toLowerCase() === title.trim().toLowerCase()) {
+      return;
+    }
+    if (block.type === "h") {
+      out.push(`<h3 class="career-detail__jd-heading">${escapeJdHtml(first)}</h3>`);
+      return;
+    }
+    if (block.type === "ul") {
+      out.push(`<ul>${block.lines.map((l) => `<li>${boldLead(l)}</li>`).join("")}</ul>`);
+      return;
+    }
+    const parts = first.split(JD_LABEL_SPLIT_RE).map((s) => s.trim()).filter(Boolean);
+    if (parts.filter((p) => JD_LABEL_RE.test(p)).length >= 2) {
+      // Facts (Company, Location, Salary...) as a list; "Description:" stays a paragraph.
+      const facts = parts.filter((p) => JD_LABEL_RE.test(p) && !/^Description\s*:/.test(p));
+      const rest = parts.filter((p) => !facts.includes(p));
+      out.push(`<ul class="career-detail__jd-facts">${facts.map((f) => `<li>${boldLead(f)}</li>`).join("")}</ul>`);
+      for (const r of rest) out.push(`<p>${boldLead(r)}</p>`);
+      return;
+    }
+    out.push(`<p>${boldLead(first)}</p>`);
+  });
+  return out.join("\n");
 }
 
 export function careerDepartmentsInUse(openings: CareerOpening[]) {

@@ -47,6 +47,9 @@ export default async function BlogTagPage({ params }: PageProps) {
     getActiveBlogCategories(),
   ]);
 
+  // A tag that no published post uses has no public page.
+  if (blogs.length === 0) notFound();
+
   return (
     <SitePage>
       <JsonLd

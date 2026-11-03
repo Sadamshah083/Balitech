@@ -8089,6 +8089,27 @@ article.section-with-net:has(.blog-post-layout) {
   color: var(--orange);
 }
 
+.career-detail__jd strong {
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.career-detail__jd a {
+  color: var(--orange);
+}
+
+.career-detail__jd-facts {
+  list-style: none !important;
+  padding-left: 0 !important;
+  display: grid;
+  gap: 0.2rem 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.career-detail__jd-facts li::marker {
+  content: "";
+}
+
 .career-detail__empty-jd {
   margin: 0;
   font-size: 0.95rem;
