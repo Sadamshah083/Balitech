@@ -8102,12 +8102,45 @@ article.section-with-net:has(.blog-post-layout) {
   list-style: none !important;
   padding-left: 0 !important;
   display: grid;
-  gap: 0.2rem 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.career-detail__jd-facts li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .career-detail__jd-facts li::marker {
   content: "";
+}
+
+.career-detail__jd-facts li strong {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+@media (max-width: 1023px) {
+  .career-detail__jd-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .career-detail__jd-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .career-detail__empty-jd {

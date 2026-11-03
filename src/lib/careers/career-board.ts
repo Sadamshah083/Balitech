@@ -267,6 +267,13 @@ function boldLead(text: string) {
   return escapeJdHtml(text);
 }
 
+/** One fact cell: bold label on top, value underneath. */
+function factCell(text: string) {
+  const m = text.match(JD_LABEL_RE);
+  if (!m) return `<li>${escapeJdHtml(text)}</li>`;
+  return `<li><strong>${escapeJdHtml(m[1])}</strong><span>${escapeJdHtml(m[2])}</span></li>`;
+}
+
 /**
  * Job description as safe HTML for the public job page. Admin text that is
  * already HTML is sanitized and kept; plain text gets headings, lists and
@@ -298,7 +305,7 @@ export function jobDescriptionToHtml(description: string | null, title = ""): st
       // Facts (Company, Location, Salary...) as a list; "Description:" stays a paragraph.
       const facts = parts.filter((p) => JD_LABEL_RE.test(p) && !/^Description\s*:/.test(p));
       const rest = parts.filter((p) => !facts.includes(p));
-      out.push(`<ul class="career-detail__jd-facts">${facts.map((f) => `<li>${boldLead(f)}</li>`).join("")}</ul>`);
+      out.push(`<ul class="career-detail__jd-facts">${facts.map(factCell).join("")}</ul>`);
       for (const r of rest) out.push(`<p>${boldLead(r)}</p>`);
       return;
     }
