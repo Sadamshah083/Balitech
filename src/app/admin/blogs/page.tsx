@@ -10,8 +10,8 @@ import { redirect } from "next/navigation";
 export default async function AdminBlogsPage() {
   const admin = await requireAdmin();
 
-  if (admin.role !== "admin" && admin.role !== "manager") {
-    redirect("/admin/leads");
+  if (admin.role !== "admin" && admin.role !== "manager" && admin.role !== "agent") {
+    redirect("/admin/dashboard");
   }
 
   const [categories, tags, blogs] = await Promise.all([

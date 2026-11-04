@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     });
   }
 
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   const q = searchParams.get("q")?.trim().toLowerCase() ?? "";
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
 
 /** Ensures the six seed categories exist with SEO + recommended tags (idempotent). */
 export async function PUT(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   for (const item of DEFAULT_BLOG_CATEGORIES) {

@@ -33,7 +33,7 @@ function mapAdminBlog<T extends {
 }
 
 export async function GET(_request: Request, context: RouteContext) {
-  const auth = await requireApiAuth(_request);
+  const auth = await requireApiAuth(_request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   const { id } = await context.params;
@@ -49,7 +49,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {
@@ -197,7 +197,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 }
 
 export async function DELETE(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {

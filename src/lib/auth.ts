@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getJwtExpiresIn } from "@/lib/env";
+import { prisma } from "@/lib/prisma";
 import {
   AUTH_COOKIE_NAME,
   signSessionToken,
@@ -93,7 +94,16 @@ export async function getSessionFromRequest(
   return getSession();
 }
 
-export async function requireApiAuth(request: Request) {
+/**
+ * Agents may only use the Blogs admin. Routes that serve it pass
+ * `allowAgent: true`; every other admin API refuses the agent role.
+ * The role is read from the database so a role change applies immediately,
+ * not when the login token expires.
+ */
+export async function requireApiAuth(
+  request: Request,
+  options: { allowAgent?: boolean } = {}
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
     return {
@@ -101,5 +111,20 @@ export async function requireApiAuth(request: Request) {
       response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
     };
   }
-  return { session, response: null };
+
+  let role = session.role;
+  if (session.adminId !== CRM_SESSION.adminId) {
+    const admin = await prisma.admin
+      .findUnique({ where: { id: session.adminId }, select: { role: true } })
+      .catch(() => null);
+    if (admin) role = admin.role;
+  }
+
+  if (role === "agent" && !options.allowAgent) {
+    return {
+      session: null,
+      response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
+  }
+  return { session: { ...session, role }, response: null };
 }

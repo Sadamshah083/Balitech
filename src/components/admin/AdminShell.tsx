@@ -69,7 +69,7 @@ export default function AdminShell({
       return href === "/admin/leads" || href === "/admin/vacancies" || href === "/admin/blogs";
     }
     if (isAgent) {
-      return href === "/admin/leads";
+      return href === "/admin/blogs";
     }
     return false;
   };

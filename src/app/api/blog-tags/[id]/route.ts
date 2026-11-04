@@ -8,7 +8,7 @@ import { refreshPublicPages } from "@/lib/refresh-public-pages";
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {
@@ -80,7 +80,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 }
 
 export async function DELETE(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {

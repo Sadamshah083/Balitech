@@ -3,7 +3,7 @@ import { requireApiAuth } from "@/lib/auth";
 import { saveCategoryImage } from "@/lib/blog-category-upload";
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {

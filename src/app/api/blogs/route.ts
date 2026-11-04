@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     }
   }
 
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   const q = searchParams.get("q")?.trim().toLowerCase() ?? "";
@@ -110,7 +110,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {

@@ -9,7 +9,7 @@ import { uniqueTagSlug } from "@/lib/blog-admin";
 import { refreshPublicPages } from "@/lib/refresh-public-pages";
 
 export async function GET(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   const { searchParams } = new URL(request.url);
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth(request);
+  const auth = await requireApiAuth(request, { allowAgent: true });
   if (auth.response) return auth.response;
 
   try {

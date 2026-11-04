@@ -46,7 +46,7 @@ async function loadKpis() {
       detail: `+${leadsThisWeek} in the last 7 days`,
       href: "/admin/leads",
       icon: Users,
-      roles: ["admin", "manager", "agent"],
+      roles: ["admin", "manager"],
     },
     {
       label: "CVs Received",
@@ -54,7 +54,7 @@ async function loadKpis() {
       detail: `${cvShare}% of leads sent a CV`,
       href: "/admin/leads",
       icon: FileText,
-      roles: ["admin", "manager", "agent"],
+      roles: ["admin", "manager"],
     },
     {
       label: "Total Campaigns",
@@ -78,7 +78,7 @@ async function loadKpis() {
       detail: `${publishedBlogs} published`,
       href: "/admin/blogs",
       icon: BookOpen,
-      roles: ["admin", "manager"],
+      roles: ["admin", "manager", "agent"],
     },
   ];
 }
@@ -89,7 +89,7 @@ const quickLinks = [
     label: "Leads",
     description: "View and manage applicant leads",
     icon: Users,
-    roles: ["admin", "manager", "agent"],
+    roles: ["admin", "manager"],
   },
   {
     href: "/admin/campaigns",
@@ -117,7 +117,7 @@ const quickLinks = [
     label: "Blogs",
     description: "Create and edit blog posts",
     icon: BookOpen,
-    roles: ["admin", "manager"],
+    roles: ["admin", "manager", "agent"],
   },
   {
     href: "/admin/settings",

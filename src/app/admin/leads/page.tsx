@@ -1,4 +1,5 @@
 import LeadsManager from "@/components/admin/LeadsManager";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import {
   prefetchLeads,
@@ -7,7 +8,9 @@ import {
 } from "@/lib/admin-data";
 
 export default async function AdminLeadsPage() {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  // Agents only have access to Blogs.
+  if (admin.role === "agent") redirect("/admin/blogs");
 
   const [leadsData, positionsData, branches] = await Promise.all([
     prefetchLeads(),
