@@ -273,6 +273,23 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 ))}
               </ul>
             </aside>
+
+            {blog.tagList.length > 0 && (
+              <section className="blog-post-tags" aria-labelledby="blog-post-tags-title">
+                <h2 id="blog-post-tags-title" className="blog-post-tags__title">
+                  Tags
+                </h2>
+                <ul className="blog-post-tags__list">
+                  {blog.tagList.map((tag) => (
+                    <li key={tag.slug}>
+                      <Link href={`/blog/tag/${tag.slug}`} className="blog-post-cats__tag">
+                        {tag.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
 
           <aside className="blog-post-layout__aside" aria-label="Blog categories and tags">

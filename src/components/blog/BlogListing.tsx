@@ -456,6 +456,30 @@ export default function BlogListing({
           </button>
         </nav>
       )}
+
+      {usedTags.length > 0 && (
+        <section className="blog-bottom-tags" aria-labelledby="blog-bottom-tags-title">
+          <h2 id="blog-bottom-tags-title" className="blog-bottom-tags__title">
+            Tags
+          </h2>
+          <div className="blog-filter-card__chips" role="group" aria-label="All tags">
+            {usedTags.map((tag) => {
+              const active = tagSlug === tag.slug;
+              return (
+                <button
+                  key={tag.slug}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => applyTag(tag.slug)}
+                  className={`blog-filter-card__chip blog-filter-card__chip--tag${active ? " is-active" : ""}`}
+                >
+                  {tag.name}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </>
   );
 
