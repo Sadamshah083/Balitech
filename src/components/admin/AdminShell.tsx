@@ -63,20 +63,27 @@ export default function AdminShell({
   const isAdmin = adminRole === "admin";
 
   const hasAccess = (href: string) => {
+    if (isAgent) return href === "/admin/blogs";
     if (href === "/admin/dashboard") return true;
     if (isAdmin) return true;
     if (isManager) {
       return href === "/admin/leads" || href === "/admin/vacancies" || href === "/admin/blogs";
     }
-    if (isAgent) {
-      return href === "/admin/blogs";
-    }
     return false;
   };
 
+  // Sub-pages (e.g. /admin/leads/123) follow the access of their section.
+  const pathAllowed = (path: string) => {
+    if (isAdmin) return true;
+    const section = navItems.find(
+      (item) => path === item.href || path.startsWith(`${item.href}/`)
+    );
+    return section ? hasAccess(section.href) : false;
+  };
+
   useEffect(() => {
-    if (!hasAccess(pathname)) {
-      router.push("/admin/dashboard");
+    if (!pathAllowed(pathname)) {
+      router.push(isAgent ? "/admin/blogs" : "/admin/dashboard");
     }
   }, [pathname, adminRole]);
 
@@ -106,7 +113,7 @@ export default function AdminShell({
   const sidebar = (
     <>
       <div className="admin-sidebar__brand border-b border-orange/20 p-5">
-        <Link href="/admin/dashboard" className="inline-block">
+        <Link href={isAgent ? "/admin/blogs" : "/admin/dashboard"} className="inline-block">
           <img
             src="/bali-tech-logo-nav.png"
             alt="BaliTech Pvt. Ltd"

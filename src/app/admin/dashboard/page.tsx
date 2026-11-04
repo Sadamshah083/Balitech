@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import {
@@ -130,6 +131,8 @@ const quickLinks = [
 
 export default async function AdminDashboardPage() {
   const admin = await requireAdmin();
+  // Agents only work in Blogs; they have no dashboard.
+  if (admin.role === "agent") redirect("/admin/blogs");
 
   const links = quickLinks.filter((link) => link.roles.includes(admin.role));
   const kpis = (await loadKpis()).filter((kpi) => kpi.roles.includes(admin.role));

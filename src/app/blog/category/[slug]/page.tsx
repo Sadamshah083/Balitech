@@ -71,7 +71,7 @@ export const dynamicParams = true;
 
 export default async function BlogCategoryPage({ params }: PageProps) {
   const { slug } = await params;
-  let category = await getBlogCategoryBySlug(slug);
+  const category = await getBlogCategoryBySlug(slug);
 
   if (!category) {
     const redirected = await resolveCategoryRedirect(slug);
