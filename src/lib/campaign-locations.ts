@@ -3,7 +3,29 @@ export const campaignLocations = [
   "Islamabad Office",
   "Commercial Office",
   "Iran Road Office",
+  "Shamsabad 2.0 Office",
 ] as const;
+
+/**
+ * Branches a campaign always hires at, on top of what the admin saved. Medicare
+ * also runs at Shamsabad 2.0, which its stored list may not include.
+ */
+const requiredCampaignLocations: Record<string, string[]> = {
+  medicare: ["Shamsabad 2.0 Office"],
+};
+
+export function withRequiredCampaignLocations(
+  title: string | null | undefined,
+  locations: string[]
+): string[] {
+  const name = (title ?? "").trim().toLowerCase();
+  /* "Medicare", "Medicare Verifier", "Medicare Closer"... all run there. */
+  const key = Object.keys(requiredCampaignLocations).find(
+    (k) => name === k || name.startsWith(`${k} `)
+  );
+  const extra = key ? requiredCampaignLocations[key] : [];
+  return [...locations, ...extra.filter((name) => !locations.includes(name))];
+}
 
 export type CampaignLocation = (typeof campaignLocations)[number];
 

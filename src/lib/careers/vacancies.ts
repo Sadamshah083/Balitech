@@ -1,6 +1,6 @@
 import type { Campaign, Vacancy } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { parseCampaignLocations } from "@/lib/campaign-locations";
+import { parseCampaignLocations, withRequiredCampaignLocations } from "@/lib/campaign-locations";
 import {
   CAMPAIGN_POSITION_SEPARATOR,
   CAMPAIGN_VACANCY_PREFIX,
@@ -127,7 +127,7 @@ function toCampaignVacancy(row: Campaign): PublicVacancy {
     title,
     slug: slugifyVacancyTitle(title),
     ...campaignRole(title),
-    branches: parseCampaignLocations(row.locations, row.location),
+    branches: withRequiredCampaignLocations(title, parseCampaignLocations(row.locations, row.location)),
     remoteAllowed: false,
     campaign: title,
     workingDays: null,

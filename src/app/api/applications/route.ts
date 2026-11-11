@@ -1,5 +1,5 @@
 import { unlink, readFile } from "fs/promises";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { resolveCvAbsolutePath, saveLeadCv } from "@/lib/cv-upload";
@@ -9,7 +9,7 @@ import {
   sendApplicationConfirmation,
 } from "@/lib/mail";
 import { getPublicOffices } from "@/lib/offices";
-import { withCampaignBranchList } from "@/lib/campaign-locations";
+import { withCampaignBranchList, withRequiredCampaignLocations } from "@/lib/campaign-locations";
 import { buildApplicationReferenceId } from "@/lib/application-reference";
 import {
   branchLabel,
@@ -103,7 +103,10 @@ export async function POST(request: Request) {
         select: { title: true, location: true, locations: true },
       }),
     ]);
-    const campaigns = campaignRows.map(withCampaignBranchList);
+    const campaigns = campaignRows.map(withCampaignBranchList).map((c) => ({
+      ...c,
+      locations: withRequiredCampaignLocations(c.title, c.locations),
+    }));
 
     const ctx: ApplicationContext = {
       vacancy,
@@ -254,6 +257,11 @@ export async function POST(request: Request) {
           },
         });
 
+        /* The application is saved. Reading the CV back and sending two emails
+           (HR alert with the CV attached, candidate confirmation) can take many
+           seconds over SMTP, so it runs after the response instead of making the
+           applicant wait, or time out, on it. Mail errors are logged only. */
+        after(async () => {
         let cvAttachment: {
           filename: string;
           content: Buffer;
@@ -306,6 +314,8 @@ export async function POST(request: Request) {
             referenceId,
           });
         }
+
+        });
 
         return NextResponse.json({ referenceId }, { status: 201 });
       } catch (error) {

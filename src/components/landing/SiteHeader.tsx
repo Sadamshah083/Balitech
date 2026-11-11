@@ -71,7 +71,7 @@ export default function SiteHeader() {
         isHome ? "site-navbar--intro" : ""
       )}
     >
-      <div className="site-navbar__inner relative z-50 mx-auto flex max-w-400 items-center gap-3 px-4 py-2 sm:px-8 lg:px-12 lg:py-2.5">
+      <div className="site-navbar__inner relative z-50 mx-auto flex max-w-400 items-center gap-3 px-[clamp(16px,2.8vw,48px)] py-2 lg:py-2.5">
         <BrandLogo
           priority
           width={224}

@@ -173,14 +173,19 @@ export async function prefetchBlogs() {
 
 const DEFAULT_PAGE_SIZE = 25;
 
-export async function prefetchLeads() {
-  const params = new URLSearchParams();
+export async function prefetchLeads(params = new URLSearchParams()) {
   const where = buildLeadWhere(params);
 
-  const [leads, total] = await Promise.all([
+  const total = await prisma.lead.count({ where });
+  const totalPages = Math.max(1, Math.ceil(total / DEFAULT_PAGE_SIZE));
+  // ?page=N from the URL; out-of-range values fall back to the nearest valid page.
+  const page = Math.min(totalPages, Math.max(1, Math.floor(Number(params.get("page"))) || 1));
+
+  const [leads] = await Promise.all([
     prisma.lead.findMany({
       where,
       orderBy: { createdAt: "desc" },
+      skip: (page - 1) * DEFAULT_PAGE_SIZE,
       take: DEFAULT_PAGE_SIZE,
       select: {
         id: true,
@@ -204,16 +209,15 @@ export async function prefetchLeads() {
         source: true,
       },
     }),
-    prisma.lead.count({ where }),
   ]);
 
   return {
     leads: toJSON(leads),
     pagination: {
-      page: 1,
+      page,
       limit: DEFAULT_PAGE_SIZE,
       total,
-      totalPages: Math.max(1, Math.ceil(total / DEFAULT_PAGE_SIZE)),
+      totalPages,
     },
   };
 }

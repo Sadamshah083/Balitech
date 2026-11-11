@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { adminFetch } from "@/lib/admin-token";
 import {
   ChevronLeft,
@@ -165,9 +165,25 @@ function reviewCellTitle(lead: Lead) {
   return parts.join(" · ") || undefined;
 }
 
+type LeadFilters = { position: string; branch: string; source: string; q: string };
+
+/** Keep ?page= and the filters in the address bar (shareable, survives reload). */
+function syncLeadsUrl(page: number, filters: LeadFilters) {
+  const query = new URLSearchParams();
+  if (page > 1) query.set("page", String(page));
+  if (filters.position) query.set("position", filters.position);
+  if (filters.branch) query.set("branch", filters.branch);
+  if (filters.source) query.set("source", filters.source);
+  if (filters.q) query.set("q", filters.q);
+  const qs = query.toString();
+  window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
+}
+
 export default function LeadsManager({
   initialData,
+  initialFilters,
 }: {
+  initialFilters?: LeadFilters;
   initialData?: {
     leads: Lead[];
     pagination: Pagination;
@@ -191,11 +207,12 @@ export default function LeadsManager({
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [positionFilter, setPositionFilter] = useState("");
-  const [branchFilter, setBranchFilter] = useState("");
-  const [sourceFilter, setSourceFilter] = useState("");
-  const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [positionFilter, setPositionFilter] = useState(initialFilters?.position ?? "");
+  const [branchFilter, setBranchFilter] = useState(initialFilters?.branch ?? "");
+  const [sourceFilter, setSourceFilter] = useState(initialFilters?.source ?? "");
+  const [searchInput, setSearchInput] = useState(initialFilters?.q ?? "");
+  const [searchQuery, setSearchQuery] = useState(initialFilters?.q ?? "");
+  const firstRun = useRef(true);
   const [positions, setPositions] = useState<PositionOption[]>(initialData?.positions ?? []);
   const [branches, setBranches] = useState<BranchOption[]>(initialData?.branches ?? []);
   const [totalLeads, setTotalLeads] = useState(initialData?.totals?.leads ?? 0);
@@ -222,6 +239,12 @@ export default function LeadsManager({
         const data = await res.json();
         setLeads(data.leads);
         setPagination(data.pagination);
+        syncLeadsUrl(data.pagination.page, {
+          position: positionFilter,
+          branch: branchFilter,
+          source: sourceFilter,
+          q: searchQuery,
+        });
       }
       setLoading(false);
       setInitialized(true);
@@ -255,14 +278,15 @@ export default function LeadsManager({
   }, []);
 
   useEffect(() => {
-    if (
-      initialData &&
-      !positionFilter &&
-      !branchFilter &&
-      !sourceFilter &&
-      !searchQuery
-    ) {
-      return;
+    if (firstRun.current) {
+      firstRun.current = false;
+      if (initialData) {
+        // The server already loaded the requested page; only the filter counts may differ.
+        if (positionFilter || branchFilter || sourceFilter || searchQuery) {
+          void fetchPositions();
+        }
+        return;
+      }
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- async data fetch on filter change
     void Promise.all([fetchLeads(1), fetchPositions(), fetchBranches()]);
@@ -420,6 +444,7 @@ export default function LeadsManager({
     if (page < 1 || page > pagination.totalPages || page === pagination.page) {
       return;
     }
+    window.scrollTo({ top: 0, behavior: "smooth" });
     fetchLeads(page);
   }
 

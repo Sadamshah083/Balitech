@@ -5,11 +5,6 @@ import { randomBytes } from "crypto";
 export const CV_UPLOAD_DIR = path.join(process.cwd(), "uploads", "cvs");
 
 const ALLOWED_EXTENSIONS = new Set([".pdf", ".doc", ".docx"]);
-const ALLOWED_MIME_TYPES = new Set([
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
 
 export const MAX_CV_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -18,13 +13,10 @@ export function getFileExtension(filename: string) {
 }
 
 export function isAllowedCvFile(file: File, extensions: ReadonlySet<string> = ALLOWED_EXTENSIONS) {
-  const ext = getFileExtension(file.name);
-  if (!extensions.has(ext)) return false;
-  if (file.type && !ALLOWED_MIME_TYPES.has(file.type)) {
-    // Some browsers send empty MIME — still allow by extension
-    if (file.type !== "") return false;
-  }
-  return true;
+  /* The extension decides. Browsers and Windows report the same PDF/DOCX with
+     many different MIME types (octet-stream, x-pdf, x-zip-compressed...), and
+     rejecting those made valid CVs fail to submit. */
+  return extensions.has(getFileExtension(file.name));
 }
 
 export function sanitizeOriginalFilename(filename: string) {
@@ -50,9 +42,9 @@ export async function saveLeadCv(
   const ext = getFileExtension(originalName) || ".pdf";
   const storedName = `${Date.now()}-${randomBytes(8).toString("hex")}${ext}`;
 
+  const buffer = Buffer.from(await file.arrayBuffer());
   await mkdir(CV_UPLOAD_DIR, { recursive: true });
   const absolutePath = path.join(CV_UPLOAD_DIR, storedName);
-  const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(absolutePath, buffer);
 
   return {

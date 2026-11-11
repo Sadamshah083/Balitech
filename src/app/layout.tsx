@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Sora } from "next/font/google";
+import { Caveat, Manrope, Sora } from "next/font/google";
 import localFont from "next/font/local";
 import GoogleAnalytics from "@/components/seo/GoogleAnalytics";
 import GoogleTagManager, {
@@ -36,6 +36,16 @@ const bodyFont = Manrope({
 const displayFont = Sora({
   subsets: ["latin"],
   variable: "--font-sora",
+  display: "swap",
+  preload: false,
+});
+
+/* Pen handwriting for the hero's open-book pages (home page only). Not
+   preloaded, so it never competes with the intro face; `swap` shows the page in
+   the fallback first. */
+const handFont = Caveat({
+  subsets: ["latin"],
+  variable: "--font-hand",
   display: "swap",
   preload: false,
 });
@@ -211,7 +221,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} ${handFont.variable} h-full antialiased`}
       data-theme="dark"
       data-scroll-behavior="smooth"
       suppressHydrationWarning

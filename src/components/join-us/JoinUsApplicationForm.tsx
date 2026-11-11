@@ -7,7 +7,7 @@ import { thankYouHref } from "@/lib/thank-you";
 import SectionAnimatedNet from "@/components/animations/SectionAnimatedNet";
 import { HeadingLastWord } from "@/components/brand/HeadingLastWord";
 import { getCampaignFromSearch } from "@/lib/apply";
-import { parseCampaignLocations } from "@/lib/campaign-locations";
+import { parseCampaignLocations, withRequiredCampaignLocations } from "@/lib/campaign-locations";
 import { fetchPublicCampaigns } from "@/lib/campaigns-client";
 import { fallbackOffices } from "@/lib/fallback-offices";
 import { loadGsap } from "@/lib/gsap-register";
@@ -223,7 +223,10 @@ export default function JoinUsApplicationForm() {
     fetchPublicCampaigns().then((items) => {
       if (cancelled) return;
       setCampaigns(
-        items.map((c) => ({ title: c.title, locations: parseCampaignLocations(c.locations, c.location) }))
+        items.map((c) => ({
+          title: c.title,
+          locations: withRequiredCampaignLocations(c.title, parseCampaignLocations(c.locations, c.location)),
+        }))
       );
     });
 
@@ -415,8 +418,22 @@ export default function JoinUsApplicationForm() {
     if (cvFile) payload.append("cv", cvFile);
 
     try {
-      const res = await fetch("/api/applications", { method: "POST", body: payload });
+      /* The submission key makes a repeat safe, so a dropped connection (common
+         on office Wi-Fi while a CV uploads) is retried once before giving up. */
+      let res: Response;
+      try {
+        res = await fetch("/api/applications", { method: "POST", body: payload });
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        res = await fetch("/api/applications", { method: "POST", body: payload });
+      }
       const data = await res.json().catch(() => ({}));
+
+      if (res.status === 413) {
+        setStatus("error");
+        setStatusMessage("Your CV is too large. Please upload a PDF or DOCX of 5 MB or less.");
+        return;
+      }
 
       if (res.ok && typeof data.referenceId === "string") {
         setReferenceId(data.referenceId);
@@ -1141,10 +1158,22 @@ export default function JoinUsApplicationForm() {
                   accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                   className="sr-only join-us-form__file"
                   onChange={(e) => {
-                    setCvFile(e.target.files?.[0] ?? null);
+                    const picked = e.target.files?.[0] ?? null;
+                    setCvFile(picked);
+                    /* Tell the applicant about a bad file now, not after the
+                       last step. */
+                    const name = picked?.name.toLowerCase() ?? "";
+                    const cvError = !picked
+                      ? undefined
+                      : !(name.endsWith(".pdf") || name.endsWith(".docx"))
+                        ? "Upload your CV as a PDF or DOCX file."
+                        : picked.size > 5 * 1024 * 1024
+                          ? "Your CV must be 5 MB or smaller."
+                          : undefined;
                     setErrors((current) => {
                       const next = { ...current };
-                      delete next.cv;
+                      if (cvError) next.cv = cvError;
+                      else delete next.cv;
                       return next;
                     });
                   }}
