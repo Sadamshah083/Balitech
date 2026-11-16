@@ -58,11 +58,22 @@ export default function Hero() {
       </div>
 
       <div className="hero-section__aura" aria-hidden />
+      {/* Two more strips under the bottom-right one: a sharp one, then a soft
+          blurred one beneath it (desktop only). */}
+      <span className="hero-strip hero-strip--sharp" aria-hidden />
+      <span className="hero-strip hero-strip--soft" aria-hidden />
+      <span className="hero-strip hero-strip--fourth" aria-hidden />
+      {/* Two strips in the top-left corner: the bottom-right ones turned 180°. */}
+      <span className="hero-strip hero-strip--tl hero-strip--tl-a" aria-hidden />
+      <span className="hero-strip hero-strip--tl hero-strip--tl-b" aria-hidden />
+      <span className="hero-strip hero-strip--tl hero-strip--tl-c" aria-hidden />
 
       {/* The two-column grid and the services strip share one container and
           stack in normal flow, so the strip always sits under the grid. */}
       <div className="hero-container">
         <div className="hero-shell">
+          {/* The book's leather cover, behind the pages (desktop only). */}
+          <span className="hero-cover" aria-hidden />
           {/* Page-turn state lives in this checkbox, so the whole book stays
               server-rendered and every word is in the HTML for crawlers. */}
           <input

@@ -7959,6 +7959,444 @@ article.section-with-net:has(.blog-post-layout) {
   }
 }
 
+/* Matching strip in the bottom-right corner: the top-left one turned 180°.
+   It starts at the bottom edge, slopes up to the right and tucks behind the
+   book, leaving a sliver on the far right. */
+@media (min-width: 1024px) {
+  .hero-section::after {
+    display: block;
+    content: "";
+    position: absolute;
+    inset: auto;
+    right: 13vw;
+    bottom: 0.5rem;
+    width: 70vw;
+    height: 3.6rem;
+    transform-origin: 100% 100%;
+    transform: rotate(135deg);
+    background: linear-gradient(180deg, #d07d21 0 28%, transparent 28% 38%, #f2a23f 38% 100%);
+    box-shadow: 0 -8px 14px -6px rgba(0, 0, 0, 0.55);
+    -webkit-mask-image: none;
+    mask-image: none;
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+/* Strips: a little slimmer; the top-left one sits higher, the bottom-right
+   one sits lower. */
+@media (min-width: 1024px) {
+  .hero-section::before {
+    top: -1.5rem;
+    height: 2.5rem;
+  }
+
+  .hero-section::after {
+    bottom: -1.5rem;
+    height: 2.5rem;
+  }
+}
+
+/* Bottom-right: three strips in all. The existing one stays; below it come a
+   sharp strip and, under that, a softly blurred one. */
+.hero-strip {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-section .hero-strip {
+    display: block;
+    position: absolute;
+    right: 13vw;
+    width: 70vw;
+    transform-origin: 100% 100%;
+    transform: rotate(135deg);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .hero-section .hero-strip--sharp {
+    bottom: -4.2rem;
+    height: 1.4rem;
+    background: #f2a23f;
+  }
+
+  .hero-section .hero-strip--soft {
+    bottom: -7.2rem;
+    height: 2.2rem;
+    background: #d07d21;
+    opacity: 0.75;
+    filter: blur(4px);
+    z-index: -2;
+  }
+}
+
+/* Final strips: the top-left one is removed; the bottom-right has three sharp
+   strips, evenly spaced, no blur. */
+@media (min-width: 1024px) {
+  .hero-section::before {
+    display: none;
+  }
+
+  .hero-section::after {
+    bottom: 2.4rem;
+    height: 2rem;
+  }
+
+  .hero-section .hero-strip--sharp {
+    bottom: -0.9rem;
+    height: 2rem;
+    background: #f2a23f;
+  }
+
+  .hero-section .hero-strip--soft {
+    bottom: -4.2rem;
+    height: 2rem;
+    background: #d07d21;
+    opacity: 1;
+    filter: none;
+    z-index: -1;
+  }
+}
+
+/* Bottom-right strips, final: three identical solid strips (same width, same
+   thickness, same colour), larger, with an even gap. Neighbouring strips are
+   5.7rem apart vertically = 4rem apart across the strip. */
+@media (min-width: 1024px) {
+  .hero-section::after,
+  .hero-section .hero-strip--sharp,
+  .hero-section .hero-strip--soft {
+    display: block;
+    right: 13vw;
+    width: 70vw;
+    height: 3rem;
+    background: #f2a23f;
+    box-shadow: none;
+    opacity: 1;
+    filter: none;
+  }
+
+  .hero-section::after { bottom: 8.7rem; }
+  .hero-section .hero-strip--sharp { bottom: 3rem; }
+  .hero-section .hero-strip--soft { bottom: -2.7rem; }
+}
+
+/* Strips lifted so the lowest one is shown in full down to the bottom edge
+   instead of being cut off (same size and spacing as before). */
+@media (min-width: 1024px) {
+  .hero-section::after { bottom: 12.2rem; }
+  .hero-section .hero-strip--sharp { bottom: 6.5rem; }
+  .hero-section .hero-strip--soft { bottom: 0.8rem; }
+}
+
+/* Slide each strip 12rem further down-left along its own line, so the visible
+   part is unchanged but the strips now carry on down past the hero's lower
+   edge instead of stopping at it. */
+@media (min-width: 1024px) {
+  .hero-section::after,
+  .hero-section .hero-strip--sharp,
+  .hero-section .hero-strip--soft {
+    right: calc(13vw + 3rem);
+    width: calc(70vw + 3rem);
+  }
+
+  .hero-section::after { bottom: 9.2rem; }
+  .hero-section .hero-strip--sharp { bottom: 3.5rem; }
+  .hero-section .hero-strip--soft { bottom: -2.2rem; }
+}
+
+/* The hero used to clip everything at its bottom edge (overflow: hidden), which
+   chopped the strips with a flat line. Clip only sideways now, so the strips
+   run on past the hero's bottom edge. */
+@media (min-width: 1024px) {
+  /* Back to clipping on all sides: the strips run down to the hero's bottom
+     edge and stop there. They no longer spill into the section below. */
+  .hero-section {
+    overflow: hidden;
+  }
+}
+
+/* The book's cast shadow was darkening the strips where they run out under
+   the pages. Keep the page edges exactly as they are; only lighten and tighten
+   the soft shadow beneath, so the strips stay bright right down to the hero's
+   bottom edge. */
+@media (min-width: 1024px) {
+  .hero-section .hero-copy,
+  .hero-section .hero-leaf__back {
+    box-shadow:
+      -1px 1px 0 rgba(255, 238, 210, 0.9), -2px 2px 0 rgba(0, 0, 0, 0.4),
+      -3px 3px 0 rgba(255, 238, 210, 0.78), -4px 4px 0 rgba(0, 0, 0, 0.4),
+      -5px 5px 0 rgba(255, 238, 210, 0.66), -6px 6px 0 rgba(0, 0, 0, 0.4),
+      -7px 7px 0 rgba(255, 238, 210, 0.54), -8px 8px 0 rgba(0, 0, 0, 0.35),
+      -14px 16px 22px -14px rgba(0, 0, 0, 0.35);
+  }
+
+  .hero-section .hero-stats,
+  .hero-section .hero-page4 {
+    box-shadow:
+      1px 1px 0 rgba(255, 238, 210, 0.9), 2px 2px 0 rgba(0, 0, 0, 0.4),
+      3px 3px 0 rgba(255, 238, 210, 0.78), 4px 4px 0 rgba(0, 0, 0, 0.4),
+      5px 5px 0 rgba(255, 238, 210, 0.66), 6px 6px 0 rgba(0, 0, 0, 0.4),
+      7px 7px 0 rgba(255, 238, 210, 0.54), 8px 8px 0 rgba(0, 0, 0, 0.35),
+      14px 16px 22px -14px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* The two pen notes ("Since 2022 · Still running" and "Together We Build
+   Success.") sit on the same line across the book, mirrored about the spine:
+   both pinned to the foot of their page, same margin, same tilt about their
+   own centre. (The left one used to sit right after "Explore Careers", which
+   put it much higher than the right one.) */
+@media (min-width: 1024px) {
+  .hero-section .hero-since,
+  .hero-section .hero-page__note {
+    margin-top: auto;
+    margin-bottom: calc(var(--rule) * 1.2);
+    transform: rotate(-3deg);
+    transform-origin: 50% 50%;
+  }
+}
+
+/* All three strips now run down to the hero's bottom edge and end there, side
+   by side. Each one is slid down-left along its own line (same line, same
+   look above) until its lower end sits 2.2rem below the hero's bottom edge. */
+@media (min-width: 1024px) {
+  .hero-section::after {
+    right: calc(13vw + 14.4rem);
+    width: calc(70vw + 14.4rem);
+    bottom: -2.2rem;
+  }
+
+  .hero-section .hero-strip--sharp {
+    right: calc(13vw + 8.7rem);
+    width: calc(70vw + 8.7rem);
+    bottom: -2.2rem;
+  }
+
+  .hero-section .hero-strip--soft {
+    right: calc(13vw + 3rem);
+    width: calc(70vw + 3rem);
+    bottom: -2.2rem;
+  }
+}
+
+/* A fourth strip below the other three: same size, colour and gap, ending on
+   the same line at the hero's bottom edge. */
+@media (min-width: 1024px) {
+  .hero-section .hero-strip--fourth {
+    right: calc(13vw - 2.7rem);
+    width: calc(70vw - 2.7rem);
+    bottom: -2.2rem;
+    height: 3rem;
+    background: #f2a23f;
+  }
+}
+
+/* Strips: a lighter orange (was #f2a23f), same on all four. */
+@media (min-width: 1024px) {
+  .hero-section::after,
+  .hero-section .hero-strip--sharp,
+  .hero-section .hero-strip--soft,
+  .hero-section .hero-strip--fourth {
+    /* Theme colours: light orange at the lower end, through the brand orange,
+       fading into the brand blues toward the upper end. */
+    background: linear-gradient(to left, #f8bf6b 0, #e8932a 7rem, #d07d21 14rem, #2a5bb5 32rem, #0a2147 50rem);
+  }
+}
+
+/* Top-left corner: two strips, the lowest two of the bottom-right set turned
+   180° — same width, thickness and gap, same theme gradient (so the orange end
+   is at the top edge). They start at the hero's top edge, run down-left and
+   tuck behind the book. */
+@media (min-width: 1024px) {
+  .hero-section .hero-strip--tl {
+    display: block;
+    right: auto;
+    bottom: auto;
+    top: -2.2rem;
+    width: 70vw;
+    height: 3rem;
+    transform-origin: 0 0;
+    transform: rotate(135deg);
+    background: linear-gradient(to right, #f8bf6b 0, #e8932a 7rem, #d07d21 14rem, #2a5bb5 32rem, #0a2147 50rem);
+  }
+
+  .hero-section .hero-strip--tl-a { left: calc(13vw + 3rem); }
+  .hero-section .hero-strip--tl-b { left: calc(13vw + 8.7rem); }
+  .hero-section .hero-strip--tl-c { left: calc(13vw + 14.4rem); }
+}
+
+/* Flowing colour: every strip carries the same theme colours (orange → light
+   orange → blue → navy → back), tiled seamlessly, and the colours slide along
+   the strip from top to bottom. The colours never change, they just move. */
+@keyframes hero-strip-flow {
+  from { background-position-x: 0; }
+  to { background-position-x: 52rem; }
+}
+
+@media (min-width: 1024px) {
+  .hero-section::after,
+  .hero-section .hero-strip {
+    /* One-way cycle, never mirrored: orange → light orange → blue → navy →
+       back to the same orange it began with, so the loop is seamless. */
+    background-image: linear-gradient(to right, #d07d21 0, #f8bf6b 13rem, #2a5bb5 26rem, #0a2147 39rem, #d07d21 52rem);
+    background-size: 52rem 100%;
+    background-repeat: repeat-x;
+    background-color: transparent;
+    animation: hero-strip-flow 9s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section::after,
+  .hero-section .hero-strip {
+    animation: none;
+  }
+}
+
+/* Top bookmark ribbon: starts exactly at the book's top edge (it used to stick
+   out above it). */
+@media (min-width: 1024px) {
+  .hero-section .hero-stats::before {
+    top: 0;
+  }
+}
+
+/* A light shadow rising from the bottom edge of the hero, over the book and
+   strips, easing the hero into the section below. */
+@media (min-width: 1024px) {
+  .hero-section::before {
+    display: block;
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    height: 9rem;
+    transform: none;
+    box-shadow: none;
+    background: linear-gradient(to top, rgba(2, 8, 22, 0.5), rgba(2, 8, 22, 0));
+    z-index: 3;
+    pointer-events: none;
+  }
+}
+
+/* Book cover (the "jild") back on, attached to the pages all the way round,
+   plus a thicker stack of page edges and a clear shadow on the floor under
+   the book. The cover is drawn outside the pages with box-shadow rings, so the
+   book's size and layout do not change by a single pixel. */
+@media (min-width: 1024px) {
+  .hero-section .hero-shell {
+    border-radius: 1.1rem;
+    box-shadow:
+      0 0 0 9px #14295a,
+      0 0 0 11px #d07d21,
+      0 7px 0 11px #7a4a1b,
+      0 12px 0 11px #4a2c0f,
+      0 44px 46px 4px rgba(0, 0, 0, 0.75);
+  }
+
+  /* Page stack: more, thicker sheets showing on the outer sides and the foot. */
+  .hero-section .hero-copy,
+  .hero-section .hero-leaf__back {
+    box-shadow:
+      -1px 1px 0 rgba(255, 238, 210, 0.95), -2px 2px 0 rgba(0, 0, 0, 0.45),
+      -3px 3px 0 rgba(255, 238, 210, 0.85), -4px 4px 0 rgba(0, 0, 0, 0.45),
+      -5px 5px 0 rgba(255, 238, 210, 0.75), -6px 6px 0 rgba(0, 0, 0, 0.45),
+      -7px 7px 0 rgba(255, 238, 210, 0.65), -8px 8px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  .hero-section .hero-stats,
+  .hero-section .hero-page4 {
+    box-shadow:
+      1px 1px 0 rgba(255, 238, 210, 0.95), 2px 2px 0 rgba(0, 0, 0, 0.45),
+      3px 3px 0 rgba(255, 238, 210, 0.85), 4px 4px 0 rgba(0, 0, 0, 0.45),
+      5px 5px 0 rgba(255, 238, 210, 0.75), 6px 6px 0 rgba(0, 0, 0, 0.45),
+      7px 7px 0 rgba(255, 238, 210, 0.65), 8px 8px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  /* Stronger shadow rising from the hero's bottom edge. */
+  .hero-section::before {
+    height: 11rem;
+    background: linear-gradient(to top, rgba(2, 8, 22, 0.78), rgba(2, 8, 22, 0));
+  }
+}
+
+/* ── Real book cover: leather grain, bevelled edges, a gold-stamped border, a
+   cloth hinge down the spine and a thick board edge underneath. It sits behind
+   the pages, 14px proud of them on every side, so the book itself is not
+   resized. (Replaces the plain box-shadow rings.) ── */
+.hero-cover {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-section .hero-shell {
+    box-shadow: none;
+  }
+
+  .hero-section .hero-cover {
+    display: block;
+    position: absolute;
+    inset: -14px;
+    z-index: -1;
+    border-radius: 1.6rem;
+    transform: translateZ(-2px);
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px),
+      linear-gradient(145deg, #234488 0%, #12285a 45%, #0a1a3d 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.65),
+      inset 3px 3px 5px rgba(255, 255, 255, 0.2),
+      inset -4px -6px 12px rgba(0, 0, 0, 0.6),
+      0 7px 0 #0b1a3a,
+      0 12px 0 #050c20,
+      0 48px 50px 2px rgba(0, 0, 0, 0.78);
+  }
+
+  /* Gold-stamped line round the cover, just outside the pages. */
+  .hero-section .hero-cover::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1.5px solid rgba(232, 147, 42, 0.9);
+    border-radius: 1.25rem;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Cloth hinge along the spine, showing above and below the pages. */
+  .hero-section .hero-cover::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4.5rem;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.55) 50%, transparent);
+  }
+}
+
+/* Cover sticks out further all round, with the book dead centre in it. The
+   pages' stacked edges add 8px on each side and at the foot, so the cover
+   reaches 20px beyond the book's visible edge on every side: 20px at the top,
+   28px at the sides and foot (20 + the 8px stack). */
+@media (min-width: 1024px) {
+  .hero-section .hero-cover {
+    inset: -20px -28px -28px -28px;
+    border-radius: 1.9rem;
+  }
+
+  .hero-section .hero-cover::after {
+    inset: 9px;
+    border-radius: 1.45rem;
+  }
+}
+
 /* Hero — creative blue shade atmosphere */
 
 /* Black vignette from the bottom — homepage hero */

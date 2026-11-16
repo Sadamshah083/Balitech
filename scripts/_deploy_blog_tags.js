@@ -8,7 +8,11 @@ const { SERVER, PM2_APP } = require("./deploy-config");
 
 const ROOT = path.join(__dirname, "..");
 const FILES = [
-  "src/components/admin/BlogsManager.tsx",
+  "src/lib/campaign-locations.ts",
+  "src/lib/careers/vacancies.ts",
+  "src/lib/cv-upload.ts",
+  "src/app/api/applications/route.ts",
+  "src/components/join-us/JoinUsApplicationForm.tsx",
 ];
 
 async function main() {

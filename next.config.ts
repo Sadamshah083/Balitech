@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Lets phones/PCs on the same Wi-Fi open the dev server (`npm run dev:lan`)
+  // by IP, e.g. http://192.168.x.x:3000. Dev only; has no effect in production.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*"],
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 2560],
