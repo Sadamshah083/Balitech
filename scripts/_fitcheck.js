@@ -1,0 +1,10 @@
+const { launch, connect, sleep } = require("./_chrome");
+(async()=>{const chrome=await launch();const cdp=connect(chrome.wsUrl);await cdp.ready;
+const {targetId}=await cdp.send("Target.createTarget",{url:"about:blank"});
+const {sessionId}=await cdp.send("Target.attachToTarget",{targetId,flatten:true});
+await cdp.send("Page.enable",{},sessionId);
+await cdp.send("Emulation.setDeviceMetricsOverride",{width:1808,height:753,deviceScaleFactor:1,mobile:false},sessionId);
+await cdp.send("Page.navigate",{url:"http://localhost:3000/"},sessionId);await sleep(9000);
+const ev=async e=>(await cdp.send("Runtime.evaluate",{expression:e,returnByValue:true},sessionId)).result.value;
+console.log(await ev(`JSON.stringify({page:(()=>{const r=document.querySelector('.hero-stats').getBoundingClientRect();return Math.round(r.bottom)})(),bubbles:[...document.querySelectorAll('.hero-bubble')].map(b=>{const r=b.getBoundingClientRect();return Math.round(r.bottom)}),caps:[...document.querySelectorAll('.hero-center-caption strong')].map(e=>e.textContent)})`));
+cdp.close();chrome.stop();})();

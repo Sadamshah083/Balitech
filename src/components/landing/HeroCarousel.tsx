@@ -10,6 +10,10 @@ export type HeroSlide = {
   height: number;
   /** A plain rectangular photo on white: shown whole, centred inside the circle. */
   framed?: boolean;
+  /** A wide two-person cut-out: shown a little smaller so no edge touches the circle's curve. */
+  inset?: boolean;
+  /** The management group shot: very wide, sized to sit across the circle's middle. */
+  management?: boolean;
 };
 
 const AUTOPLAY_MS = 4500;
@@ -121,7 +125,11 @@ export default function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 className={`hero-carousel__img${
                   slide.framed
                     ? " is-framed"
-                    : slide.width / slide.height > 2
+                    : slide.management
+                      ? " is-management"
+                      : slide.inset
+                      ? " is-inset"
+                      : slide.width / slide.height > 2
                       ? " is-wide is-panorama"
                       : slide.width / slide.height > 1.4
                         ? " is-wide"

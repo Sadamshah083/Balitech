@@ -8397,6 +8397,1263 @@ article.section-with-net:has(.blog-post-layout) {
   }
 }
 
+/* ── Hero: photos on the pages, words under the book ──
+   The pages carry photos (cut-outs, not round-cropped, kept clear of the
+   circle); the text that used to be on them is a section of its own under the
+   book. The book itself is untouched: same size, same position. ── */
+.hero-art {
+  display: none;
+}
+
+.hero-under {
+  --hero-blue: #6ea8ff;
+  position: relative;
+  background: var(--band-base);
+  padding: 0 clamp(16px, 2.8vw, 48px) 3rem;
+}
+
+[data-theme="light"] .hero-under {
+  --hero-blue: #1f4fbf;
+}
+
+.hero-under__inner {
+  display: grid;
+  gap: 2rem;
+  max-width: 1600px;
+  margin-inline: auto;
+}
+
+.hero-under__copy,
+.hero-under__facts {
+  min-width: 0;
+}
+
+.hero-under__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 1024px) {
+  /* Pages: photo collages. Left page stacks three, right page two, all
+     standing on the foot of the page. The side next to the circle is kept
+     clear (half the circle plus a gap), so the photos never touch it. */
+  .hero-section .hero-art {
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    bottom: 3.2rem;
+    pointer-events: none;
+  }
+
+  .hero-section .hero-art--left {
+    top: 2.4rem;
+    left: 2rem;
+    right: calc(var(--book-s) * 0.5 + 2.6rem);
+  }
+
+  .hero-section .hero-art--right {
+    top: 5rem;
+    left: calc(var(--book-s) * 0.5 + 2.6rem);
+    right: 2rem;
+  }
+
+  .hero-section .hero-art img {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 0 1 auto;
+    object-fit: contain;
+    object-position: 50% 100%;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.45));
+  }
+
+  /* The words, under the book: left column = the old left page, right column
+     = the old right page. Same width as the book and centred under it. */
+  .hero-under {
+    padding: 4.2rem clamp(16px, 2.8vw, 48px) 4.5rem;
+    background:
+      linear-gradient(to bottom, rgba(2, 8, 22, 0.78), rgba(2, 8, 22, 0) 9rem),
+      var(--band-base);
+  }
+
+  .hero-under__inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2rem, 5vw, 5rem);
+    width: min(calc(100vw - 8rem), 1560px);
+    max-width: none;
+    padding-inline: clamp(1.5rem, 3vw, 3rem);
+    box-sizing: border-box;
+  }
+
+  .hero-under__copy,
+  .hero-under__facts {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-under .hero-page__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--orange);
+  }
+
+  .hero-under .hero-copy__title {
+    margin: 0 0 1.5rem;
+    font-family: var(--font-sora), system-ui, sans-serif;
+    font-size: clamp(2.4rem, 3.4vw, 4.2rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: #fff;
+  }
+
+  .hero-under .hero-copy__title-plain {
+    display: block;
+    color: #fff;
+  }
+
+  .hero-under .hero-copy__title-accent {
+    display: block;
+    color: var(--orange);
+  }
+
+  .hero-under .hero-copy__subtitle {
+    margin: 0 0 1.6rem;
+    max-width: 38rem;
+    padding: 0;
+    border: 0;
+    font-family: var(--font-manrope), system-ui, sans-serif;
+    font-size: clamp(1rem, 1.1vw, 1.2rem);
+    font-weight: 500;
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .hero-under .hero-copy__career {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 1rem;
+    color: #fff;
+  }
+
+  .hero-under .hero-copy__career-cta {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--orange);
+  }
+
+  /* The two pen notes, as before: same face, tilt and three-stroke underline. */
+  .hero-under .hero-since,
+  .hero-under .hero-page__note {
+    display: block;
+    position: relative;
+    width: fit-content;
+    margin: 2rem 0 0;
+    padding: 0;
+    font-family: var(--font-hand), "Segoe Print", "Bradley Hand", cursive;
+    font-size: clamp(1.7rem, 2.1vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+    color: var(--orange);
+    transform: rotate(-3deg);
+    transform-origin: 50% 50%;
+  }
+
+  .hero-under .hero-since::after,
+  .hero-under .hero-page__note::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.55rem;
+    height: 0.7rem;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--orange), var(--orange)) 0 0 / 100% 2px no-repeat,
+      linear-gradient(var(--orange), var(--orange)) 0 0.27rem / 88% 2px no-repeat,
+      linear-gradient(var(--orange), var(--orange)) 0 0.54rem / 68% 2px no-repeat;
+  }
+
+  .hero-under .hero-page__note::after {
+    background-position: 100% 0, 100% 0.27rem, 100% 0.54rem;
+  }
+
+  .hero-under .hero-page__note {
+    margin-left: auto;
+  }
+
+  .hero-under__list {
+    width: 100%;
+    gap: 1.6rem 2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .hero-under .hero-stat {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    transform: none;
+  }
+
+  .hero-under .hero-stat:hover {
+    box-shadow: none;
+    border-color: transparent;
+    transform: none;
+  }
+
+  .hero-under .hero-stat__icon {
+    flex: none;
+    width: 1.7rem;
+    height: 1.7rem;
+    color: var(--orange);
+  }
+
+  .hero-under .hero-stat__value {
+    font-family: var(--font-sora), system-ui, sans-serif;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+
+  .hero-under .hero-stat--metric .hero-stat__value {
+    font-size: clamp(2rem, 2.6vw, 3rem);
+    line-height: 1.1;
+  }
+
+  .hero-under .hero-stat--feature .hero-stat__value {
+    font-size: clamp(1.25rem, 1.5vw, 1.7rem);
+    line-height: 1.2;
+  }
+
+  .hero-under .hero-stat__label {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.82);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Photos spread over the whole page, top to bottom, not bunched at the foot. */
+  .hero-section .hero-art {
+    justify-content: space-between;
+  }
+
+  /* Title in two lines under the book ("Outsourcing Built To" / "Scale Your
+     Business") so the left column is not much taller than the right. */
+  .hero-under .hero-copy__title-line {
+    display: inline;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Each photo sits on a white card with a short caption underneath. The
+     circle photo is left exactly as it was. */
+  .hero-section .hero-art {
+    gap: 0.4rem;
+  }
+
+  .hero-section .hero-art__card {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 auto;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .hero-section .hero-art__frame {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0.45rem 0.55rem 0;
+    border-radius: 0.9rem;
+    background: #fff;
+    box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+  }
+
+  .hero-section .hero-art__frame img {
+    flex: 1 1 auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    min-width: 0;
+    object-fit: contain;
+    object-position: 50% 100%;
+    filter: none;
+  }
+
+  .hero-section .hero-art__caption {
+    flex: none;
+    margin-top: 0.3rem;
+    text-align: center;
+    font-family: var(--font-hand), "Segoe Print", "Bradley Hand", cursive;
+    font-size: clamp(1.05rem, 1.35vw, 1.4rem);
+    font-weight: 600;
+    line-height: 1.15;
+    color: #fff;
+  }
+
+  .hero-section .hero-art__caption strong {
+    display: block;
+    font-weight: 700;
+    color: var(--orange);
+  }
+
+  /* The two-line award caption keeps only the trailing sparkle. */
+  .hero-section .hero-art__caption:has(strong)::before {
+    display: none;
+  }
+
+  .hero-section .hero-art__caption::before,
+  .hero-section .hero-art__caption::after {
+    content: "✦";
+    margin-inline: 0.35em;
+    font-size: 0.6em;
+    vertical-align: 0.15em;
+    color: var(--orange);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Photo cards in the theme's colours instead of plain white: orange, blue
+     and warm sun, each with a soft spotlight behind the people, faint diagonal
+     stripes (the same stripes as the corners), a white print border and a
+     slight tilt, like photos pinned on the page. */
+  .hero-section .hero-art__frame {
+    background:
+      radial-gradient(ellipse 65% 75% at 50% 35%, rgba(255, 255, 255, 0.5), transparent 70%),
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0 9px, transparent 9px 20px),
+      var(--card-bg);
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.92),
+      0 16px 26px -10px rgba(0, 0, 0, 0.65);
+    transform: rotate(-1deg);
+  }
+
+  .hero-section .hero-art__card:nth-child(even) .hero-art__frame {
+    transform: rotate(1deg);
+  }
+
+  .hero-section .hero-art__frame--orange {
+    --card-bg: linear-gradient(145deg, #ffb454 0%, #e8932a 55%, #c8650c 100%);
+  }
+
+  .hero-section .hero-art__frame--blue {
+    --card-bg: linear-gradient(145deg, #6ea8ff 0%, #2a5bb5 55%, #12337a 100%);
+  }
+
+  .hero-section .hero-art__frame--sun {
+    --card-bg: linear-gradient(145deg, #fff0cf 0%, #ffd08a 55%, #f2a23f 100%);
+  }
+
+  /* Cut-outs lift off their colour with a soft shadow. */
+  .hero-section .hero-art__frame img {
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.4));
+  }
+}
+
+/* Centre circle: a coloured disc (orange glow above, theme navy below, a soft
+   spotlight behind the people) instead of white, with the caption under it. */
+.hero-section .hero-stage__disc {
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 38%, rgba(255, 255, 255, 0.45), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0 10px, transparent 10px 22px),
+    linear-gradient(165deg, #ffb454 0%, #e8932a 38%, #2a5bb5 78%, #0a2147 100%);
+}
+
+/* Management group (about 3.3 : 1): 0.88 of the circle's width, centred on the
+   circle's middle so all four corners stay inside the curve. */
+.hero-carousel__img.is-management {
+  max-width: 79%;
+  margin-bottom: 32%;
+}
+
+.hero-carousel__img.is-inset {
+  max-width: 82%;
+  margin-bottom: 6%;
+}
+
+@media (min-width: 1024px) {
+  /* One photo is left on the right page: centre it down the page. */
+  .hero-section .hero-art--right {
+    justify-content: center;
+  }
+}
+
+/* Right page: one rectangle photo at the top, then every other photo as a
+   small round bubble. */
+.hero-bubbles {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-section .hero-art--right {
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 0.9rem;
+  }
+
+  .hero-section .hero-bubbles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.6rem 3%;
+    margin-top: 1.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hero-section .hero-bubble {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    margin: 0;
+  }
+
+  /* Three sizes; each row adds up to 92% so it never wraps early. */
+  .hero-section .hero-bubble--lg { width: 36%; }
+  .hero-section .hero-bubble--md { width: 29%; }
+  .hero-section .hero-bubble--sm { width: 28%; }
+
+  .hero-section .hero-bubble__disc {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 9% 9% 0;
+    box-sizing: border-box;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    background:
+      radial-gradient(ellipse 60% 55% at 50% 36%, rgba(255, 255, 255, 0.45), transparent 70%),
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0 8px, transparent 8px 18px),
+      var(--bubble-bg);
+    box-shadow: 0 10px 18px -8px rgba(0, 0, 0, 0.7);
+  }
+
+  .hero-section .hero-bubble--orange { --bubble-bg: linear-gradient(165deg, #ffb454 0%, #e8932a 45%, #c8650c 100%); }
+  .hero-section .hero-bubble--blue { --bubble-bg: linear-gradient(165deg, #6ea8ff 0%, #2a5bb5 50%, #12337a 100%); }
+  .hero-section .hero-bubble--sun { --bubble-bg: linear-gradient(165deg, #fff0cf 0%, #ffd08a 50%, #f2a23f 100%); }
+
+  .hero-section .hero-bubble__disc img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: 50% 100%;
+    margin-bottom: 8%;
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.4));
+  }
+
+  .hero-section .hero-bubble__caption {
+    font-family: var(--font-hand), "Segoe Print", "Bradley Hand", cursive;
+    font-size: clamp(0.9rem, 1vw, 1.1rem);
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: center;
+    text-wrap: balance;
+    color: #fff;
+  }
+}
+
+.hero-center-caption {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.9rem);
+  z-index: 4;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0.35rem 1.1rem 0.45rem;
+  border: 1px solid rgba(232, 147, 42, 0.85);
+  border-radius: 999px;
+  background: rgba(4, 20, 43, 0.9);
+  box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.7);
+  font-family: var(--font-hand), "Segoe Print", "Bradley Hand", cursive;
+  font-size: clamp(1.05rem, 1.3vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: nowrap;
+  text-align: center;
+  color: #fff;
+  pointer-events: none;
+}
+
+/* Centre slider: fills the coloured disc exactly, clipped to the circle. */
+.hero-center {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  outline: none;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 26px 50px -22px rgba(0, 0, 0, 0.85);
+}
+
+.hero-center:active {
+  cursor: grabbing;
+}
+
+.hero-center:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 4px;
+}
+
+.hero-center__track {
+  position: relative;
+  height: 100%;
+}
+
+/* Hide and show with nothing behind the photos: the new photo fades in on top
+   of the one on show; that one stays fully visible underneath until the new
+   one is complete, then hides (instantly, covered). The last slide hides and
+   the first shows, so the loop never plays backwards. */
+.hero-center {
+  background: #04142b;
+}
+
+.hero-center__slide {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: none;
+  pointer-events: none;
+}
+
+.hero-center__slide.is-leaving {
+  z-index: 1;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.hero-center__slide.is-active {
+  z-index: 2;
+  opacity: 1;
+  transform: scale(1);
+  animation: hero-center-show 0.8s ease both;
+}
+
+@keyframes hero-center-show {
+  from { opacity: 0; transform: scale(1.05); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.hero-center__img {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* A soft navy fade at the foot so the circle looks finished. */
+.hero-center::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to top, rgba(4, 20, 43, 0.35), rgba(4, 20, 43, 0) 35%);
+  pointer-events: none;
+}
+
+.hero-center-caption__swap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: hero-center-caption-in 0.6s ease 0.2s both;
+}
+
+@keyframes hero-center-caption-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-center__slide,
+  .hero-center__slide.is-active { animation: none; transform: none; }
+  .hero-center-caption__swap { animation: none; }
+}
+
+.hero-center-caption strong {
+  font-weight: 700;
+  color: var(--orange);
+}
+
+/* The shadow that rises from the hero's bottom edge now sits behind, so it
+   never dims the words that follow. */
+@media (min-width: 1024px) {
+  .hero-section::before {
+    z-index: -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Tidy format for the words under the book: two equal columns with a hairline
+     between them, stats as an even grid of tiles, the career line as a button,
+     and both pen notes level at the foot of their column. */
+  .hero-under__inner {
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .hero-under__copy {
+    padding-right: clamp(2rem, 4vw, 4rem);
+  }
+
+  .hero-under__facts {
+    padding-left: clamp(2rem, 4vw, 4rem);
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .hero-under .hero-copy__subtitle {
+    max-width: 36rem;
+  }
+
+  .hero-under .hero-copy__career {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+  }
+
+  .hero-under .hero-copy__career-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 1.15rem;
+    border: 1px solid rgba(232, 147, 42, 0.9);
+    border-radius: 999px;
+    background: rgba(232, 147, 42, 0.12);
+    transition: background-color 0.25s ease;
+  }
+
+  .hero-under .hero-copy__career:hover .hero-copy__career-cta {
+    background: rgba(232, 147, 42, 0.24);
+  }
+
+  .hero-under__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 0;
+  }
+
+  .hero-under .hero-stat {
+    align-items: center;
+    padding: 1.05rem 1.2rem;
+    border: 1px solid rgba(110, 168, 255, 0.22);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .hero-under .hero-stat:hover {
+    border-color: rgba(232, 147, 42, 0.55);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .hero-under .hero-stat__text {
+    min-width: 0;
+  }
+
+  .hero-under .hero-stat--feature .hero-stat__value {
+    font-size: clamp(1.05rem, 1.15vw, 1.4rem);
+    overflow-wrap: anywhere;
+  }
+
+  .hero-under .hero-stat__label {
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+
+  .hero-under .hero-stat__icon {
+    box-sizing: content-box;
+    padding: 0.6rem;
+    border-radius: 0.8rem;
+    background: rgba(232, 147, 42, 0.14);
+  }
+
+  .hero-under .hero-since,
+  .hero-under .hero-page__note {
+    margin-top: auto;
+    padding-top: 2.2rem;
+  }
+
+  .hero-under .hero-page__note {
+    margin-left: auto;
+  }
+}
+
+/* Mobile and tablet: the empty photo pages are not shown; the circle photo
+   stays, and the words follow it. */
+@media (max-width: 1023px) {
+  .hero-section .hero-copy,
+  .hero-section .hero-leaf {
+    display: none;
+  }
+
+  /* The hero now holds only the circle photo, so it no longer needs a full
+     screen of height; the words follow straight after it. */
+  .hero-section {
+    min-height: 0;
+    padding-bottom: 1.5rem;
+  }
+
+  .hero-under {
+    padding-top: 0.5rem;
+  }
+}
+
+/* ── Photos in an animated border ──
+   The centre photo is a circle. Behind it a wide ring of theme colours
+   (orange → light orange → blue → navy) turns round the picture all the time;
+   12px of it shows as the border. Only a transform is animated, so it stays
+   smooth. */
+@keyframes hero-frame-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes hero-frame-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 26px 2px rgba(232, 147, 42, 0.45), 0 30px 50px -22px rgba(0, 0, 0, 0.85); }
+  50% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 40px 6px rgba(70, 130, 255, 0.5), 0 30px 50px -22px rgba(0, 0, 0, 0.85); }
+}
+
+.hero-section .hero-stage .hero-stage__disc {
+  inset: -12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 50%;
+  background: #0a2147;
+  animation: hero-frame-glow 5s ease-in-out infinite;
+}
+
+/* The turning ring. Oversized so its corners always cover the frame. */
+.hero-section .hero-stage .hero-stage__disc::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  background: conic-gradient(
+    from 0deg,
+    #ffb454 0deg,
+    #f8bf6b 50deg,
+    #e8932a 95deg,
+    #2a5bb5 150deg,
+    #6ea8ff 190deg,
+    #0a2147 225deg,
+    #2a5bb5 265deg,
+    #e8932a 320deg,
+    #ffb454 360deg
+  );
+  animation: hero-frame-spin 6s linear infinite;
+  will-change: transform;
+}
+
+/* The photo sits inside the ring, with a thin white line between the two. */
+.hero-section .hero-stage .hero-center {
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  box-shadow: none;
+}
+
+.hero-section .hero-stage .hero-center::after {
+  border-radius: inherit;
+}
+
+/* ── The other photos get the same turning ring ──
+   Left-page cards, the right-page rectangle (both are ArtCards) and the small
+   round bubbles. Each has an oversized colour ring behind a slightly smaller
+   inner face, so a 4px (bubbles 3px) border of moving colour is left showing. */
+.hero-section .hero-art__frame {
+  position: relative;
+  background: #0a2147;
+}
+
+.hero-section .hero-art__frame::before,
+.hero-section .hero-bubble__disc::before {
+  content: "";
+  position: absolute;
+  inset: -150%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    #ffb454 0deg,
+    #f8bf6b 50deg,
+    #e8932a 95deg,
+    #2a5bb5 150deg,
+    #6ea8ff 190deg,
+    #0a2147 225deg,
+    #2a5bb5 265deg,
+    #e8932a 320deg,
+    #ffb454 360deg
+  );
+  animation: hero-frame-spin 7s linear infinite;
+}
+
+/* The inner face: the card's own colour and soft light, inside the ring. */
+.hero-section .hero-art__frame::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  z-index: 1;
+  border-radius: 0.7rem;
+  background:
+    radial-gradient(ellipse 65% 75% at 50% 35%, rgba(255, 255, 255, 0.5), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0 9px, transparent 9px 20px),
+    var(--card-bg);
+}
+
+.hero-section .hero-art__frame img {
+  position: relative;
+  z-index: 2;
+}
+
+/* Bubbles: ring 3px, inner face is the bubble's own colour. */
+.hero-section .hero-bubble__disc {
+  background: #0a2147;
+  border: 0;
+}
+
+.hero-section .hero-bubble__disc::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 36%, rgba(255, 255, 255, 0.45), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0 8px, transparent 8px 18px),
+    var(--bubble-bg);
+}
+
+.hero-section .hero-bubble__disc img {
+  position: relative;
+  z-index: 2;
+}
+
+/* Not all in step: each ring starts at a different point. */
+.hero-section .hero-art__card:nth-child(2) .hero-art__frame::before { animation-delay: -2s; }
+.hero-section .hero-art__card:nth-child(3) .hero-art__frame::before { animation-delay: -4s; }
+.hero-section .hero-bubble:nth-child(2n) .hero-bubble__disc::before { animation-delay: -3s; }
+.hero-section .hero-bubble:nth-child(3n) .hero-bubble__disc::before { animation-delay: -5s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-art__frame::before,
+  .hero-section .hero-bubble__disc::before {
+    animation: none;
+  }
+}
+
+.hero-section .hero-stage .hero-center-caption {
+  top: calc(100% + 1.7rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-stage .hero-stage__disc,
+  .hero-section .hero-stage .hero-stage__disc::before {
+    animation: none;
+  }
+}
+
+/* Phones and tablets: leave room under the frame for its caption, and keep the
+   thick border inside the screen's side margins. */
+@media (max-width: 1023px) {
+  .hero-section {
+    padding-bottom: 5.5rem;
+  }
+
+  .hero-section .hero-stage .hero-stage__disc {
+    inset: -8px;
+  }
+}
+
+/* ── Dark veil over the book, strength follows the centre photo ──
+   The slider sets this element's opacity for every photo (night shots darker,
+   daylight shots lighter) and the opacity change is eased over 1.4s, so the
+   book dims and brightens as the pictures change. The veil is a vignette:
+   darker toward the edges and corners, lighter in the middle. It sits above
+   the pages but below the centre photo, which stays bright. */
+.hero-dim {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-section .hero-dim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 1.1rem;
+    pointer-events: none;
+    opacity: 0.1;
+    transform: translateZ(24px);
+    transition: opacity 1.4s ease;
+    background:
+      radial-gradient(ellipse 70% 65% at 50% 50%, rgba(2, 8, 22, 0.55) 0%, rgba(2, 8, 22, 0.8) 55%, rgba(2, 8, 22, 1) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-dim { transition: none; }
+}
+
+/* ── Right page on short screens: nothing is squeezed ──
+   The 9-people rectangle keeps its photo's height (it used to shrink to an
+   empty bar when space was short) and the round photos get smaller. */
+@media (min-width: 1024px) {
+  .hero-section .hero-art--right .hero-art__card,
+  .hero-section .hero-art--right .hero-art__frame {
+    flex: 0 0 auto;
+  }
+
+  .hero-section .hero-art--right .hero-art__frame img {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 860px) {
+  .hero-section .hero-art--right {
+    top: 3.6rem;
+    gap: 0.5rem;
+  }
+
+  .hero-section .hero-bubbles {
+    gap: 1.1rem 3%;
+  }
+
+  .hero-section .hero-bubble--lg { width: 31%; }
+  .hero-section .hero-bubble--md { width: 25%; }
+  .hero-section .hero-bubble--sm { width: 20%; }
+
+  .hero-section .hero-bubble__caption {
+    font-size: 0.85rem;
+  }
+}
+
+/* Right page on short screens (about 860px tall or less): the rectangle and the
+   six round photos are sized from the screen's height, so both rows of circles
+   and their captions always end above the page number. */
+@media (min-width: 1024px) and (max-height: 860px) {
+  .hero-section .hero-art--right {
+    top: 2.9rem;
+    bottom: 2.6rem;
+  }
+
+  .hero-section .hero-art--right .hero-art__frame {
+    justify-content: center;
+  }
+
+  .hero-section .hero-art--right .hero-art__frame img {
+    width: auto;
+    max-width: 100%;
+    max-height: 27vh;
+  }
+
+  /* Two rows of three, evenly spaced. */
+  .hero-section .hero-bubbles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-items: center;
+    align-items: center;
+    gap: 0.7rem 0;
+    margin-top: 0.4rem;
+  }
+
+  .hero-section .hero-bubble--lg { width: 14.4vh; }
+  .hero-section .hero-bubble--md { width: 12vh; }
+  .hero-section .hero-bubble--sm { width: 11.6vh; }
+
+  .hero-section .hero-bubble__caption {
+    font-size: 0.8rem;
+  }
+}
+
+/* Top Performer cards: the whole award graphic (name, "ACA AEP 2025", payout)
+   is shown, not cropped. A 4:5 card fits inside a circle when its width is at
+   most 62.5% of the diameter, so it is 63% wide and centred; the lettering sits
+   a little in from the card's corners, so nothing is cut by the curve. */
+.hero-center__slide.is-card {
+  /* Blue taken from the cards themselves (slate-blue, #3a465d to #616877),
+     a little bluer, lightest behind the card and deepening toward the left,
+     right, top and bottom edges of the circle. */
+  background:
+    radial-gradient(circle at 50% 46%, #5d6f98 0%, #44577f 46%, #202e52 100%);
+}
+
+.hero-center__slide.is-card .hero-center__img {
+  /* 66% wide: the widest a 4:5 card can be while its lettering (the logo, the
+     "Best Performer" tag, the name and the payout) stays inside the circle; the
+     blank corners are rounded off. */
+  inset: 8.75% 17% !important;
+  width: 66% !important;
+  height: 82.5% !important;
+  border-radius: 1.5rem;
+  object-fit: cover;
+  z-index: 2;
+  box-shadow: 0 16px 34px -10px rgba(0, 0, 0, 0.8), 0 0 0 1.5px rgba(255, 255, 255, 0.7);
+}
+
+/* Background = the card's own picture, blown up and blurred, under a blue wash.
+   Same colours as the card on every side (left, right, top and bottom). */
+.hero-center__slide.is-card .hero-center__ambient {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(30px) saturate(1.3);
+}
+
+.hero-center__slide.is-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(160deg, rgba(60, 90, 170, 0.5), rgba(20, 38, 90, 0.55));
+  pointer-events: none;
+}
+
+/* No dark fade over a card: its payout figure sits near the bottom. */
+.hero-center:has(.hero-center__slide.is-active.is-card)::after {
+  opacity: 0;
+}
+
+/* ── Page photo frames are sliders ──
+   Every frame on the left and right pages has a fixed height (it follows the
+   screen's height, so three stacked frames and the round photos always fit)
+   and shows each photo WHOLE on the frame's own colour. The new photo fades in
+   over the one on show, which then hides. */
+@media (min-width: 1024px) {
+  .hero-section .hero-art__frame.hero-pslider {
+    display: block;
+    flex: 0 0 auto;
+    height: clamp(7rem, 19.4vh, 12.5rem);
+    padding: 0;
+  }
+
+  .hero-section .hero-pslider__slide {
+    position: absolute;
+    inset: 4px;
+    z-index: 2;
+    opacity: 0;
+    overflow: hidden;
+    border-radius: 0.7rem;
+    pointer-events: none;
+  }
+
+  .hero-section .hero-pslider__slide.is-leaving {
+    opacity: 1;
+  }
+
+  .hero-section .hero-pslider__slide.is-active {
+    z-index: 3;
+    opacity: 1;
+    animation: hero-pslide-in 0.8s ease both;
+  }
+
+  /* Whole photo, centred, with the frame's colour showing around it. */
+  .hero-section .hero-art__frame.hero-pslider .hero-pslider__img {
+    position: absolute;
+    inset: 0;
+    flex: none;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    object-fit: contain;
+    object-position: 50% 50%;
+    filter: none;
+    border-radius: 0.5rem;
+  }
+
+  /* Full photos fill the whole frame edge to edge (no colour bars at the
+     sides); the focus point set on each one keeps the people in view. */
+  .hero-section .hero-art__frame.hero-pslider .is-fill .hero-pslider__img {
+    object-fit: cover;
+  }
+
+  /* Cut-outs have no background of their own: they stand on the colour. */
+  .hero-section .hero-art__frame.hero-pslider .is-cutout .hero-pslider__img {
+    object-position: 50% 100%;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.4));
+  }
+
+  .hero-section .hero-pslider__cap {
+    display: inline-block;
+    animation: hero-pcap-in 0.6s ease 0.2s both;
+  }
+}
+
+@keyframes hero-pslide-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes hero-pcap-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-pslider__slide.is-active,
+  .hero-section .hero-pslider__cap { animation: none; }
+}
+
+/* ── Round photos on the right page are sliders ──
+   Cut-outs (no background) stand on the bubble's colour; full photos fill the
+   circle. The next photo fades in over the one on show. They stay inside the
+   right page, well clear of the centre circle. */
+@media (min-width: 1024px) {
+  .hero-section .hero-bubble__disc .hero-bslide {
+    position: absolute;
+    inset: 3px;
+    z-index: 2;
+    border-radius: 50%;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hero-section .hero-bubble__disc .hero-bslide.is-leaving { opacity: 1; }
+
+  .hero-section .hero-bubble__disc .hero-bslide.is-active {
+    z-index: 3;
+    opacity: 1;
+    animation: hero-pslide-in 0.8s ease both;
+  }
+
+  .hero-section .hero-bubble__disc .hero-bslide img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    object-fit: cover;
+    filter: none;
+  }
+
+  .hero-section .hero-bubble__disc .hero-bslide.is-cutout img {
+    inset: 9% 9% 0;
+    width: 82%;
+    height: 91%;
+    object-fit: contain;
+    object-position: 50% 100%;
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.4));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-bubble__disc .hero-bslide.is-active { animation: none; }
+}
+
+/* Cut-out swaps never overlap: the old photo fades out (0.4s), then the new one
+   fades in (0.6s, starting at 0.4s). Photo-to-photo swaps keep the cross-fade. */
+@keyframes hero-swap-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (min-width: 1024px) {
+  .hero-section .hero-pslider__slide.is-leaving.is-out,
+  .hero-section .hero-bubble__disc .hero-bslide.is-leaving.is-out {
+    animation: hero-swap-out 0.4s ease both;
+  }
+
+  .hero-section .hero-pslider__slide.is-active.is-after,
+  .hero-section .hero-bubble__disc .hero-bslide.is-active.is-after {
+    animation: hero-pslide-in 0.6s ease 0.4s both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-pslider__slide.is-leaving.is-out,
+  .hero-section .hero-bubble__disc .hero-bslide.is-leaving.is-out { animation: none; opacity: 0; }
+  .hero-section .hero-pslider__slide.is-active.is-after,
+  .hero-section .hero-bubble__disc .hero-bslide.is-active.is-after { animation: none; }
+}
+
+/* Name under each round photo follows the photo on show. */
+@media (min-width: 1024px) {
+  /* The name under a round photo always has room for two lines, so a longer
+     name never makes the bubble above it move up; the picture stays put. */
+  .hero-section .hero-bubble__caption {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    height: 2.3em;
+    overflow: visible;
+    text-wrap: balance;
+  }
+
+  .hero-section .hero-bcap {
+    display: inline-block;
+    animation: hero-pcap-in 0.6s ease 0.2s both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-bcap { animation: none; }
+}
+
+/* The small photos on the pages are rounded squares (soft corners), not full
+   circles, so group shots and collages are cropped far less. The big centre
+   photo stays a circle. The ring, the inner face and each photo share the same
+   corner radius, with the inner ones 3px smaller to follow the 3px border. */
+@media (min-width: 1024px) {
+  .hero-section .hero-bubble__disc {
+    border-radius: 26%;
+  }
+
+  .hero-section .hero-bubble__disc::after {
+    border-radius: calc(26% - 3px);
+  }
+
+  .hero-section .hero-bubble__disc .hero-bslide {
+    border-radius: calc(26% - 3px);
+  }
+}
+
 /* Hero — creative blue shade atmosphere */
 
 /* Black vignette from the bottom — homepage hero */

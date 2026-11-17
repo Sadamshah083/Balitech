@@ -1,0 +1,11 @@
+const { launch, connect, sleep } = require("./_chrome");
+(async()=>{const chrome=await launch();const cdp=connect(chrome.wsUrl);await cdp.ready;
+const {targetId}=await cdp.send("Target.createTarget",{url:"about:blank"});
+const {sessionId}=await cdp.send("Target.attachToTarget",{targetId,flatten:true});
+await cdp.send("Page.enable",{},sessionId);
+await cdp.send("Emulation.setDeviceMetricsOverride",{width:1440,height:900,deviceScaleFactor:1,mobile:false},sessionId);
+await cdp.send("Page.navigate",{url:"http://localhost:3000/"},sessionId);await sleep(9000);
+const ev=async e=>(await cdp.send("Runtime.evaluate",{expression:e,returnByValue:true},sessionId)).result.value;
+const q=`JSON.stringify({center:getComputedStyle(document.querySelector('.hero-stage__disc'),'::before').transform.slice(7,30),card:getComputedStyle(document.querySelector('.hero-art__frame'),'::before').transform.slice(7,30),rect:getComputedStyle(document.querySelectorAll('.hero-art__frame')[3],'::before').transform.slice(7,30),bubble:getComputedStyle(document.querySelector('.hero-bubble__disc'),'::before').transform.slice(7,30),radius:getComputedStyle(document.querySelector('.hero-stage__disc')).borderRadius})`;
+console.log('t0', await ev(q)); await sleep(1500); console.log('t1', await ev(q));
+cdp.close();chrome.stop();})();

@@ -389,8 +389,8 @@ export const fallbackMediaItems: PublicMediaItem[] = [
   },
   {
     id: "gallery-9",
-    title: "Commercial Workspaces",
-    alt: "Commercial Workspaces",
+    title: "Office workspace",
+    alt: "Office workspace",
     src: "/gallery/gallery-office-workplace-2.jpg",
     kind: "image",
     section: "gallery",
